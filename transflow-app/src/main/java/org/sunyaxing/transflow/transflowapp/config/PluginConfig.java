@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class PluginConfig {
     @Bean
     public PluginManager jarPluginManager() {
-        return new JarPluginManager();
+        PluginManager pluginManager = new JarPluginManager();
+        return pluginManager;
     }
 }

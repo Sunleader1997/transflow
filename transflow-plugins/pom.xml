@@ -93,7 +93,7 @@
                 <version>3.2.2</version>
                 <configuration>
                     <outputDirectory>
-                        ${user.dir}/plugins <!--插件jar包输出目录位置-->
+                        /plugins <!--插件jar包输出目录位置-->
                     </outputDirectory>
                     <archive>
                         <!-- MANIFEST.MF 文件 -->
@@ -101,7 +101,7 @@
                             <Plugin-Id>${artifactId}</Plugin-Id>
                             <Plugin-Version>${version}</Plugin-Version>
                             <Plugin-Provider>${groupId}</Plugin-Provider>
-                            <Plugin-Class>org.sunyaxing.transflow.transflowplugins.WelcomePlugin</Plugin-Class>
+                            <Plugin-Class>org.sunyaxing.transflow.transflowplugins.DemoPlugin</Plugin-Class>
                             <Plugin-Dependencies/>
                         </manifestEntries>
                     </archive>

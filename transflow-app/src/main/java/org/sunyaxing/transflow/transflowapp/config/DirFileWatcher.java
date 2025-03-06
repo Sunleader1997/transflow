@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 动态加载插件
+ */
 @Slf4j
 @Component
 public class DirFileWatcher extends FileAlterationListenerAdaptor implements ApplicationRunner {
@@ -49,9 +52,13 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
 
     @Override
     public void onFileCreate(File file) {
-        log.info("加载插件 {}", file.getName());
-        String pluginId = pluginManager.loadPlugin(file.toPath());
-        log.info("pluginId {}", pluginId);
+        try {
+            log.info("加载插件 {}", file.getName());
+            String pluginId = pluginManager.loadPlugin(file.toPath());
+            log.info("pluginId {}", pluginId);
+        } catch (Exception e) {
+            log.error("加载插件失败", e);
+        }
     }
 
     @Override
