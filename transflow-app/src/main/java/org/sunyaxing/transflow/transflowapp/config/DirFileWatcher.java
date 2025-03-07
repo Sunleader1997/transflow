@@ -2,6 +2,7 @@ package org.sunyaxing.transflow.transflowapp.config;
 
 import cn.hutool.core.io.FileUtil;
 import jakarta.annotation.Resource;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -13,8 +14,12 @@ import org.pf4j.PluginManager;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.sunyaxing.transflow.extensions.ExtensionLifecycle;
+import org.sunyaxing.transflow.extensions.TransFlowInput;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -30,12 +35,15 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
 
     @Resource(name = "jarPluginManager")
     private PluginManager pluginManager;
+    @Getter
+    private HashMap<String, List<TransFlowInput>> pluginInputExtensions;
 
     public DirFileWatcher() {
         long interval = TimeUnit.SECONDS.toMillis(5);
         FileAlterationObserver observer = new FileAlterationObserver(new File(PLUGIN_DIR), FILE_FILTER);
         observer.addListener(this);
         this.monitor = new FileAlterationMonitor(interval, observer);
+        this.pluginInputExtensions = new HashMap<>();
     }
 
     @Override
@@ -55,7 +63,12 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
         try {
             log.info("加载插件 {}", file.getName());
             String pluginId = pluginManager.loadPlugin(file.toPath());
-            log.info("pluginId {}", pluginId);
+            // 开启插件
+            pluginManager.startPlugin(pluginId);
+            // 获取拓展
+            List<TransFlowInput> transFlowInputs = pluginManager.getExtensions(TransFlowInput.class, pluginId);
+            transFlowInputs.forEach(ExtensionLifecycle::init);
+            pluginInputExtensions.put(pluginId, transFlowInputs);
         } catch (Exception e) {
             log.error("加载插件失败", e);
         }

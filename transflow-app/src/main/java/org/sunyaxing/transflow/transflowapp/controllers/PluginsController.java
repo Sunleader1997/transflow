@@ -1,18 +1,26 @@
 package org.sunyaxing.transflow.transflowapp.controllers;
 
+import cn.hutool.core.thread.ThreadUtil;
 import org.pf4j.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.transflowapp.config.DirFileWatcher;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("/plugins")
 public class PluginsController {
+    private static final Logger log = LoggerFactory.getLogger(PluginsController.class);
     @Autowired
     private PluginManager pluginManager;
+    @Autowired
+    private DirFileWatcher dirFileWatcher;
 
     @GetMapping("/list")
     public List<PluginListDto> getPlugins() {
@@ -24,15 +32,14 @@ public class PluginsController {
         }).toList();
     }
 
-    @PostMapping("/runPlugin")
-    public String runPlugin(@RequestParam("pluginId") String pluginId) {
-        pluginManager.startPlugin(pluginId);
-        return "success";
-    }
-
-    @PostMapping("/getExt")
+    @PostMapping("/poll")
     public String getExt() {
-        List<TransFlowInput> transFlowInputs = pluginManager.getExtensions(TransFlowInput.class);
-        return transFlowInputs.toString();
+        HashMap<String, List<TransFlowInput>> transFlowInputList = dirFileWatcher.getPluginInputExtensions();
+        transFlowInputList.values().forEach(transFlowInputs -> {
+            transFlowInputs.forEach(transFlowInput -> {
+                log.info(transFlowInput.dequeue());
+            });
+        });
+        return "transFlowInputs.toString()";
     }
 }

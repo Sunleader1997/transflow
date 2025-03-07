@@ -8,26 +8,38 @@ import org.sunyaxing.transflow.extensions.TransFlowInput;
 
 
 @Extension
-public class WelcomeGreeting implements TransFlowInput {
+public class WelcomeGreeting extends TransFlowInput {
 
     private static final Logger log = LoggerFactory.getLogger(WelcomeGreeting.class);
+    private Thread kafkaThread ;
 
     public WelcomeGreeting(ExtensionContext extensionContext) {
+        super(extensionContext);
         log.info("create");
     }
 
     @Override
     public void init() {
-
+        setMaxBatchSize(10);
+        kafkaThread = Thread.ofVirtual().start(() -> {
+            while (!Thread.currentThread().isInterrupted()){
+                try{
+                    this.inputQueue.put("Welcome to use KafkaInputPlugin");
+                    log.info("added");
+                }catch (InterruptedException e){
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
     }
 
     @Override
     public void destroy() {
-
+        kafkaThread.interrupt();
     }
 
     @Override
     public String dequeue() {
-        return "";
+        return this.inputQueue.poll();
     }
 }
