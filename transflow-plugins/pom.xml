@@ -10,6 +10,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>plugin-kafka-input</module>
+        <module>plugin-json-filter</module>
+        <module>plugin-es-output</module>
     </modules>
 
     <properties>
@@ -17,11 +19,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Override below properties in each plugin's pom.xml -->
-        <plugin.id />
-        <plugin.class />
-        <plugin.version />
-        <plugin.provider />
-        <plugin.dependencies />
+        <plugin.id/>
+        <plugin.class/>
+        <plugin.version/>
+        <plugin.provider/>
+        <plugin.dependencies/>
     </properties>
 
 

@@ -4,7 +4,7 @@ import org.pf4j.ExtensionFactory;
 import org.pf4j.PluginRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunyaxing.transflow.extensions.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.lang.reflect.Constructor;
 

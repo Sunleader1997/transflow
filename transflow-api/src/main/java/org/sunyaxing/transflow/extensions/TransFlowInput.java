@@ -1,5 +1,8 @@
 package org.sunyaxing.transflow.extensions;
 
+import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 

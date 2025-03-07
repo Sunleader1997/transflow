@@ -1,4 +1,4 @@
-package org.sunyaxing.transflow.extensions;
+package org.sunyaxing.transflow.extensions.base;
 
 import org.pf4j.RuntimeMode;
 

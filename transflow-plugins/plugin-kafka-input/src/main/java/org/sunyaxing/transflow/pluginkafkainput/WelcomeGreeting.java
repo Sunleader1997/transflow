@@ -3,7 +3,7 @@ package org.sunyaxing.transflow.pluginkafkainput;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunyaxing.transflow.extensions.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 
 

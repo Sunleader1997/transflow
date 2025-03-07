@@ -7,9 +7,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="transflow-app" />
+        <module name="plugin-json-filter" />
         <module name="plugin-kafka-input" />
+        <module name="transflow-app" />
         <module name="transflow-api" />
+        <module name="plugin-es-output" />
       </profile>
     </annotationProcessing>
   </component>

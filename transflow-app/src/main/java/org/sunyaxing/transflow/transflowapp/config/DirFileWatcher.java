@@ -14,7 +14,7 @@ import org.pf4j.PluginManager;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.sunyaxing.transflow.extensions.ExtensionLifecycle;
+import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 
 import java.io.File;
