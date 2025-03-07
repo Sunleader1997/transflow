@@ -16,7 +16,7 @@ public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
 
     public void put(String string) {
         try {
-            this.extensionContext.inputQueue.put(string);
+            this.extensionContext.inputQueue().put(string);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }

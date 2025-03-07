@@ -10,8 +10,8 @@
         <module name="plugin-json-filter" />
         <module name="plugin-kafka-input" />
         <module name="transflow-app" />
-        <module name="transflow-api" />
         <module name="plugin-es-output" />
+        <module name="transflow-api" />
       </profile>
     </annotationProcessing>
   </component>

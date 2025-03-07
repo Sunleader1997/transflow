@@ -16,4 +16,9 @@ public class TransFlowPluginManager extends DefaultPluginManager {
     protected ExtensionFactory createExtensionFactory() {
         return transFlowExtensionFactory;
     }
+
+    @Override
+    public ExtensionFactory getExtensionFactory() {
+        return this.transFlowExtensionFactory;
+    }
 }

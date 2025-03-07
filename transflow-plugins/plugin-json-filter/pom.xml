@@ -17,7 +17,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.id>plugin-json-filter</plugin.id>
-        <plugin.class>org.sunyaxing.transflow.pluginkafkainput.KafkaInputPlugin</plugin.class>
+        <plugin.class>org.sunyaxing.transflow.pluginjsonfilter.JsonFilterPlugin</plugin.class>
         <plugin.version>0.1.0</plugin.version>
         <plugin.provider>Decebal Suiu</plugin.provider>
         <plugin.dependencies />
