@@ -15,10 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.sunyaxing.transflow.extensions.TransFlowFilter;
+import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +39,14 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
 
     @Autowired
     private PluginManager pluginManager;
-    @Getter
-    private HashMap<String, List<TransFlowInput>> pluginInputExtensions;
+    private List<TransFlowFilter> filters;
 
     public DirFileWatcher() {
         long interval = TimeUnit.SECONDS.toMillis(5);
         FileAlterationObserver observer = new FileAlterationObserver(new File(PLUGIN_DIR), FILE_FILTER);
         observer.addListener(this);
         this.monitor = new FileAlterationMonitor(interval, observer);
-        this.pluginInputExtensions = new HashMap<>();
+        this.filters = new ArrayList<>();
     }
 
     @Override
@@ -66,13 +68,24 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             String pluginId = pluginManager.loadPlugin(file.toPath());
             // 开启插件
             pluginManager.startPlugin(pluginId);
-            // 获取拓展
+            // 获取 input 拓展
             List<TransFlowInput> transFlowInputs = pluginManager.getExtensions(TransFlowInput.class, pluginId);
             transFlowInputs.forEach(transFlowInput -> {
                 transFlowInput.init();
                 Thread.ofVirtual().start(transFlowInput);
             });
-            pluginInputExtensions.put(pluginId, transFlowInputs);
+
+            List<TransFlowFilter> filters = pluginManager.getExtensions(TransFlowFilter.class, pluginId);
+            filters.forEach(filter -> {
+                filter.init();
+                this.filters.add(filter);
+            });
+
+            List<TransFlowOutput> outputs = pluginManager.getExtensions(TransFlowOutput.class, pluginId);
+            outputs.forEach(output -> {
+                output.init();
+                Thread.ofVirtual().start(output);
+            });
         } catch (Exception e) {
             log.error("加载插件失败", e);
         }
