@@ -1,6 +1,9 @@
 package org.sunyaxing.transflow.extensions;
 
-public interface ExtensionLifecycle {
+import org.pf4j.ExtensionPoint;
+
+public interface ExtensionLifecycle extends ExtensionPoint  {
     public void init();
+
     public void destroy();
 }

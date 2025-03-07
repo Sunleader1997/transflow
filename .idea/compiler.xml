@@ -8,17 +8,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="transflow-app" />
+        <module name="plugin-kafka-input" />
         <module name="transflow-api" />
-      </profile>
-      <profile name="Annotation profile for transflow-plugins" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="transflow-plugins" />
       </profile>
     </annotationProcessing>
   </component>
@@ -26,7 +17,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="transflow-api" options="" />
       <module name="transflow-app" options="-parameters" />
-      <module name="transflow-plugins" options="-parameters" />
+      <module name="transflow-plugins" options="" />
     </option>
   </component>
 </project>
