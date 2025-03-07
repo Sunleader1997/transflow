@@ -13,11 +13,21 @@
     <packaging>jar</packaging>
 
     <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.id>plugin-kafka-input</plugin.id>
         <plugin.class>org.sunyaxing.transflow.pluginkafkainput.KafkaInputPlugin</plugin.class>
         <plugin.version>0.1.0</plugin.version>
         <plugin.provider>Decebal Suiu</plugin.provider>
-        <plugin.dependencies />
+        <plugin.dependencies/>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.9.0</version>
+        </dependency>
+    </dependencies>
 </project>

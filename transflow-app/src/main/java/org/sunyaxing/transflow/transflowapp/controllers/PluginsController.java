@@ -1,16 +1,15 @@
 package org.sunyaxing.transflow.transflowapp.controllers;
 
-import cn.hutool.core.thread.ThreadUtil;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.sunyaxing.transflow.transflowapp.config.DirFileWatcher;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
 
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -32,14 +31,4 @@ public class PluginsController {
         }).toList();
     }
 
-    @PostMapping("/poll")
-    public String getExt() {
-        HashMap<String, List<TransFlowInput>> transFlowInputList = dirFileWatcher.getPluginInputExtensions();
-        transFlowInputList.values().forEach(transFlowInputs -> {
-            transFlowInputs.forEach(transFlowInput -> {
-                log.info(transFlowInput.dequeue());
-            });
-        });
-        return "transFlowInputs.toString()";
-    }
 }

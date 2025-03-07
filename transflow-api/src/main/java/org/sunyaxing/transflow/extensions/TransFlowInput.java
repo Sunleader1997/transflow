@@ -3,25 +3,22 @@ package org.sunyaxing.transflow.extensions;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+/**
+ * 一个 input 就是一个虚拟线程，用于从外部获取数据
+ */
+public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
 
-public abstract class TransFlowInput implements ExtensionLifecycle {
-    protected BlockingDeque<String> inputQueue;
-    protected ExtensionContext extensionContext;
+    public ExtensionContext extensionContext;
 
     public TransFlowInput(ExtensionContext extensionContext) {
         this.extensionContext = extensionContext;
     }
 
-    public void setMaxBatchSize(int batchSize) {
-        this.inputQueue = new LinkedBlockingDeque<>(batchSize);
+    public void put(String string) {
+        try {
+            this.extensionContext.inputQueue.put(string);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
-
-    /**
-     * 获取单个输入数据
-     *
-     * @return
-     */
-    public abstract String dequeue();
 }

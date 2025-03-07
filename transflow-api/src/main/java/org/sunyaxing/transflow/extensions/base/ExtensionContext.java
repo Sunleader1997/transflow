@@ -1,4 +1,6 @@
 package org.sunyaxing.transflow.extensions.base;
 
-public class ExtensionContext {
+import java.util.concurrent.BlockingDeque;
+
+public record ExtensionContext(BlockingDeque<String> inputQueue) {
 }

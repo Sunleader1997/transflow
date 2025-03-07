@@ -11,6 +11,7 @@ import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.pf4j.PluginManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
     private final FileAlterationMonitor monitor;
     private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".jar"));
 
-    @Resource(name = "jarPluginManager")
+    @Autowired
     private PluginManager pluginManager;
     @Getter
     private HashMap<String, List<TransFlowInput>> pluginInputExtensions;
@@ -67,7 +68,10 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             pluginManager.startPlugin(pluginId);
             // 获取拓展
             List<TransFlowInput> transFlowInputs = pluginManager.getExtensions(TransFlowInput.class, pluginId);
-            transFlowInputs.forEach(ExtensionLifecycle::init);
+            transFlowInputs.forEach(transFlowInput -> {
+                transFlowInput.init();
+                Thread.ofVirtual().start(transFlowInput);
+            });
             pluginInputExtensions.put(pluginId, transFlowInputs);
         } catch (Exception e) {
             log.error("加载插件失败", e);

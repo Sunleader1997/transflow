@@ -3,7 +3,7 @@ package org.sunyaxing.transflow.extensions;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
-public abstract class TransFlowOutput<T> implements ExtensionLifecycle {
+public abstract class TransFlowOutput<T> implements ExtensionLifecycle, Runnable  {
     protected ExtensionContext extensionContext;
 
     protected TransFlowOutput(ExtensionContext extensionContext) {
