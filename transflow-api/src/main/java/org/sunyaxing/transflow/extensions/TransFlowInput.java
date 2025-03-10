@@ -4,6 +4,8 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
+import java.util.List;
+
 /**
  * 一个 input 就是一个虚拟线程，用于从外部获取数据
  */
@@ -24,7 +26,5 @@ public abstract class TransFlowInput<T> implements ExtensionLifecycle, Runnable 
             Thread.currentThread().interrupt();
         }
     }
-    public TransData<T> dequeue() {
-        return this.extensionContext.dequeue();
-    }
+    public abstract List<TransData<T>> dequeue();
 }

@@ -6,17 +6,20 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowFilter;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
+import java.util.List;
 import java.util.Properties;
 
 @Extension
-public class JsonFilterExt extends TransFlowFilter<String, JSONObject> {
+public class JsonFilterExt extends TransFlowFilter {
     public JsonFilterExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
-    public TransData<JSONObject> doFilter(TransData<String> input) {
-        return new TransData<>(input.offset(), JSONObject.parseObject(input.data()));
+    public List<TransData> doFilter(List<TransData> input) {
+        return input.stream()
+                .map(result -> new TransData(result.offset(), JSONObject.parseObject(JSONObject.toJSONString(result.data()))))
+                .toList();
     }
 
 

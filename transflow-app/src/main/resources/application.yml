@@ -3,8 +3,10 @@ transflow:
     - plugin-id: plugin-kafka-input
       config:
         bootstrap-servers: "localhost:9092"
-        topic: "test"
+        topics: "test"
       filters:
         - plugin-id: plugin-json-filter
       outputs:
         - plugin-id: plugin-stdout
+server:
+  port: 18987

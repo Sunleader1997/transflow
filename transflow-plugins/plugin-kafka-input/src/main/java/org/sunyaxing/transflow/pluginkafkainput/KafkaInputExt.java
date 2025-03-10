@@ -12,9 +12,14 @@ import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 @Extension
@@ -22,6 +27,8 @@ public class KafkaInputExt extends TransFlowInput<String> {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private KafkaConsumer<String, String> kafkaConsumer;
     private AtomicLong atomicLong = new AtomicLong(0);
+    // 手动提交偏移量需要加锁
+//    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -31,35 +38,42 @@ public class KafkaInputExt extends TransFlowInput<String> {
     @Override
     public void commit(Long offset) {
         log.info("提交偏移量 {}", offset);
-        this.kafkaConsumer.commitAsync();
+    }
+
+    @Override
+    public List<TransData<String>> dequeue() {
+        // kafka 批量消费
+        ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+        if (!consumerRecords.isEmpty()) {
+            List<TransData<String>> res = new ArrayList<>();
+            consumerRecords.forEach(record -> {
+                TransData<String> transData = new TransData<>(record.offset(), record.value());
+                res.add(transData);
+            });
+            return res;
+        }
+        return null;
     }
 
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            // kafka 批量消费
-            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
-            if (!consumerRecords.isEmpty()) {
-                consumerRecords.forEach(record -> {
-                    TransData<String> transData = new TransData<>(record.offset(), record.value());
-                    put(transData);
-                });
-            }
         }
     }
 
     @Override
     public void init(Properties config) {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-server", "127.0.0.1:9093"));
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-servers", "127.0.0.1:9093"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, config.getProperty("group-id", "transflow"));
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "100"));
         // 手动提交 offset
-        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         this.kafkaConsumer = new KafkaConsumer<>(properties);
+        log.info("初始化 KafkaConsumer {}", properties);
         this.kafkaConsumer.subscribe(List.of(config.getProperty("topics")));
     }
 

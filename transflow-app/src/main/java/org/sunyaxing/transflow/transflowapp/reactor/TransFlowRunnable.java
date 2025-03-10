@@ -19,11 +19,10 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
-    private Flux<TransData<?>> dataDequeue;
+    private Flux<List<TransData>> dataDequeue;
     private Scheduler processScheduler;
     private Scheduler dequeueScheduler;
     private Disposable disposable;
-    private Thread inputThread;
     private TransFlowInput input;
     private TransFlowFilter filter;
     private List<TransFlowOutput> outers;
@@ -37,14 +36,14 @@ public class TransFlowRunnable implements Runnable, Disposable {
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
     }
 
-    private Mono<Void> dataFlowWithEachFilter(TransData<?> data) {
+    private Mono<Void> dataFlowWithEachFilter(List<TransData> datas) {
         return Mono.using(() -> {
             // input 取一个资源
-            log.info("处理： {}", data);
-            return Mono.just(data);
+            log.info("处理： {}", datas);
+            return Mono.just(datas);
         }, dataBk -> Mono.fromRunnable(() -> {
             // 交给 filter 处理
-            var res = filter.exec(data);
+            var res = filter.exec(datas);
             // 下发给 output
             CountDownLatch countDownLatch = new CountDownLatch(outers.size());
             outers.forEach(output -> {
@@ -64,14 +63,16 @@ public class TransFlowRunnable implements Runnable, Disposable {
                 log.error("线程异常", e);
             }
         }), dataBk -> {
-            input.commit(data.offset());
+            datas.forEach(data -> {
+                input.commit(data.offset());
+            });
         });
     }
 
-    public Mono<TransData<?>> dequeue() {
-        TransData<?> data = input.dequeue();
-        if (data != null) {
-            return Mono.just(data);
+    public Mono<List<TransData>> dequeue() {
+        List<TransData> datas = input.dequeue();
+        if (datas != null) {
+            return Mono.just(datas);
         } else {
             return Mono.empty();
         }
@@ -79,9 +80,8 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     @Override
     public void run() {
-        this.inputThread = Thread.ofVirtual().start(input);
         this.disposable = Flux.from(this.dataDequeue)
-                .flatMap(data -> dataFlowWithEachFilter(data).subscribeOn(processScheduler), 10)
+                .flatMap(datas -> dataFlowWithEachFilter(datas).subscribeOn(processScheduler), 10)
                 .onErrorContinue((throwable, o) -> log.error("线程异常", throwable))
                 .subscribeOn(dequeueScheduler)
                 .subscribe();
@@ -89,7 +89,6 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     @Override
     public void dispose() {
-        this.inputThread.interrupt();
         this.disposable.dispose();
     }
 }
