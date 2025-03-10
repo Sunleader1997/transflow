@@ -6,23 +6,30 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
+import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 @Extension
-public class KafkaInputExt extends TransFlowInput {
+public class KafkaInputExt extends TransFlowInput<String> {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private KafkaConsumer<String, String> kafkaConsumer;
-    private AtomicInteger atomicInteger = new AtomicInteger(0);
+    private AtomicLong atomicLong = new AtomicLong(0);
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
+    }
+
+    @Override
+    public void commit(Long offset) {
+        log.info("提交偏移量 {}", offset);
+        this.kafkaConsumer.commitAsync();
     }
 
     @Override
@@ -33,10 +40,12 @@ public class KafkaInputExt extends TransFlowInput {
 //            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
 //            if (!consumerRecords.isEmpty()) {
 //                consumerRecords.forEach(record -> {
-//                    put(record.value());
+//                    TransData<String> transData = new TransData<>(record.offset(), record.value());
+//                    put(transData);
 //                });
 //            }
-            put("record.value()" + atomicInteger.getAndIncrement());
+            TransData<String> transData = new TransData<>(atomicLong.getAndIncrement(), "{\"a\":\"" + atomicLong.getAndIncrement() + "\"}");
+            put(transData);
         }
     }
 
