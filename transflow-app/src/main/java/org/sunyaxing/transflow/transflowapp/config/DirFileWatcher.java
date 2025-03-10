@@ -1,9 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.config;
 
 import cn.hutool.core.io.FileUtil;
-import jakarta.annotation.Resource;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -11,6 +8,8 @@ import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.pf4j.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -29,24 +28,23 @@ import java.util.concurrent.TimeUnit;
 /**
  * 动态加载插件
  */
-@Slf4j
 @Component
 public class DirFileWatcher extends FileAlterationListenerAdaptor implements ApplicationRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(DirFileWatcher.class);
     public static String PLUGIN_DIR = "/plugins";
     private final FileAlterationMonitor monitor;
     private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".jar"));
 
     @Autowired
     private PluginManager pluginManager;
-    private List<TransFlowFilter> filters;
+    private TransFlowFilter<String, ?> filters;
 
     public DirFileWatcher() {
         long interval = TimeUnit.SECONDS.toMillis(5);
         FileAlterationObserver observer = new FileAlterationObserver(new File(PLUGIN_DIR), FILE_FILTER);
         observer.addListener(this);
         this.monitor = new FileAlterationMonitor(interval, observer);
-        this.filters = new ArrayList<>();
     }
 
     @Override
@@ -73,18 +71,6 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             transFlowInputs.forEach(transFlowInput -> {
                 transFlowInput.init();
                 Thread.ofVirtual().start(transFlowInput);
-            });
-
-            List<TransFlowFilter> filters = pluginManager.getExtensions(TransFlowFilter.class, pluginId);
-            filters.forEach(filter -> {
-                filter.init();
-                this.filters.add(filter);
-            });
-
-            List<TransFlowOutput> outputs = pluginManager.getExtensions(TransFlowOutput.class, pluginId);
-            outputs.forEach(output -> {
-                output.init();
-                Thread.ofVirtual().start(output);
             });
         } catch (Exception e) {
             log.error("加载插件失败", e);

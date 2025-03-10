@@ -12,6 +12,7 @@
         <module>plugin-kafka-input</module>
         <module>plugin-json-filter</module>
         <module>plugin-es-output</module>
+        <module>plugin-stdout</module>
     </modules>
 
     <properties>

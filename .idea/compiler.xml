@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="plugin-json-filter" />
         <module name="plugin-kafka-input" />
+        <module name="plugin-stdout" />
         <module name="transflow-app" />
         <module name="plugin-es-output" />
         <module name="transflow-api" />

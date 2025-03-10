@@ -4,7 +4,7 @@ import org.pf4j.PluginManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
-import org.sunyaxing.transflow.transflowapp.TransFlowPluginManager;
+import org.sunyaxing.transflow.transflowapp.factory.TransFlowPluginManager;
 import org.sunyaxing.transflow.transflowapp.factory.TransFlowExtensionFactory;
 
 import java.util.concurrent.LinkedBlockingDeque;
@@ -21,7 +21,7 @@ public class PluginConfig {
         return new TransFlowExtensionFactory(extensionContext);
     }
 
-    @Bean
+    @Bean(name = "transFlowPluginManager")
     public PluginManager transFlowPluginManager(TransFlowExtensionFactory transFlowExtensionFactory) {
         return new TransFlowPluginManager(transFlowExtensionFactory);
     }

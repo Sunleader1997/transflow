@@ -1,8 +1,7 @@
-package org.sunyaxing.transflow.transflowapp;
+package org.sunyaxing.transflow.transflowapp.factory;
 
 import org.pf4j.DefaultPluginManager;
 import org.pf4j.ExtensionFactory;
-import org.sunyaxing.transflow.transflowapp.factory.TransFlowExtensionFactory;
 
 public class TransFlowPluginManager extends DefaultPluginManager {
 

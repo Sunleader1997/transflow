@@ -1,7 +1,6 @@
 package org.sunyaxing.transflow.pluginkafkainput;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
@@ -10,15 +9,16 @@ import org.pf4j.Extension;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Extension
 public class KafkaInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private KafkaConsumer<String, String> kafkaConsumer;
+    private AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -30,12 +30,13 @@ public class KafkaInputExt extends TransFlowInput {
         this.kafkaConsumer.subscribe(List.of("topic1"));
         while (!Thread.currentThread().isInterrupted()) {
             // kafka 批量消费
-            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
-            if (!consumerRecords.isEmpty()) {
-                consumerRecords.forEach(record -> {
-                    put(record.value());
-                });
-            }
+//            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+//            if (!consumerRecords.isEmpty()) {
+//                consumerRecords.forEach(record -> {
+//                    put(record.value());
+//                });
+//            }
+            put("record.value()" + atomicInteger.getAndIncrement());
         }
     }
 
