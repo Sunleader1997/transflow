@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.sunyaxing.transflow.extensions.TransFlowFilter;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
-import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+import org.sunyaxing.transflow.transflowapp.config.porperties.TransFlowProperties;
 import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
 
 import java.io.File;
@@ -33,11 +33,12 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
     private static final Logger log = LoggerFactory.getLogger(DirFileWatcher.class);
     public static String PLUGIN_DIR = "/plugins";
     private final FileAlterationMonitor monitor;
-    private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.suffixFileFilter(".jar"));
+    private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(FileFilterUtils.fileFileFilter(), FileFilterUtils.prefixFileFilter("plugin-"), FileFilterUtils.suffixFileFilter(".jar"));
 
     @Autowired
     private PluginManager pluginManager;
-    private TransFlowFilter<String, ?> filters;
+    @Autowired
+    private TransFlowProperties transFlowProperties;
 
     public DirFileWatcher() {
         long interval = TimeUnit.SECONDS.toMillis(5);
@@ -63,6 +64,7 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
         try {
             log.info("加载插件 {}", file.getName());
             String pluginId = pluginManager.loadPlugin(file.toPath());
+            log.info("开启插件 {}", pluginId);
             // 开启插件
             pluginManager.startPlugin(pluginId);
 
@@ -84,23 +86,30 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
     }
 
     public void refresh() {
-        // 组装过滤器
-        List<TransFlowFilter> filters = pluginManager.getExtensions(TransFlowFilter.class);
-        TransFlowFilter allFilter = filters.stream().reduce(((filter1, filter2) -> {
-            filter1.addNext(filter2);
-            return filter1;
-        })).orElse(null);
-        // 准备输出线程
-        List<TransFlowOutput> outputs = pluginManager.getExtensions(TransFlowOutput.class);
-        outputs.forEach(ExtensionLifecycle::init);
+        transFlowProperties.getInputs().forEach(inputProperty -> {
+            // 获取 input 拓展
+            TransFlowInput transFlowInput = pluginManager.getExtensions(TransFlowInput.class, inputProperty.getPluginId()).getFirst();
+            transFlowInput.init();
 
-        // 获取 input 拓展
-        List<TransFlowInput> transFlowInputs = pluginManager.getExtensions(TransFlowInput.class);
-        transFlowInputs.forEach(ExtensionLifecycle::init);
-        // 组装数据流
-        transFlowInputs.forEach(transFlowInput -> {
-            TransFlowRunnable transFlowRunnable = new TransFlowRunnable(transFlowInput, allFilter, outputs);
+            // 组装filter
+            TransFlowFilter transFlowFilter = inputProperty.getFilters().stream().map(filterProperty -> {
+                return pluginManager.getExtensions(TransFlowFilter.class, filterProperty.getPluginId()).getFirst();
+            }).reduce(((filter1, filter2) -> {
+                filter1.addNext(filter2);
+                return filter1;
+            })).orElse(null);
+
+            // 准备输出线程
+            List<TransFlowOutput> outputs = inputProperty.getOutputs().stream().map(outputsProperty -> {
+                TransFlowOutput transFlowOutput = pluginManager.getExtensions(TransFlowOutput.class, outputsProperty.getPluginId()).getFirst();
+                transFlowOutput.init();
+                return transFlowOutput;
+            }).toList();
+
+            // 编排总处理器
+            TransFlowRunnable transFlowRunnable = new TransFlowRunnable(transFlowInput, transFlowFilter, outputs);
             Thread.ofVirtual().start(transFlowRunnable);
         });
+
     }
 }

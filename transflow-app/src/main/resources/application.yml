@@ -1,10 +1,9 @@
-inputs:
-  plugin-id: plugin-kafka-input
-  config:
-    bootstrap-servers: "localhost:9092"
-
-filters:
-  plugin-id: plugin-json-filter
-
-outputs:
-  plugin-id: plugin-es-output
+transflow:
+  inputs:
+    - plugin-id: plugin-kafka-input
+      config:
+        bootstrap-servers: "localhost:9092"
+      filters:
+        - plugin-id: plugin-json-filter
+      outputs:
+        - plugin-id: plugin-stdout

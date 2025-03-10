@@ -64,9 +64,6 @@ public class TransFlowRunnable implements Runnable, Disposable {
                 log.error("线程异常", e);
             }
         }), dataBk -> {
-            // 清理资源
-            // commit or rollback
-            log.info("提交数据");
             input.commit(data.offset());
         });
     }

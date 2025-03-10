@@ -10,7 +10,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 public class Stdout extends TransFlowOutput {
     private Logger logger = LoggerFactory.getLogger(Stdout.class);
 
-    protected Stdout(ExtensionContext extensionContext) {
+    public Stdout(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 

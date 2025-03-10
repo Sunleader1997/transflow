@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.pluginkafkainput;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +11,7 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,15 +39,13 @@ public class KafkaInputExt extends TransFlowInput<String> {
         this.kafkaConsumer.subscribe(List.of("topic1"));
         while (!Thread.currentThread().isInterrupted()) {
             // kafka 批量消费
-//            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
-//            if (!consumerRecords.isEmpty()) {
-//                consumerRecords.forEach(record -> {
-//                    TransData<String> transData = new TransData<>(record.offset(), record.value());
-//                    put(transData);
-//                });
-//            }
-            TransData<String> transData = new TransData<>(atomicLong.getAndIncrement(), "{\"a\":\"" + atomicLong.getAndIncrement() + "\"}");
-            put(transData);
+            ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+            if (!consumerRecords.isEmpty()) {
+                consumerRecords.forEach(record -> {
+                    TransData<String> transData = new TransData<>(record.offset(), record.value());
+                    put(transData);
+                });
+            }
         }
     }
 
