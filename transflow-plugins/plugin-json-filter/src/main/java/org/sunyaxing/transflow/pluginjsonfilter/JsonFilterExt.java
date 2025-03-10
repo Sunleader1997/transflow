@@ -6,6 +6,8 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowFilter;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
+import java.util.Properties;
+
 @Extension
 public class JsonFilterExt extends TransFlowFilter<String, JSONObject> {
     public JsonFilterExt(ExtensionContext extensionContext) {
@@ -19,7 +21,7 @@ public class JsonFilterExt extends TransFlowFilter<String, JSONObject> {
 
 
     @Override
-    public void init() {
+    public void init(Properties config) {
 
     }
 

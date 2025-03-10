@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
+import java.util.Map;
+import java.util.Properties;
+
 @Extension
 public class Stdout extends TransFlowOutput {
     private Logger logger = LoggerFactory.getLogger(Stdout.class);
@@ -20,7 +23,7 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public void init() {
+    public void init(Properties config) {
         logger.info("初始化连接");
     }
 

@@ -36,7 +36,6 @@ public class KafkaInputExt extends TransFlowInput<String> {
 
     @Override
     public void run() {
-        this.kafkaConsumer.subscribe(List.of("topic1"));
         while (!Thread.currentThread().isInterrupted()) {
             // kafka 批量消费
             ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
@@ -50,21 +49,23 @@ public class KafkaInputExt extends TransFlowInput<String> {
     }
 
     @Override
-    public void init() {
+    public void init(Properties config) {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, "test");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-server", "127.0.0.1:9093"));
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, config.getProperty("group-id", "transflow"));
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100");
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "100"));
         // 手动提交 offset
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         this.kafkaConsumer = new KafkaConsumer<>(properties);
+        this.kafkaConsumer.subscribe(List.of(config.getProperty("topics")));
     }
 
     @Override
     public void destroy() {
+        this.kafkaConsumer.close();
         Thread.currentThread().interrupt();
     }
 }

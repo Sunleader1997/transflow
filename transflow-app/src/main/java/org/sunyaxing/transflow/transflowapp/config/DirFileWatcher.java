@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.transflowapp.config;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -89,7 +90,7 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
         transFlowProperties.getInputs().forEach(inputProperty -> {
             // 获取 input 拓展
             TransFlowInput transFlowInput = pluginManager.getExtensions(TransFlowInput.class, inputProperty.getPluginId()).getFirst();
-            transFlowInput.init();
+            transFlowInput.init(inputProperty.getConfig());
 
             // 组装filter
             TransFlowFilter transFlowFilter = inputProperty.getFilters().stream().map(filterProperty -> {
@@ -102,7 +103,7 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             // 准备输出线程
             List<TransFlowOutput> outputs = inputProperty.getOutputs().stream().map(outputsProperty -> {
                 TransFlowOutput transFlowOutput = pluginManager.getExtensions(TransFlowOutput.class, outputsProperty.getPluginId()).getFirst();
-                transFlowOutput.init();
+                transFlowOutput.init(outputsProperty.getConfig());
                 return transFlowOutput;
             }).toList();
 
