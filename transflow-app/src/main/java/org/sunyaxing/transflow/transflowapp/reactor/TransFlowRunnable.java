@@ -19,13 +19,13 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
-    private Flux<List<TransData>> dataDequeue;
-    private Scheduler processScheduler;
-    private Scheduler dequeueScheduler;
+    private final Flux<List<TransData>> dataDequeue;
+    private final Scheduler processScheduler;
+    private final Scheduler dequeueScheduler;
     private Disposable disposable;
-    private TransFlowInput input;
-    private TransFlowFilter filter;
-    private List<TransFlowOutput> outers;
+    private final TransFlowInput input;
+    private final TransFlowFilter filter;
+    private final List<TransFlowOutput> outers;
 
     public TransFlowRunnable(TransFlowInput input, TransFlowFilter filter, List<TransFlowOutput> outers) {
         this.input = input;
