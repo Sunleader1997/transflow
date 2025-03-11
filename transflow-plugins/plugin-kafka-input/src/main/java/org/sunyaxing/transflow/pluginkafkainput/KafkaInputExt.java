@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 
 @Extension
-public class KafkaInputExt extends TransFlowInput<String> {
+public class KafkaInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private KafkaConsumer<String, String> kafkaConsumer;
     private AtomicLong atomicLong = new AtomicLong(0);
@@ -37,14 +37,14 @@ public class KafkaInputExt extends TransFlowInput<String> {
     }
 
     @Override
-    public List<TransData<String>> dequeue() {
+    public List<TransData> dequeue() {
         // kafka 批量消费
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
         if (!consumerRecords.isEmpty()) {
             log.info("消费数据量：{}" , consumerRecords.count());
-            List<TransData<String>> res = new ArrayList<>();
+            List<TransData> res = new ArrayList<>();
             consumerRecords.forEach(record -> {
-                TransData<String> transData = new TransData<>(record.offset(), record.value());
+                TransData transData = new TransData(record.offset(), record.value());
                 res.add(transData);
             });
             return res;

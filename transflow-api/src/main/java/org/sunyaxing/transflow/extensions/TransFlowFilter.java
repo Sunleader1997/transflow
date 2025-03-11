@@ -17,12 +17,9 @@ public abstract class TransFlowFilter implements ExtensionLifecycle {
 
     public abstract List<TransData> doFilter(List<TransData> input);
 
-    public void addNext(TransFlowFilter nextFilter) {
-        if (this.nextFilter != null) {
-            this.nextFilter.addNext(nextFilter);
-        } else {
-            this.nextFilter = nextFilter;
-        }
+    public TransFlowFilter addNext(TransFlowFilter nextFilter) {
+        this.nextFilter = nextFilter;
+        return this.nextFilter;
     }
 
     public List<TransData> exec(List<TransData> orgData) {
