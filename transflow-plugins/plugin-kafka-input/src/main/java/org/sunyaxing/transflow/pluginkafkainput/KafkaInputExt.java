@@ -13,13 +13,9 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 @Extension
@@ -37,7 +33,7 @@ public class KafkaInputExt extends TransFlowInput<String> {
 
     @Override
     public void commit(Long offset) {
-        log.info("提交偏移量 {}", offset);
+//        log.info("提交偏移量 {}", offset);
     }
 
     @Override
@@ -45,6 +41,7 @@ public class KafkaInputExt extends TransFlowInput<String> {
         // kafka 批量消费
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
         if (!consumerRecords.isEmpty()) {
+            log.info("消费数据量：{}" , consumerRecords.count());
             List<TransData<String>> res = new ArrayList<>();
             consumerRecords.forEach(record -> {
                 TransData<String> transData = new TransData<>(record.offset(), record.value());
@@ -57,8 +54,6 @@ public class KafkaInputExt extends TransFlowInput<String> {
 
     @Override
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {
-        }
     }
 
     @Override
@@ -67,8 +62,8 @@ public class KafkaInputExt extends TransFlowInput<String> {
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-servers", "127.0.0.1:9093"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, config.getProperty("group-id", "transflow"));
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "100"));
-        // 手动提交 offset
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "1000"));
+        // 手动提交 offset false
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

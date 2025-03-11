@@ -1,7 +1,10 @@
 package org.sunyaxing.transflow.extensions;
 
+import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+
+import java.util.List;
 
 public abstract class TransFlowOutput implements ExtensionLifecycle {
     protected ExtensionContext extensionContext;
@@ -10,5 +13,5 @@ public abstract class TransFlowOutput implements ExtensionLifecycle {
         this.extensionContext = extensionContext;
     }
 
-    public abstract void output(Object data);
+    public abstract void output(List<TransData> data);
 }

@@ -3,10 +3,11 @@ package org.sunyaxing.transflow.stdout;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 
 @Extension
@@ -18,8 +19,8 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public void output(Object data) {
-        logger.info("输出数据：{}", data);
+    public void output(List<TransData> data) {
+        logger.info("输出数据：{}", data.size());
     }
 
     @Override

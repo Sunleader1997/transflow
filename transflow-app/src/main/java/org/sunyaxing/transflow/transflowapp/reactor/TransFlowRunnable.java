@@ -39,7 +39,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private Mono<Void> dataFlowWithEachFilter(List<TransData> datas) {
         return Mono.using(() -> {
             // input 取一个资源
-            log.info("处理： {}", datas);
+            log.info("处理： {}", datas.size());
             return Mono.just(datas);
         }, dataBk -> Mono.fromRunnable(() -> {
             // 交给 filter 处理
