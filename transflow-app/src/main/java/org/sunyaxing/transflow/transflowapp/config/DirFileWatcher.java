@@ -93,13 +93,14 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             transFlowInput.init(inputProperty.getConfig());
 
             // 组装filter
-            TransFlowFilter transFlowFilter = inputProperty.getFilters().stream().map(filterProperty -> {
+            List<TransFlowFilter> transFlowFilters = inputProperty.getFilters().stream().map(filterProperty -> {
                 return pluginManager.getExtensions(TransFlowFilter.class, filterProperty.getPluginId()).getFirst();
-            }).reduce(((filter1, filter2) -> {
+            }).toList();
+            transFlowFilters.stream().reduce(((filter1, filter2) -> {
                 filter1.addNext(filter2);
-                return filter1;
-            })).orElse(null);
-
+                return filter2;
+            }));
+            TransFlowFilter transFlowFilter = transFlowFilters.getFirst();
             // 准备输出线程
             List<TransFlowOutput> outputs = inputProperty.getOutputs().stream().map(outputsProperty -> {
                 TransFlowOutput transFlowOutput = pluginManager.getExtensions(TransFlowOutput.class, outputsProperty.getPluginId()).getFirst();

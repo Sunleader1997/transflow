@@ -43,7 +43,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             return Mono.just(datas);
         }, dataBk -> Mono.fromRunnable(() -> {
             // 交给 filter 处理
-            var res = filter.exec(datas);
+            List<TransData> res = filter.exec(datas);
             // 下发给 output
             CountDownLatch countDownLatch = new CountDownLatch(outers.size());
             outers.forEach(output -> {
