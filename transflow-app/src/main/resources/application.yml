@@ -8,16 +8,16 @@ server:
 
 transflow:
   inputs:
-    - plugin-id: plugin-demo-input
-      config:
-        jsonStr: '{"param":"demo1"}'
-      filters:
-        - plugin-id: plugin-json-filter
-          config:
-            script: '
-              return data.containsKey("param") && data.param == "demo";
-            '
-      outputs:
-        - plugin-id: plugin-stdout
-          config:
-            param1: "value1"
+#    - plugin-id: plugin-demo-input
+#      config:
+#        jsonStr: '{"param":"demo1"}'
+#      filters:
+#        - plugin-id: plugin-json-filter
+#          config:
+#            script: '
+#              return data.containsKey("param") && data.param == "demo";
+#            '
+#      outputs:
+#        - plugin-id: plugin-stdout
+#          config:
+#            param1: "value1"

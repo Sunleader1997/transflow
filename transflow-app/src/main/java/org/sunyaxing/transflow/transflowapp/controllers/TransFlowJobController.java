@@ -2,8 +2,8 @@ package org.sunyaxing.transflow.transflowapp.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.transflowapp.entity.TransFlowJobEntity;
-import org.sunyaxing.transflow.transflowapp.services.TransFlowJobService;
+import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
+import org.sunyaxing.transflow.transflowapp.services.JobService;
 
 import java.util.List;
 
@@ -12,16 +12,16 @@ import java.util.List;
 public class TransFlowJobController {
 
     @Autowired
-    private TransFlowJobService transFlowJobService;
+    private JobService jobService;
 
     @GetMapping("/list")
-    public List<TransFlowJobEntity> list() {
-        return transFlowJobService.list();
+    public List<JobEntity> list() {
+        return jobService.list();
     }
 
     @PostMapping("/save")
-    public Boolean save(@RequestBody TransFlowJobEntity transFlowJobEntity) {
-        boolean save = transFlowJobService.save(transFlowJobEntity);
+    public Boolean save(@RequestBody JobEntity jobEntity) {
+        boolean save = jobService.save(jobEntity);
         return save;
     }
 }

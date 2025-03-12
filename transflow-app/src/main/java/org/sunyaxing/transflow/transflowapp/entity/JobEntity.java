@@ -9,17 +9,19 @@ import lombok.Data;
 import lombok.ToString;
  
 /**
- * @author hxstrive.com
- * @since 1.0.0  2024/9/24 13:56
+ * TransFlow 工作流 实体
  */
 @Builder
 @Data
 @ToString
 @TableName("job")
-public class TransFlowJobEntity {
+public class JobEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
  
     @TableField("name")
     private String name;
+
+    @TableField("description")
+    private String description;
 }
