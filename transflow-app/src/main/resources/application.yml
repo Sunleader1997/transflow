@@ -2,18 +2,16 @@ server:
   port: 18987
 transflow:
   inputs:
-    - plugin-id: plugin-kafka-input
+    - plugin-id: plugin-demo-input
       config:
-        bootstrap-servers: "localhost:9092"
-        topics: "test"
+        jsonStr: '{"param":"demo1"}'
       filters:
         - plugin-id: plugin-json-filter
           config:
-            param1: "value1"
+            script: '
+              return data.containsKey("param") && data.param == "demo";
+            '
       outputs:
-        - plugin-id: plugin-es-output
-          config:
-            param1: "value1"
         - plugin-id: plugin-stdout
           config:
             param1: "value1"

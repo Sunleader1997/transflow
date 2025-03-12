@@ -17,7 +17,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.id>plugin-demo-input</plugin.id>
-        <plugin.class>org.sunyaxing.transflow.plugindemoinput.DemoInputExt</plugin.class>
+        <plugin.class>org.sunyaxing.transflow.plugindemoinput.DemoInputPlugin</plugin.class>
         <plugin.version>0.1.0</plugin.version>
         <plugin.provider>Decebal Suiu</plugin.provider>
         <plugin.dependencies/>

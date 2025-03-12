@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.pluginjsonfilter;
 
 import com.alibaba.fastjson2.JSONObject;
+import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 import org.pf4j.Extension;
 import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class JsonFilterExt extends TransFlowFilter {
                             Object res = scriptEngine.eval(this.script);
                             return Boolean.TRUE.equals(res);
                         } catch (Exception e) {
-                            log.error("groovy 脚本执行异常");
+                            log.error("groovy 脚本执行异常", e);
                             return false;
                         }
                     }
@@ -54,6 +55,7 @@ public class JsonFilterExt extends TransFlowFilter {
     @Override
     public void init(Properties config) {
         ScriptEngineManager manager = new ScriptEngineManager();
+        manager.registerEngineName("groovy", new GroovyScriptEngineFactory());
         this.scriptEngine = manager.getEngineByName("groovy");
         this.script = config.getProperty("script");
     }
