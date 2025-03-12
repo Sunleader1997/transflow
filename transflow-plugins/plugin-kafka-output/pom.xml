@@ -9,30 +9,19 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>plugin-json-filter</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>plugin-kafka-output</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.id>plugin-json-filter</plugin.id>
-        <plugin.class>org.sunyaxing.transflow.pluginjsonfilter.JsonFilterPlugin</plugin.class>
-        <plugin.version>0.1.0</plugin.version>
-        <plugin.provider>Decebal Suiu</plugin.provider>
-        <plugin.dependencies />
     </properties>
+
     <dependencies>
         <dependency>
-            <groupId>com.alibaba.fastjson2</groupId>
-            <artifactId>fastjson2</artifactId>
-            <version>2.0.53</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>3.0.23</version>
-            <type>pom</type>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>3.9.0</version>
         </dependency>
     </dependencies>
 </project>

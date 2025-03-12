@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class KafkaInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private KafkaConsumer<String, String> kafkaConsumer;
-    private AtomicLong atomicLong = new AtomicLong(0);
     // 手动提交偏移量需要加锁
 //    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
 
