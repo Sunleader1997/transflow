@@ -1,5 +1,11 @@
+spring:
+  profiles:
+    include: db
+    active: dev
+
 server:
   port: 18987
+
 transflow:
   inputs:
     - plugin-id: plugin-demo-input
