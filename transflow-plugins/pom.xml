@@ -14,6 +14,7 @@
         <module>plugin-es-output</module>
         <module>plugin-stdout</module>
         <module>plugin-kafka-output</module>
+        <module>plugin-demo-input</module>
     </modules>
 
     <properties>

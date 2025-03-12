@@ -9,24 +9,18 @@
         <version>0.1.0</version>
     </parent>
 
-    <artifactId>plugin-kafka-output</artifactId>
+    <artifactId>plugin-demo-input</artifactId>
+
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <plugin.id>plugin-kafka-output</plugin.id>
-        <plugin.class>org.sunyaxing.transflow.pluginkafkaoutput.KafkaOutputPlugin</plugin.class>
+        <plugin.id>plugin-demo-input</plugin.id>
+        <plugin.class>org.sunyaxing.transflow.plugindemoinput.DemoInputExt</plugin.class>
         <plugin.version>0.1.0</plugin.version>
         <plugin.provider>Decebal Suiu</plugin.provider>
         <plugin.dependencies/>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>3.9.0</version>
-        </dependency>
-    </dependencies>
 </project>
