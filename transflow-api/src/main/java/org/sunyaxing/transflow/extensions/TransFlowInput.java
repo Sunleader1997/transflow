@@ -19,5 +19,9 @@ public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
 
     public void commit(Long offset){
     }
+    // 获取剩余未消费的数据量
+    public Long getRemainingDataSize(){
+        return 0L;
+    }
     public abstract List<TransData> dequeue();
 }

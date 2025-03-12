@@ -1,8 +1,12 @@
 package org.sunyaxing.transflow.pluginkafkainput;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.ListConsumerGroupOffsetsResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +18,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -21,13 +26,32 @@ import java.util.concurrent.atomic.AtomicLong;
 @Extension
 public class KafkaInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
+    private String groupId;
+    private String topics;
     private KafkaConsumer<String, String> kafkaConsumer;
-    // 手动提交偏移量需要加锁
-//    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    private AdminClient adminClient;
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
+    }
+
+    @Override
+    public Long getRemainingDataSize() {
+        AtomicLong count = new AtomicLong(0);
+        try {
+            ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
+            Map<TopicPartition, OffsetAndMetadata> metaDataMap = listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get();
+            metaDataMap.forEach((topicPartition, offsetAndMetadata) -> {
+                if (topicPartition.topic().equals(topics)) {
+                    int lag = offsetAndMetadata.leaderEpoch().orElse(0);
+                    count.addAndGet(lag);
+                }
+            });
+        } catch (Exception e) {
+            log.error("获取 kafka offset 异常", e);
+        }
+        return count.get();
     }
 
     @Override
@@ -40,7 +64,7 @@ public class KafkaInputExt extends TransFlowInput {
         // kafka 批量消费
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
         if (!consumerRecords.isEmpty()) {
-            log.info("消费数据量：{}" , consumerRecords.count());
+            log.info("消费数据量：{}", consumerRecords.count());
             List<TransData> res = new ArrayList<>();
             consumerRecords.forEach(record -> {
                 TransData transData = new TransData(record.offset(), record.value());
@@ -57,9 +81,11 @@ public class KafkaInputExt extends TransFlowInput {
 
     @Override
     public void init(Properties config) {
+        this.groupId = config.getProperty("group-id", "transflow");
+        this.topics = config.getProperty("topics");
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-servers", "127.0.0.1:9093"));
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, config.getProperty("group-id", "transflow"));
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "1000"));
         // 手动提交 offset false
@@ -68,7 +94,8 @@ public class KafkaInputExt extends TransFlowInput {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         this.kafkaConsumer = new KafkaConsumer<>(properties);
         log.info("初始化 KafkaConsumer {}", properties);
-        this.kafkaConsumer.subscribe(List.of(config.getProperty("topics")));
+        this.kafkaConsumer.subscribe(List.of(this.topics));
+        this.adminClient = AdminClient.create(properties);
     }
 
     @Override
