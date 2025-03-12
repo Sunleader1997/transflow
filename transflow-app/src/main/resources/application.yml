@@ -11,18 +11,9 @@ transflow:
           config:
             param1: "value1"
       outputs:
-        - plugin-id: plugin-stdout
+        - plugin-id: plugin-es-output
           config:
             param1: "value1"
-    - plugin-id: plugin-kafka-input
-      config:
-        bootstrap-servers: "localhost:9092"
-        topics: "test2"
-      filters:
-        - plugin-id: plugin-json-filter
-          config:
-            param1: "value1"
-      outputs:
         - plugin-id: plugin-stdout
           config:
             param1: "value1"

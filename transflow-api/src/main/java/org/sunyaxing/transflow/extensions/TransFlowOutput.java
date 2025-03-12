@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class TransFlowOutput implements ExtensionLifecycle {
     protected ExtensionContext extensionContext;
 
-    protected TransFlowOutput(ExtensionContext extensionContext) {
+    public TransFlowOutput(ExtensionContext extensionContext) {
         this.extensionContext = extensionContext;
     }
 

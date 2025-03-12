@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.reactor;
 
+import cn.hutool.core.date.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
@@ -14,6 +15,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class TransFlowRunnable implements Runnable, Disposable {
 
@@ -37,13 +39,19 @@ public class TransFlowRunnable implements Runnable, Disposable {
     }
 
     private Mono<Void> dataFlowWithEachFilter(List<TransData> datas) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start("等待处理");
         return Mono.using(() -> {
             // input 取一个资源
             log.info("处理： {}", datas.size());
             return Mono.just(datas);
         }, dataBk -> Mono.fromRunnable(() -> {
+            stopWatch.stop();
+            stopWatch.start("filter 处理");
             // 交给 filter 处理
             List<TransData> res = filter.exec(datas);
+            stopWatch.stop();
+            stopWatch.start("output 处理");
             // 下发给 output
             CountDownLatch countDownLatch = new CountDownLatch(outers.size());
             outers.forEach(output -> {
@@ -61,6 +69,9 @@ public class TransFlowRunnable implements Runnable, Disposable {
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 log.error("线程异常", e);
+            } finally {
+                stopWatch.stop();
+                log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
             }
         }), dataBk -> {
             datas.forEach(data -> {
