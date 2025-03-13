@@ -31,6 +31,6 @@ mybatis-plus:
     # 打印sql
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
-    cache-enabled: false
+    cache-enabled: true
     call-setters-on-nulls: true
     jdbc-type-for-null: 'null'

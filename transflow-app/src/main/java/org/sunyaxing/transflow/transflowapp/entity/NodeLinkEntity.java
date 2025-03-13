@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * 节点连接线
  */
@@ -15,7 +17,7 @@ import lombok.ToString;
 @Data
 @ToString
 @TableName("node_link")
-public class NodeLinkEntity {
+public class NodeLinkEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 

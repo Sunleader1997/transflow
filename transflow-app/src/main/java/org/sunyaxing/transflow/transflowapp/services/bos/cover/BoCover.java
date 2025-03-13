@@ -23,11 +23,13 @@ public interface BoCover {
     JobEntity boToEntity(JobBo jobBo);
 
     @Mappings({
+            @Mapping(source = "config", target = "config", qualifiedByName = "strToJSON")
     })
     NodeBo entityToBo(NodeEntity nodeEntity);
 
     @Mappings({
-            @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull")
+            @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),
+            @Mapping(source = "config", target = "config", qualifiedByName = "jsonToStr")
     })
     NodeEntity boToEntity(NodeBo nodeBo);
 }

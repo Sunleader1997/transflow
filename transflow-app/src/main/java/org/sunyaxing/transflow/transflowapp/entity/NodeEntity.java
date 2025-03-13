@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.ToString;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 
+import java.io.Serializable;
+
 /**
  * transflow 各节点
  */
@@ -17,7 +19,7 @@ import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 @Data
 @ToString
 @TableName("node")
-public class NodeEntity {
+public class NodeEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 

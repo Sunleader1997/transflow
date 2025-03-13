@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.controllers;
 
+import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;

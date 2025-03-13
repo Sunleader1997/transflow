@@ -7,7 +7,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
- 
+
+import java.io.Serializable;
+
 /**
  * TransFlow 工作流 实体
  */
@@ -15,7 +17,7 @@ import lombok.ToString;
 @Data
 @ToString
 @TableName("job")
-public class JobEntity {
+public class JobEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
  
