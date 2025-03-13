@@ -6,9 +6,11 @@ import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.repositories.JobRepository;
 import org.sunyaxing.transflow.transflowapp.repositories.NodeRepository;
+import org.sunyaxing.transflow.transflowapp.services.bos.JobBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
@@ -21,6 +23,11 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
     private PluginManager pluginManager;
     @Autowired
     private JobRepository jobRepository;
+
+    public NodeBo boById(Long nodeId) {
+        NodeEntity nodeEntity = this.getById(nodeId);
+        return BoCover.INSTANCE.entityToBo(nodeEntity);
+    }
 
     public void save(NodeBo nodeBo) {
         var plugin = pluginManager.getPlugin(nodeBo.getPluginId());

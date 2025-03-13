@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * TransFlow 工作流 实体
@@ -26,4 +27,10 @@ public class JobEntity implements Serializable {
 
     @TableField("description")
     private String description;
+
+    @TableField("inputId")
+    private Long inputId;
+
+    @TableField("updateTime")
+    private Date updateTime;
 }

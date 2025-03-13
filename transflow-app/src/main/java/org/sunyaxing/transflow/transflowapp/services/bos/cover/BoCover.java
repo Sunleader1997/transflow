@@ -6,8 +6,10 @@ import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
+import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
 import org.sunyaxing.transflow.transflowapp.services.bos.JobBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
+import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 
 @Mapper(uses = {CommonCover.class})
 public interface BoCover {
@@ -23,13 +25,22 @@ public interface BoCover {
     JobEntity boToEntity(JobBo jobBo);
 
     @Mappings({
-            @Mapping(source = "config", target = "config", qualifiedByName = "strToJSON")
+            @Mapping(source = "config", target = "config", qualifiedByName = "strToProperties")
     })
     NodeBo entityToBo(NodeEntity nodeEntity);
 
     @Mappings({
             @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),
-            @Mapping(source = "config", target = "config", qualifiedByName = "jsonToStr")
+            @Mapping(source = "config", target = "config", qualifiedByName = "propertiesToStr")
     })
     NodeEntity boToEntity(NodeBo nodeBo);
+
+    @Mappings({
+    })
+    NodeLinkBo entityToBo(NodeLinkEntity nodeBo);
+
+    @Mappings({
+            @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),
+    })
+    NodeLinkEntity boToEntity(NodeLinkBo nodeBo);
 }

@@ -3,6 +3,8 @@ create table JOB
     ID          BIGINT            not null,
     NAME        CHARACTER VARYING not null,
     DESCRIPTION CHARACTER VARYING not null,
+    INPUTID     BIGINT,
+    UPDATETIME  TIMESTAMP         not null,
     constraint JOB_PK
         primary key (ID)
 );

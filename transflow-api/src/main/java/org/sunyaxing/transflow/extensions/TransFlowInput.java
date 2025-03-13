@@ -23,5 +23,11 @@ public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
     public Long getRemainingDataSize(){
         return 0L;
     }
+
+    @Override
+    public List<TransData> execDatas(List<TransData> data) {
+        return data;
+    }
+
     public abstract List<TransData> dequeue();
 }

@@ -1,8 +1,9 @@
 package org.sunyaxing.transflow.transflowapp.services.bos;
 
-import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
+
+import java.util.Properties;
 
 @Data
 public class NodeBo {
@@ -11,5 +12,5 @@ public class NodeBo {
     private String name;
     private TransFlowTypeEnum nodeType;
     private String pluginId;
-    private JSONObject config;
+    private Properties config;
 }

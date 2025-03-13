@@ -4,7 +4,7 @@ import cn.hutool.core.date.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
-import org.sunyaxing.transflow.common.TransFlowChain;
+import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -24,10 +24,10 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
     private final TransFlowInput input;
-    private final TransFlowChain chain;
+    private final TransFlowChain<TransFlowInput> chain;
 
-    public TransFlowRunnable(TransFlowInput input, TransFlowChain chain) {
-        this.input = input;
+    public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {
+        this.input = chain.getCurrentNode();
         this.chain = chain;
         this.dataDequeue = Mono.defer(this::dequeue).repeat();
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
