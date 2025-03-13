@@ -27,7 +27,7 @@ public class KafkaOutputExt extends TransFlowOutput {
     }
 
     @Override
-    public void execDatas(List<TransData> data) {
+    public List<TransData> execDatas(List<TransData> data) {
         data.forEach(transData -> {
             this.producer.send(new ProducerRecord<>(topic, transData.getData(String.class)), (metadata, e) -> {
                 if (e != null) {
@@ -35,6 +35,7 @@ public class KafkaOutputExt extends TransFlowOutput {
                 }
             });
         });
+        return data;
     }
 
     @Override
