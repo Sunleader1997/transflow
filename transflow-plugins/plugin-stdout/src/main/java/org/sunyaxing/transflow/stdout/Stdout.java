@@ -19,7 +19,7 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public void output(List<TransData> data) {
+    public void execDatas(List<TransData> data) {
         logger.info("输出数据：{}", data.size());
     }
 

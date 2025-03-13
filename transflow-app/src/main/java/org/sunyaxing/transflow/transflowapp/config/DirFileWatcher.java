@@ -1,7 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.config;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -98,11 +97,6 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
                 filter.init(filterProperty.getConfig());
                 return filter;
             }).toList();
-            transFlowFilters.stream().reduce(((filter1, filter2) -> {
-                filter1.addNext(filter2);
-                return filter2;
-            }));
-            TransFlowFilter transFlowFilter = transFlowFilters.getFirst();
             // 准备输出线程
             List<TransFlowOutput> outputs = inputProperty.getOutputs().stream().map(outputsProperty -> {
                 TransFlowOutput transFlowOutput = pluginManager.getExtensions(TransFlowOutput.class, outputsProperty.getPluginId()).getFirst();
@@ -111,8 +105,8 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             }).toList();
 
             // 编排总处理器
-            TransFlowRunnable transFlowRunnable = new TransFlowRunnable(transFlowInput, transFlowFilter, outputs);
-            Thread.ofVirtual().start(transFlowRunnable);
+//            TransFlowRunnable transFlowRunnable = new TransFlowRunnable(transFlowInput, transFlowFilter, outputs);
+//            Thread.ofVirtual().start(transFlowRunnable);
         });
 
     }

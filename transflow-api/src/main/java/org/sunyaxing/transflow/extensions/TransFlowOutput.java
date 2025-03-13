@@ -13,5 +13,4 @@ public abstract class TransFlowOutput implements ExtensionLifecycle {
         this.extensionContext = extensionContext;
     }
 
-    public abstract void output(List<TransData> data);
 }

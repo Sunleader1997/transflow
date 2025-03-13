@@ -35,7 +35,7 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
-    public void output(List<TransData> data) {
+    public void execDatas(List<TransData> data) {
         BulkRequest bulkRequest = new BulkRequest();
         data.forEach(transData -> {
             Map sourceData = transData.getData(Map.class);

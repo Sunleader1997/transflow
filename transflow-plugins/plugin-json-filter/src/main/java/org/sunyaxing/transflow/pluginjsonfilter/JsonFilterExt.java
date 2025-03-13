@@ -26,7 +26,7 @@ public class JsonFilterExt extends TransFlowFilter {
     }
 
     @Override
-    public List<TransData> doFilter(List<TransData> input) {
+    public List<TransData> execDatas(List<TransData> input) {
         return input.stream()
                 .map(result -> {
                     if (result.isType(JSONObject.class)) {

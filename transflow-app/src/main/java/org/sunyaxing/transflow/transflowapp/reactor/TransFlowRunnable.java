@@ -4,9 +4,8 @@ import cn.hutool.core.date.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
-import org.sunyaxing.transflow.extensions.TransFlowFilter;
+import org.sunyaxing.transflow.common.TransFlowChain;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
-import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,7 +13,6 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class TransFlowRunnable implements Runnable, Disposable {
@@ -26,13 +24,11 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
     private final TransFlowInput input;
-    private final TransFlowFilter filter;
-    private final List<TransFlowOutput> outers;
+    private final TransFlowChain chain;
 
-    public TransFlowRunnable(TransFlowInput input, TransFlowFilter filter, List<TransFlowOutput> outers) {
+    public TransFlowRunnable(TransFlowInput input, TransFlowChain chain) {
         this.input = input;
-        this.filter = filter;
-        this.outers = outers;
+        this.chain = chain;
         this.dataDequeue = Mono.defer(this::dequeue).repeat();
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
@@ -47,32 +43,11 @@ public class TransFlowRunnable implements Runnable, Disposable {
             return Mono.just(datas);
         }, dataBk -> Mono.fromRunnable(() -> {
             stopWatch.stop();
-            stopWatch.start("filter 处理");
-            // 交给 filter 处理
-            List<TransData> res = filter.exec(datas);
+            stopWatch.start("chain 处理");
+            // 交给 chain 处理
+            chain.exec(datas);
             stopWatch.stop();
-            stopWatch.start("output 处理");
-            // 下发给 output
-            CountDownLatch countDownLatch = new CountDownLatch(outers.size());
-            outers.forEach(output -> {
-                Thread.ofVirtual().start(() -> {
-                    try {
-                        output.output(res);
-                    } catch (Exception e) {
-                        log.error("输出异常", e);
-                    } finally {
-                        countDownLatch.countDown();
-                    }
-                });
-            });
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                log.error("线程异常", e);
-            } finally {
-                stopWatch.stop();
-                log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
-            }
+            log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         }), dataBk -> {
             datas.forEach(data -> {
                 input.commit(data.offset());
