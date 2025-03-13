@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
@@ -28,6 +29,10 @@ public interface BoCover {
             @Mapping(source = "config", target = "config", qualifiedByName = "strToProperties")
     })
     NodeBo entityToBo(NodeEntity nodeEntity);
+
+    @Mappings({
+    })
+    NodeDto boToDto(NodeBo nodeBo);
 
     @Mappings({
             @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),

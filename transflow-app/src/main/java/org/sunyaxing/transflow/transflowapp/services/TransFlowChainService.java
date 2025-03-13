@@ -49,6 +49,14 @@ public class TransFlowChainService {
         }
     }
 
+    public TransFlowRunnable get(Long jobId) {
+        return JOB_CHAINS.get(jobId);
+    }
+
+    public boolean hasKey(Long jobId) {
+        return JOB_CHAINS.containsKey(jobId);
+    }
+
     /**
      * 构建全链路 包括头部 input 节点
      *

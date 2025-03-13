@@ -9,7 +9,9 @@ import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 
@@ -29,6 +31,11 @@ public class TransFlowChain<T extends ExtensionLifecycle> {
         this.status = ChainStatusEnum.INIT;
         this.currentNode = currentNode;
         this.children = new ArrayList<>();
+    }
+
+    public void chains(Map<Long, TransFlowChain<?>> map){
+        map.put(nodeId, this);
+        children.forEach(child -> child.chains(map));
     }
 
     public void addChild(TransFlowChain<?> child) {

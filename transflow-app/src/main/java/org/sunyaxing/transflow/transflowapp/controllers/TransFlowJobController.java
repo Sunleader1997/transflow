@@ -1,11 +1,11 @@
 package org.sunyaxing.transflow.transflowapp.controllers;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
+import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
 import org.sunyaxing.transflow.transflowapp.services.NodeService;
@@ -13,6 +13,7 @@ import org.sunyaxing.transflow.transflowapp.services.TransFlowChainService;
 import org.sunyaxing.transflow.transflowapp.services.bos.JobBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
+import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.List;
 
@@ -52,8 +53,19 @@ public class TransFlowJobController {
     }
 
     @GetMapping("/node/list")
-    public List<NodeBo> nodeList(@RequestParam("jobId") Long jobId) {
-        return nodeService.list(jobId);
+    public List<NodeDto> nodeList(@RequestParam("jobId") Long jobId) {
+        boolean hasKey = transFlowChainService.hasKey(jobId);
+        return nodeService.list(jobId)
+                .stream().map(bo -> {
+                    NodeDto nodeDto = BoCover.INSTANCE.boToDto(bo);
+                    if (hasKey) {
+                        TransFlowChain<?> chain = transFlowChainService.get(jobId).getChainByNodeId(bo.getId());
+                        nodeDto.setStatus(chain.getStatus());
+                    } else {
+                        nodeDto.setStatus(ChainStatusEnum.INIT);
+                    }
+                    return nodeDto;
+                }).toList();
     }
 
     @PostMapping("/node/save")
