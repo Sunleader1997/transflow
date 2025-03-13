@@ -21,6 +21,9 @@ public class NodeEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("jobId")
+    private Long jobId;
+
     @TableField("name")
     private String name;
 

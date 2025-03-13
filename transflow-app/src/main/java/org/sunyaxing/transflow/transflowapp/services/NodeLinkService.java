@@ -7,4 +7,5 @@ import org.sunyaxing.transflow.transflowapp.repositories.NodeLinkRepository;
 
 @Service
 public class NodeLinkService extends ServiceImpl<NodeLinkRepository, NodeLinkEntity> {
+
 }
