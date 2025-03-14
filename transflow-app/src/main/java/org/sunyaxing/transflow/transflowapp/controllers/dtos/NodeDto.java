@@ -9,7 +9,7 @@ import java.util.Properties;
 @Data
 public class NodeDto {
     private String id;
-    private TransFlowTypeEnum nodeType;
+    private TransFlowTypeEnum type;
     private Position position;
     private NodeData data;
 

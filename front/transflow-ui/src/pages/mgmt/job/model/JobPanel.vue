@@ -7,13 +7,7 @@
     </q-drawer>
     <q-page-container>
       <q-page style="height: calc(100vh - 50px)">
-        <VueFlow
-          :nodes="nodes"
-          :edges="edges"
-          @dragover="onDragOver"
-          @dragleave="onDragLeave"
-          class="full-height"
-        >
+        <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height">
           <MiniMap />
           <Controls>
             <div>jobId：{{ jobId }}</div>
@@ -59,10 +53,20 @@ import DropzoneBackground from './components/DropzoneBackground.vue'
 import InputNode from './components/InputNode.vue'
 
 export default {
-  components: { InputNode, DropzoneBackground, SideBar, Controls, ControlButton, MiniMap, VueFlow ,SpecialEdge,SpecialNode},
+  components: {
+    InputNode,
+    DropzoneBackground,
+    SideBar,
+    Controls,
+    ControlButton,
+    MiniMap,
+    VueFlow,
+    SpecialEdge,
+    SpecialNode,
+  },
   props: ['jobId'],
   setup() {
-    const { onConnect, addEdges } = useVueFlow()
+    const { onConnect, addEdges, setNodes } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect(addEdges)
     return {
@@ -70,14 +74,14 @@ export default {
       onDrop,
       onDragLeave,
       isDragOver,
-      nodes: [],
-      edges: [],
+      setNodes,
     }
   },
   methods: {
     reloadData(newJobId) {
       this.$axios.get('/transflow/node/list?jobId=' + newJobId).then((response) => {
-        this.nodes.value = response.data
+        console.log(response.data)
+        this.setNodes(response.data)
       })
     },
   },
@@ -85,14 +89,14 @@ export default {
     console.log('beforeMount')
   },
   watch: {
-    jobId:{
+    jobId: {
       handler(newVal) {
         console.log(newVal)
         this.reloadData(newVal)
       },
-      immediate: true
-    }
-  }
+      immediate: true,
+    },
+  },
 }
 // these are our edges
 // const edges = ref([
