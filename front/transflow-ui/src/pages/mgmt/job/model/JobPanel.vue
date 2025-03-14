@@ -24,7 +24,7 @@
             <p v-if="isDragOver">Drop here</p>
           </DropzoneBackground>
           <template #node-input="specialNodeProps">
-            <InputNode v-bind="specialNodeProps" />
+            <DefInput v-bind="specialNodeProps" />
           </template>
           <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
           <template #node-special="specialNodeProps">
@@ -50,11 +50,11 @@ import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
 import SideBar from './components/SideBar.vue'
 import DropzoneBackground from './components/DropzoneBackground.vue'
-import InputNode from './components/InputNode.vue'
+import DefInput from './nodes/DefInput.vue'
 
 export default {
   components: {
-    InputNode,
+    DefInput,
     DropzoneBackground,
     SideBar,
     Controls,

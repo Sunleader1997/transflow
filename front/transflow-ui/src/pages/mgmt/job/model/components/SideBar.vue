@@ -24,20 +24,22 @@ export default {
 </script>
 
 <template>
-  <div class="nodes q-px-md">
-    <div
+  <q-list class="nodes q-px-md">
+    <q-item
+      dark
       v-for="plugin in plugins"
       :key="plugin.id"
-      :class="`q-my-md vue-flow__node-` + plugin.type"
+      :class="`q-my-md node-` + plugin.type"
       :draggable="plugin.state === 'STARTED'"
       @dragstart="onDragStart($event, plugin.id)">
-<!--      <q-item-section avatar>-->
-<!--        <q-icon name="signal_wifi_off" />-->
-<!--      </q-item-section>-->
-      <q-item-section>{{plugin.id}}</q-item-section>
-      <q-item-section side>{{plugin.description}}</q-item-section>
-    </div>
-  </div>
+      <q-item-section>
+        <q-item-label>{{plugin.id}}</q-item-label>
+        <q-item-label caption>
+          {{plugin.version}}
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+  </q-list>
 </template>
 
 <style scoped></style>
