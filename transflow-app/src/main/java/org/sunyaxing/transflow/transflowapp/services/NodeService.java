@@ -30,7 +30,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         return nodeBo;
     }
 
-    public void save(NodeBo nodeBo) {
+    public NodeBo save(NodeBo nodeBo) {
         var job = jobRepository.selectById(nodeBo.getJobId());
         Assert.notNull(job, "空间不存在");
         this.parseConfig(nodeBo);
@@ -40,6 +40,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         } else {
             this.updateById(nodeEntity);
         }
+        return BoCover.INSTANCE.entityToBo(nodeEntity);
     }
 
     public List<NodeBo> list(String jobId) {

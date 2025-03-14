@@ -31,7 +31,7 @@ export default {
       :key="plugin.id"
       :class="`q-my-md node-` + plugin.type"
       :draggable="plugin.state === 'STARTED'"
-      @dragstart="onDragStart($event, plugin.id)">
+      @dragstart="onDragStart($event, plugin)">
       <q-item-section>
         <q-item-label>{{plugin.id}}</q-item-label>
         <q-item-label caption>

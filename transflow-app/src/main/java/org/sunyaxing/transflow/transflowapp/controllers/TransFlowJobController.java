@@ -69,9 +69,10 @@ public class TransFlowJobController {
     }
 
     @PostMapping("/node/save")
-    public Boolean nodeSave(@RequestBody NodeBo nodeBo) {
-        nodeService.save(nodeBo);
-        return true;
+    public NodeDto nodeSave(@RequestBody NodeDto nodeDto) {
+        NodeBo nodeBo = BoCover.INSTANCE.dtoToBo(nodeDto);
+        NodeBo nodeBoRes = nodeService.save(nodeBo);
+        return BoCover.INSTANCE.boToDto(nodeBoRes);
     }
 
     @PostMapping("/node/link")

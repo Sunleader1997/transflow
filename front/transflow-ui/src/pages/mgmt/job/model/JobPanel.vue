@@ -1,5 +1,10 @@
 <template>
-  <q-layout view="hHh Lpr lff" container style="min-height: calc(96vh)" @drop="onDrop">
+  <q-layout
+    view="hHh Lpr lff"
+    container
+    style="min-height: calc(96vh)"
+    @drop="onDrop($event, jobId)"
+  >
     <q-drawer show-if-above width="200" side="right">
       <q-scroll-area class="fit">
         <SideBar />
@@ -66,9 +71,12 @@ export default {
   },
   props: ['jobId'],
   setup() {
-    const { onConnect, addEdges, setNodes } = useVueFlow()
+    const { onConnect, addEdges, setNodes, onNodeDragStop } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect(addEdges)
+    onNodeDragStop((e)=>{
+      console.log(e)
+    })
     return {
       onDragOver,
       onDrop,

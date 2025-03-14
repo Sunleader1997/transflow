@@ -1,5 +1,6 @@
 import { useVueFlow } from '@vue-flow/core'
 import { ref, watch } from 'vue'
+import axios from 'axios'
 
 let id = 0
 
@@ -18,13 +19,14 @@ const state = {
   /**
    * The type of the node being dragged.
    */
+  pluginId: ref(null),
   draggedType: ref(null),
   isDragOver: ref(false),
   isDragging: ref(false),
 }
 
 export default function useDragAndDrop() {
-  const { draggedType, isDragOver, isDragging } = state
+  const { pluginId, draggedType, isDragOver, isDragging } = state
 
   const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
@@ -32,13 +34,14 @@ export default function useDragAndDrop() {
     document.body.style.userSelect = dragging ? 'none' : ''
   })
 
-  function onDragStart(event, type) {
+  function onDragStart(event, plugin) {
     if (event.dataTransfer) {
-      event.dataTransfer.setData('application/vueflow', type)
+      event.dataTransfer.setData('application/vueflow', plugin.type)
       event.dataTransfer.effectAllowed = 'move'
     }
-
-    draggedType.value = type
+    pluginId.value = plugin.id
+    // input filter output
+    draggedType.value = plugin.type
     isDragging.value = true
 
     document.addEventListener('drop', onDragEnd)
@@ -69,6 +72,7 @@ export default function useDragAndDrop() {
     isDragging.value = false
     isDragOver.value = false
     draggedType.value = null
+    pluginId.value = null
     document.removeEventListener('drop', onDragEnd)
   }
 
@@ -76,8 +80,9 @@ export default function useDragAndDrop() {
    * Handles the drop event.
    *
    * @param {DragEvent} event
+   * @param {jobId} jobId
    */
-  function onDrop(event) {
+  function onDrop(event,jobId) {
     const position = screenToFlowCoordinate({
       x: event.clientX,
       y: event.clientY,
@@ -86,10 +91,16 @@ export default function useDragAndDrop() {
     const nodeId = getId()
 
     const newNode = {
-      id: nodeId,
       type: draggedType.value,
       position,
-      data: { label: nodeId },
+      data: {
+        name: "测试数据",
+        jobId: jobId,
+        pluginId: pluginId.value,
+        status: "INIT",
+        nodeType: draggedType.value.toUpperCase(),
+        config: {}
+      },
     }
 
     /**
@@ -104,8 +115,10 @@ export default function useDragAndDrop() {
 
       off()
     })
-
-    addNodes(newNode)
+    axios.post("/transflow/node/save",{...newNode}).then((response) => {
+      addNodes(response.data)
+    })
+    //addNodes(newNode)
   }
 
   return {

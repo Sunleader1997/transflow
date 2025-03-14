@@ -3,7 +3,7 @@
 import { Handle, Position } from '@vue-flow/core'
 import axios from 'axios'
 
-const props = defineProps(['id', 'data'])
+const props = defineProps(['id', 'data', 'position','type'])
 const dataConfig = props.data.config
 // const { updateNodeData } = useVueFlow()
 // const value = computed({
@@ -11,14 +11,7 @@ const dataConfig = props.data.config
 //   set: (value) => updateNodeData(props.id, { value }),
 // })
 function saveNode() {
-  axios.post('/transflow/node/save', {
-    id: props.id,
-    jobId: props.data.jobId,
-    name: props.data.name,
-    nodeType: props.data.nodeType,
-    pluginId: props.data.pluginId,
-    config: dataConfig
-  })
+  axios.post('/transflow/node/save', props)
 }
 </script>
 

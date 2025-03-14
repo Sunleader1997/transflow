@@ -32,15 +32,26 @@ public interface BoCover {
     NodeBo entityToBo(NodeEntity nodeEntity);
 
     @Mappings({
-            @Mapping(source = "nodeBo",target = "position", qualifiedByName = "position"),
-            @Mapping(source = "name",target = "data.name"),
-            @Mapping(source = "jobId",target = "data.jobId"),
-            @Mapping(source = "pluginId",target = "data.pluginId"),
-            @Mapping(source = "nodeType",target = "data.nodeType"),
-            @Mapping(source = "config",target = "data.config", qualifiedByName = "useSet"),
-            @Mapping(source = "nodeType",target = "type", qualifiedByName = "nodeTypeToString")
+            @Mapping(source = "nodeBo", target = "position", qualifiedByName = "position"),
+            @Mapping(source = "name", target = "data.name"),
+            @Mapping(source = "jobId", target = "data.jobId"),
+            @Mapping(source = "pluginId", target = "data.pluginId"),
+            @Mapping(source = "nodeType", target = "data.nodeType"),
+            @Mapping(source = "config", target = "data.config", qualifiedByName = "useSet"),
+            @Mapping(source = "nodeType", target = "type", qualifiedByName = "nodeTypeToString")
     })
     NodeDto boToDto(NodeBo nodeBo);
+
+    @Mappings({
+            @Mapping(target = "x", source = "position", qualifiedByName = "positionX"),
+            @Mapping(target = "y", source = "position", qualifiedByName = "positionY"),
+            @Mapping(target = "name", source = "data.name"),
+            @Mapping(target = "jobId", source = "data.jobId"),
+            @Mapping(target = "pluginId", source = "data.pluginId"),
+            @Mapping(target = "config", source = "data.config", qualifiedByName = "useSet"),
+            @Mapping(target = "nodeType", source = "type", qualifiedByName = "stringToNodeType")
+    })
+    NodeBo dtoToBo(NodeDto nodeDto);
 
     @Mappings({
             @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),
@@ -58,12 +69,21 @@ public interface BoCover {
     NodeLinkEntity boToEntity(NodeLinkBo nodeBo);
 
 
-
     @Named("position")
     default NodeDto.Position position(NodeBo nodeBo) {
         NodeDto.Position position = new NodeDto.Position();
         position.setX(nodeBo.getX());
         position.setY(nodeBo.getY());
         return position;
+    }
+
+    @Named("positionX")
+    default Integer positionX(NodeDto.Position position) {
+        return position.getX();
+    }
+
+    @Named("positionY")
+    default Integer positionY(NodeDto.Position position) {
+        return position.getY();
     }
 }

@@ -36,6 +36,10 @@ public class CommonCover {
     public String nodeTypeToString(TransFlowTypeEnum typeEnum) {
         return typeEnum.getValue();
     }
+    @Named("stringToNodeType")
+    public TransFlowTypeEnum nodeStringToType(String s) {
+        return TransFlowTypeEnum.valueOf(s.toUpperCase());
+    }
     @Named("useSet")
     public <T> T useSet(T data) {
         return data;
