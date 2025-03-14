@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.mapstruct.Named;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 
 import java.util.Properties;
 
