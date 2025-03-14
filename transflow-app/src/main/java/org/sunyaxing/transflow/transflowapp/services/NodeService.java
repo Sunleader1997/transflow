@@ -24,7 +24,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
     @Autowired
     private JobRepository jobRepository;
 
-    public NodeBo boById(Long nodeId) {
+    public NodeBo boById(String nodeId) {
         NodeEntity nodeEntity = this.getById(nodeId);
         return BoCover.INSTANCE.entityToBo(nodeEntity);
     }
@@ -42,7 +42,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         }
     }
 
-    public List<NodeBo> list(Long jobId) {
+    public List<NodeBo> list(String jobId) {
         return this.lambdaQuery()
                 .eq(NodeEntity::getJobId, jobId)
                 .list()

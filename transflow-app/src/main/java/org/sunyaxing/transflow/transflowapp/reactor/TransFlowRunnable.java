@@ -27,7 +27,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private Disposable disposable;
     private final TransFlowInput input;
     private final TransFlowChain<TransFlowInput> chain;
-    private final Map<Long, TransFlowChain<?>> allNodes;
+    private final Map<String, TransFlowChain<?>> allNodes;
 
     public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {
         this.input = chain.getCurrentNode();
@@ -39,7 +39,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
         this.chain.chains(this.allNodes);
     }
 
-    public TransFlowChain<?> getChainByNodeId(Long nodeId) {
+    public TransFlowChain<?> getChainByNodeId(String nodeId) {
         return allNodes.get(nodeId);
     }
 

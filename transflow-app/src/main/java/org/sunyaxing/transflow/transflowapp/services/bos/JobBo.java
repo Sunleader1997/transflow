@@ -6,9 +6,9 @@ import java.util.Date;
 
 @Data
 public class JobBo {
-    private Long id;
+    private String id;
     private String name;
     private String description;
-    private Long inputId;
+    private String inputId;
     private Date updateTime;
 }

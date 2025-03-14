@@ -1,5 +1,5 @@
 <script setup>
-import useDragAndDrop from './useDnD'
+import useDragAndDrop from './useDnD.js'
 const { onDragStart } = useDragAndDrop()
 </script>
 

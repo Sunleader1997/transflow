@@ -8,11 +8,23 @@ import java.util.Properties;
 
 @Data
 public class NodeDto {
-    private Long id;
-    private Long jobId;
-    private String name;
+    private String id;
     private TransFlowTypeEnum nodeType;
-    private ChainStatusEnum status;
-    private String pluginId;
-    private Properties config;
+    private Position position;
+    private NodeData data;
+
+    @Data
+    public static class Position {
+        private Integer x;
+        private Integer y;
+    }
+
+    @Data
+    public static class NodeData {
+        private String name;
+        private String jobId;
+        private ChainStatusEnum status;
+        private String pluginId;
+        private Properties config;
+    }
 }

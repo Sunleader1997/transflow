@@ -13,8 +13,8 @@ public class CommonCover {
     private static final Logger log = LoggerFactory.getLogger(CommonCover.class);
 
     @Named("generateIfNull")
-    public Long generateIfNull(Long id) {
-        return id == null ? IdUtil.getSnowflakeNextId() : id;
+    public String generateIfNull(String id) {
+        return id == null ? IdUtil.getSnowflakeNextIdStr() : id;
     }
 
     @Named("strToProperties")

@@ -27,9 +27,9 @@ public class TransFlowChainService {
     @Autowired
     private PluginManager pluginManager;
 
-    public static final ConcurrentHashMap<Long, TransFlowRunnable> JOB_CHAINS = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, TransFlowRunnable> JOB_CHAINS = new ConcurrentHashMap<>();
 
-    public void run(Long jobId) {
+    public void run(String jobId) {
         boolean isRunning = JOB_CHAINS.containsKey(jobId);
         if (isRunning) {
             throw new RuntimeException("job is running");
@@ -41,7 +41,7 @@ public class TransFlowChainService {
         }
     }
 
-    public void stop(Long jobId) {
+    public void stop(String jobId) {
         TransFlowRunnable chain = JOB_CHAINS.get(jobId);
         if (chain != null) {
             chain.dispose();
@@ -49,11 +49,11 @@ public class TransFlowChainService {
         }
     }
 
-    public TransFlowRunnable get(Long jobId) {
+    public TransFlowRunnable get(String jobId) {
         return JOB_CHAINS.get(jobId);
     }
 
-    public boolean hasKey(Long jobId) {
+    public boolean hasKey(String jobId) {
         return JOB_CHAINS.containsKey(jobId);
     }
 
@@ -63,10 +63,10 @@ public class TransFlowChainService {
      * @param jobId
      * @return
      */
-    public TransFlowChain<TransFlowInput> buildChain(Long jobId) {
+    public TransFlowChain<TransFlowInput> buildChain(String jobId) {
         JobBo jobBo = jobService.boById(jobId);
         // 获取输入节点
-        Long inputId = jobBo.getInputId();
+        String inputId = jobBo.getInputId();
         NodeBo inputNode = nodeService.boById(inputId);
         // 获取 input 插件
         TransFlowInput transFlowInput = pluginManager.getExtensions(TransFlowInput.class, inputNode.getPluginId()).getFirst();
@@ -80,7 +80,7 @@ public class TransFlowChainService {
 
     // 递归创建责任链
     public void buildChain(TransFlowChain<?> parentChain) {
-        Long sourceId = parentChain.getNodeId();
+        String sourceId = parentChain.getNodeId();
         // 以当前节点为源的连线
         List<NodeLinkBo> links = nodeLinkService.findLinksBySource(sourceId);
         // 下一个节点数据

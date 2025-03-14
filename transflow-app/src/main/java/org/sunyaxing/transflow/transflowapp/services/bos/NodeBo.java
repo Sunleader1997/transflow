@@ -7,10 +7,12 @@ import java.util.Properties;
 
 @Data
 public class NodeBo {
-    private Long id;
-    private Long jobId;
+    private String id;
+    private String jobId;
     private String name;
     private TransFlowTypeEnum nodeType;
     private String pluginId;
     private Properties config;
+    private Integer x;
+    private Integer y;
 }

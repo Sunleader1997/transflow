@@ -3,6 +3,7 @@ package org.sunyaxing.transflow.transflowapp.services.bos.cover;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
@@ -31,6 +32,11 @@ public interface BoCover {
     NodeBo entityToBo(NodeEntity nodeEntity);
 
     @Mappings({
+            @Mapping(source = "nodeBo",target = "position", qualifiedByName = "position"),
+            @Mapping(source = "name",target = "data.name"),
+            @Mapping(source = "jobId",target = "data.jobId"),
+            @Mapping(source = "pluginId",target = "data.pluginId"),
+            @Mapping(source = "config",target = "data.config")
     })
     NodeDto boToDto(NodeBo nodeBo);
 
@@ -48,4 +54,14 @@ public interface BoCover {
             @Mapping(source = "id", target = "id", qualifiedByName = "generateIfNull"),
     })
     NodeLinkEntity boToEntity(NodeLinkBo nodeBo);
+
+
+
+    @Named("position")
+    default NodeDto.Position position(NodeBo nodeBo) {
+        NodeDto.Position position = new NodeDto.Position();
+        position.setX(nodeBo.getX());
+        position.setY(nodeBo.getY());
+        return position;
+    }
 }

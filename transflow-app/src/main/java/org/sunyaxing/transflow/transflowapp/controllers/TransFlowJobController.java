@@ -53,16 +53,16 @@ public class TransFlowJobController {
     }
 
     @GetMapping("/node/list")
-    public List<NodeDto> nodeList(@RequestParam("jobId") Long jobId) {
+    public List<NodeDto> nodeList(@RequestParam("jobId") String jobId) {
         boolean hasKey = transFlowChainService.hasKey(jobId);
         return nodeService.list(jobId)
                 .stream().map(bo -> {
                     NodeDto nodeDto = BoCover.INSTANCE.boToDto(bo);
                     if (hasKey) {
                         TransFlowChain<?> chain = transFlowChainService.get(jobId).getChainByNodeId(bo.getId());
-                        nodeDto.setStatus(chain.getStatus());
+                        nodeDto.getData().setStatus(chain.getStatus());
                     } else {
-                        nodeDto.setStatus(ChainStatusEnum.INIT);
+                        nodeDto.getData().setStatus(ChainStatusEnum.INIT);
                     }
                     return nodeDto;
                 }).toList();

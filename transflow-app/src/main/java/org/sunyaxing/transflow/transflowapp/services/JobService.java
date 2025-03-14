@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class JobService extends ServiceImpl<JobRepository, JobEntity> {
 
-    public JobBo boById(Long jobId) {
+    public JobBo boById(String jobId) {
         JobEntity jobEntity = this.getById(jobId);
         return BoCover.INSTANCE.entityToBo(jobEntity);
     }

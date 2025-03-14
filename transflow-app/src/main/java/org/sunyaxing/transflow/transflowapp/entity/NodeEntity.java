@@ -21,10 +21,10 @@ import java.io.Serializable;
 @TableName("node")
 public class NodeEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    private String id;
 
     @TableField("jobId")
-    private Long jobId;
+    private String jobId;
 
     @TableField("name")
     private String name;
@@ -38,4 +38,9 @@ public class NodeEntity implements Serializable {
     @TableField("config")
     private String config;
 
+    @TableField("X")
+    private Integer x;
+
+    @TableField("Y")
+    private Integer y;
 }

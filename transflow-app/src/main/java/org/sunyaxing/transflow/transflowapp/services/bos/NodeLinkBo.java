@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class NodeLinkBo {
-    private Long id;
-    private Long sourceId;
-    private Long targetId;
+    private String id;
+    private String sourceId;
+    private String targetId;
 }

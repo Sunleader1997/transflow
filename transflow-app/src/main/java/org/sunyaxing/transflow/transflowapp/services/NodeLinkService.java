@@ -20,7 +20,7 @@ public class NodeLinkService extends ServiceImpl<NodeLinkRepository, NodeLinkEnt
         }
     }
 
-    public List<NodeLinkBo> findLinksBySource(Long sourceId) {
+    public List<NodeLinkBo> findLinksBySource(String sourceId) {
         return this.lambdaQuery()
                 .eq(NodeLinkEntity::getSourceId, sourceId)
                 .list()

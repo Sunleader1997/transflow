@@ -19,11 +19,11 @@ import java.io.Serializable;
 @TableName("node_link")
 public class NodeLinkEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    private String id;
 
     @TableField("sourceId")
-    private Long sourceId;
+    private String sourceId;
 
     @TableField("targetId")
-    private Long targetId;
+    private String targetId;
 }

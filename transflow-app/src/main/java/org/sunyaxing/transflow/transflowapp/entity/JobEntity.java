@@ -20,7 +20,7 @@ import java.util.Date;
 @TableName("job")
 public class JobEntity implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    private String id;
  
     @TableField("name")
     private String name;
@@ -29,7 +29,7 @@ public class JobEntity implements Serializable {
     private String description;
 
     @TableField("inputId")
-    private Long inputId;
+    private String inputId;
 
     @TableField("updateTime")
     private Date updateTime;

@@ -18,7 +18,7 @@ import java.util.concurrent.CountDownLatch;
 @Getter
 public class TransFlowChain<T extends ExtensionLifecycle> {
     private static final Logger log = LoggerFactory.getLogger(TransFlowChain.class);
-    private final Long nodeId;
+    private final String nodeId;
     private final TransFlowTypeEnum typeEnum;
     // 状态 0 未执行 1 执行中 2 执行完成
     private ChainStatusEnum status;
@@ -33,7 +33,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> {
         this.children = new ArrayList<>();
     }
 
-    public void chains(Map<Long, TransFlowChain<?>> map){
+    public void chains(Map<String, TransFlowChain<?>> map){
         map.put(nodeId, this);
         children.forEach(child -> child.chains(map));
     }
