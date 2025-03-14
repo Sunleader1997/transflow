@@ -23,6 +23,7 @@ public class NodeDto {
     public static class NodeData {
         private String name;
         private String jobId;
+        private String pluginId;
         private ChainStatusEnum status;
         private TransFlowTypeEnum nodeType;
         private Properties config;

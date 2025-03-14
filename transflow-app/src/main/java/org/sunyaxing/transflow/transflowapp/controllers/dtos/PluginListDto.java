@@ -1,4 +1,13 @@
 package org.sunyaxing.transflow.transflowapp.controllers.dtos;
 
-public record PluginListDto(String id,String state) {
+import lombok.Data;
+
+@Data
+public class PluginListDto{
+    private String id;
+    private String type;
+    private String state;
+    private String description;
+    private String version;
+    private String provider;
 }

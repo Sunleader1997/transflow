@@ -32,4 +32,8 @@ public class CommonCover {
     public String propertiesToStr(Properties properties) {
         return JSONObject.toJSONString(properties);
     }
+    @Named("nodeTypeToString")
+    public String nodeTypeToString(TransFlowTypeEnum typeEnum) {
+        return typeEnum.getValue();
+    }
 }
