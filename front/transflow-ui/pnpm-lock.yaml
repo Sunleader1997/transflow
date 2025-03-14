@@ -11,9 +11,24 @@ importers:
       '@quasar/extras':
         specifier: ^1.16.4
         version: 1.16.17
+      '@vue-flow/background':
+        specifier: ^1.3.2
+        version: 1.3.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)
+      '@vue-flow/controls':
+        specifier: ^1.1.2
+        version: 1.1.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)
       '@vue-flow/core':
         specifier: ^1.42.3
         version: 1.42.3(vue@3.5.13)
+      '@vue-flow/minimap':
+        specifier: ^1.5.2
+        version: 1.5.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)
+      '@vue-flow/node-resizer':
+        specifier: ^1.4.0
+        version: 1.4.0(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)
+      '@vue-flow/node-toolbar':
+        specifier: ^1.1.1
+        version: 1.1.1(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)
       axios:
         specifier: ^1.2.1
         version: 1.8.3
@@ -53,7 +68,7 @@ importers:
         version: 9.33.0(eslint@9.22.0(jiti@1.21.7))
       eslint-webpack-plugin:
         specifier: ^4.2.0
-        version: 4.2.0(eslint@9.22.0(jiti@1.21.7))(webpack@5.98.0)
+        version: 4.2.0(eslint@9.22.0(jiti@1.21.7))(webpack@5.98.0(esbuild@0.25.1))
       globals:
         specifier: ^15.12.0
         version: 15.15.0
@@ -1133,9 +1148,39 @@ packages:
   '@types/yargs@17.0.33':
     resolution: {integrity: sha512-WpxBCKWPLr4xSsHgz511rFJAM+wS28w2zEO1QDNY5zM/S8ok70NNfztH0xwhqKyaK0OHCbN98LDAZuy1ctxDkA==}
 
+  '@vue-flow/background@1.3.2':
+    resolution: {integrity: sha512-eJPhDcLj1wEo45bBoqTXw1uhl0yK2RaQGnEINqvvBsAFKh/camHJd5NPmOdS1w+M9lggc9igUewxaEd3iCQX2w==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
+      vue: ^3.3.0
+
+  '@vue-flow/controls@1.1.2':
+    resolution: {integrity: sha512-6dtl/JnwDBNau5h3pDBdOCK6tdxiVAOL3cyruRL61gItwq5E97Hmjmj2BIIqX2p7gU1ENg3z80Z4zlu58fGlsg==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
+      vue: ^3.3.0
+
   '@vue-flow/core@1.42.3':
     resolution: {integrity: sha512-ou7YUsqXyjI0GFj2psZnFv0vHRkYNpgm8L26jDoKf9py8E04n4nEGFIHBr19/6Ad6ArDbNNwVGmgzI2D/94D4A==}
     peerDependencies:
+      vue: ^3.3.0
+
+  '@vue-flow/minimap@1.5.2':
+    resolution: {integrity: sha512-XNSpWwwXfCWqJilc2eCW+3ry3r9vhF8HmUw5wrAsUTHiss4R9k5uZLABo7c3T3VdcVRJ8pTfUJ9vjpzb8H+FKg==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
+      vue: ^3.3.0
+
+  '@vue-flow/node-resizer@1.4.0':
+    resolution: {integrity: sha512-S52MRcSpd6asza8Cl0bKM2sHGrbq7vBydKHDuPdoTD+cvjNX6XF4LSiPZOuzExePI6b+O6dg2EZ1378oOLGFpA==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
+      vue: ^3.3.0
+
+  '@vue-flow/node-toolbar@1.1.1':
+    resolution: {integrity: sha512-vgSnGMLd3FXstdpvC721qcBDzGkPsudmyA8urEP55/EMikCp59klgzPvVULTDxxsew5MdXtTBCumsqOi+PXJdg==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
       vue: ^3.3.0
 
   '@vue/compiler-core@3.5.13':
@@ -5481,6 +5526,16 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.3
 
+  '@vue-flow/background@1.3.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)':
+    dependencies:
+      '@vue-flow/core': 1.42.3(vue@3.5.13)
+      vue: 3.5.13
+
+  '@vue-flow/controls@1.1.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)':
+    dependencies:
+      '@vue-flow/core': 1.42.3(vue@3.5.13)
+      vue: 3.5.13
+
   '@vue-flow/core@1.42.3(vue@3.5.13)':
     dependencies:
       '@vueuse/core': 10.11.1(vue@3.5.13)
@@ -5490,6 +5545,25 @@ snapshots:
       vue: 3.5.13
     transitivePeerDependencies:
       - '@vue/composition-api'
+
+  '@vue-flow/minimap@1.5.2(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)':
+    dependencies:
+      '@vue-flow/core': 1.42.3(vue@3.5.13)
+      d3-selection: 3.0.0
+      d3-zoom: 3.0.0
+      vue: 3.5.13
+
+  '@vue-flow/node-resizer@1.4.0(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)':
+    dependencies:
+      '@vue-flow/core': 1.42.3(vue@3.5.13)
+      d3-drag: 3.0.0
+      d3-selection: 3.0.0
+      vue: 3.5.13
+
+  '@vue-flow/node-toolbar@1.1.1(@vue-flow/core@1.42.3(vue@3.5.13))(vue@3.5.13)':
+    dependencies:
+      '@vue-flow/core': 1.42.3(vue@3.5.13)
+      vue: 3.5.13
 
   '@vue/compiler-core@3.5.13':
     dependencies:
@@ -6509,7 +6583,7 @@ snapshots:
 
   eslint-visitor-keys@4.2.0: {}
 
-  eslint-webpack-plugin@4.2.0(eslint@9.22.0(jiti@1.21.7))(webpack@5.98.0):
+  eslint-webpack-plugin@4.2.0(eslint@9.22.0(jiti@1.21.7))(webpack@5.98.0(esbuild@0.25.1)):
     dependencies:
       '@types/eslint': 8.56.12
       eslint: 9.22.0(jiti@1.21.7)

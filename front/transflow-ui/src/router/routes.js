@@ -1,5 +1,12 @@
 const routes = [
   {
+    path: '/mgmt',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: 'jobPanel', component: () => import('pages/job/panel/JobPanel.vue') }
+    ]
+  },
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
