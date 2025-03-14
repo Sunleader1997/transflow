@@ -36,7 +36,7 @@ public interface BoCover {
             @Mapping(source = "name",target = "data.name"),
             @Mapping(source = "jobId",target = "data.jobId"),
             @Mapping(source = "pluginId",target = "data.pluginId"),
-            @Mapping(source = "config",target = "data.config"),
+            @Mapping(source = "config",target = "data.config", qualifiedByName = "useSet"),
             @Mapping(source = "nodeType",target = "type", qualifiedByName = "nodeTypeToString")
     })
     NodeDto boToDto(NodeBo nodeBo);

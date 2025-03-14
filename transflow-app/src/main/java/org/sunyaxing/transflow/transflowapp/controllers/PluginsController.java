@@ -12,6 +12,7 @@ import org.sunyaxing.transflow.plugins.TransFlowFilterPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowOutputPlugin;
 import org.sunyaxing.transflow.transflowapp.config.DirFileWatcher;
+import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
 
 import java.util.List;
@@ -34,13 +35,14 @@ public class PluginsController {
             pluginListDto.setDescription(pluginWrapper.getDescriptor().getPluginDescription());
             pluginListDto.setVersion(pluginWrapper.getDescriptor().getVersion());
             Plugin plugin = pluginWrapper.getPlugin();
-            if(plugin instanceof TransFlowInputPlugin){
+            if (plugin instanceof TransFlowInputPlugin) {
                 pluginListDto.setType("input");
             } else if (plugin instanceof TransFlowFilterPlugin) {
                 pluginListDto.setType("filter");
             } else if (plugin instanceof TransFlowOutputPlugin) {
                 pluginListDto.setType("output");
             }
+            pluginListDto.setProperties(JobConfigProperties.getJobProperties(plugin));
             return pluginListDto;
         }).toList();
     }

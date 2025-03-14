@@ -36,4 +36,8 @@ public class CommonCover {
     public String nodeTypeToString(TransFlowTypeEnum typeEnum) {
         return typeEnum.getValue();
     }
+    @Named("useSet")
+    public <T> T useSet(T data) {
+        return data;
+    }
 }
