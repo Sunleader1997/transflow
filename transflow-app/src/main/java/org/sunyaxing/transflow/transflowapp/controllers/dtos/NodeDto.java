@@ -9,7 +9,7 @@ import java.util.Properties;
 @Data
 public class NodeDto {
     private String id;
-    private TransFlowTypeEnum nodeType;
+    private String type;
     private Position position;
     private NodeData data;
 
@@ -24,7 +24,7 @@ public class NodeDto {
         private String name;
         private String jobId;
         private ChainStatusEnum status;
-        private String type;
+        private TransFlowTypeEnum nodeType;
         private Properties config;
     }
 }
