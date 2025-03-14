@@ -12,7 +12,7 @@ public class GlobeExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity<String> illegalArgumentExceptionHandler(IllegalArgumentException e) {
-        log.error("参数错误：{}", e.getMessage());
+        log.error("参数错误：", e);
         return ResponseEntity.status(500).body("参数错误：" + e.getMessage());
     }
 }

@@ -1,6 +1,7 @@
 <script setup>
 // import { computed } from 'vue'
 import { Handle, Position } from '@vue-flow/core'
+import axios from 'axios'
 
 const props = defineProps(['id', 'data'])
 const dataConfig = props.data.config
@@ -9,6 +10,16 @@ const dataConfig = props.data.config
 //   get: () => props.data.config,
 //   set: (value) => updateNodeData(props.id, { value }),
 // })
+function saveNode() {
+  axios.post('/transflow/node/save', {
+    id: props.id,
+    jobId: props.data.jobId,
+    name: props.data.name,
+    nodeType: props.data.nodeType,
+    pluginId: props.data.pluginId,
+    config: dataConfig
+  })
+}
 </script>
 
 <template>
@@ -17,15 +28,24 @@ const dataConfig = props.data.config
       <div class="text-h6">{{ data.name }}</div>
       <div class="text-subtitle2">{{ data.pluginId }}</div>
     </q-card-section>
-
     <q-separator dark />
     <q-card-section class="nodrag">
-      <q-input v-for="(val, key) in dataConfig" :key="key" v-model="dataConfig[key]" dense borderless>
+      <q-input
+        dark
+        v-for="(val, key) in dataConfig"
+        :key="key"
+        v-model="dataConfig[key]"
+        dense
+        borderless
+      >
         <template v-slot:before>
-          <a class="text-subtitle2 text-white">{{key}}</a>
+          <a class="text-subtitle2 text-white">{{ key }}</a>
         </template>
       </q-input>
     </q-card-section>
+    <q-card-actions align="right">
+      <q-btn label="保存" flat @click="saveNode"></q-btn>
+    </q-card-actions>
   </q-card>
   <Handle type="source" :position="Position.Right" />
 </template>
