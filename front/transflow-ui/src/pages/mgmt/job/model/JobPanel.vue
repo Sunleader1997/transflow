@@ -33,7 +33,11 @@
           </template>
           <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
           <template #node-filter="specialNodeProps">
-            <DefFilter v-bind="specialNodeProps"/>
+            <DefFilter v-bind="specialNodeProps" />
+          </template>
+          <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
+          <template #node-output="specialNodeProps">
+            <DefOutput v-bind="specialNodeProps" />
           </template>
 
           <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
@@ -56,9 +60,11 @@ import SideBar from './components/SideBar.vue'
 import DropzoneBackground from './components/DropzoneBackground.vue'
 import DefInput from './nodes/DefInput.vue'
 import DefFilter from 'pages/mgmt/job/model/nodes/DefFilter.vue'
+import DefOutput from 'pages/mgmt/job/model/nodes/DefOutput.vue'
 
 export default {
   components: {
+    DefOutput,
     DefFilter,
     DefInput,
     DropzoneBackground,
@@ -67,7 +73,7 @@ export default {
     ControlButton,
     MiniMap,
     VueFlow,
-    SpecialEdge
+    SpecialEdge,
   },
   props: ['jobId'],
   setup() {

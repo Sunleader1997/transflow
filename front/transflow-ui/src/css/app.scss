@@ -73,3 +73,22 @@
   background-color: var(--q-primary) !important;
   color: #fff !important;
 }
+
+.vue-flow__node-output {
+  display: flex;
+  text-align: left;
+  gap: 8px;
+  padding: 0;
+  width: fit-content;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0003;
+  border-width: 1px;
+  border-style: none;
+  border-color: #bbb;
+}
+.vue-flow__node-output input{
+  background-color: rgba(0, 128, 255, 0.46) !important;
+}
+.vue-flow__node-output.selected {
+  border-color: var(--q-primary);
+}
