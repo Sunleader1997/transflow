@@ -5,8 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
-import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
@@ -17,6 +18,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -81,6 +83,7 @@ public class TransFlowJobController {
                 .forEach(nodeLinkService::removeById);
         return true;
     }
+
     @PostMapping("/node/save")
     public NodeDto nodeSave(@RequestBody NodeDto nodeDto) {
         NodeBo nodeBo = BoCover.INSTANCE.dtoToBo(nodeDto);
@@ -88,9 +91,27 @@ public class TransFlowJobController {
         return BoCover.INSTANCE.boToDto(nodeBoRes);
     }
 
+    @GetMapping("/node/allForDraw")
+    public NodesAndEdgesDto nodeAllForDraw(@RequestParam("jobId") String jobId) {
+        List<NodeDto> nodes = nodeList(jobId);
+        List<EdgeDto> edges = nodes.stream().map(nodeDto -> {
+            return nodeEdges(nodeDto.getId());
+        }).flatMap(Collection::stream).toList();
+        return new NodesAndEdgesDto(nodes, edges);
+    }
+
+    @GetMapping("/node/edges")
+    public List<EdgeDto> nodeEdges(@RequestParam("sourceId") String sourceId) {
+        return nodeLinkService.lambdaQuery()
+                .eq(NodeLinkEntity::getSourceId, sourceId)
+                .list()
+                .stream().map(BoCover.INSTANCE::entityToBo)
+                .map(BoCover.INSTANCE::boToDto)
+                .toList();
+    }
+
     @PostMapping("/node/link")
-    public Boolean nodeSave(@RequestBody NodeLinkBo linkBo) {
-        nodeLinkService.save(linkBo);
-        return true;
+    public EdgeDto nodeSave(@RequestBody NodeLinkBo linkBo) {
+        return BoCover.INSTANCE.boToDto(nodeLinkService.save(linkBo));
     }
 }

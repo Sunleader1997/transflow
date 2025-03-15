@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.repositories.JobRepository;
-import org.sunyaxing.transflow.transflowapp.repositories.NodeLinkRepository;
 import org.sunyaxing.transflow.transflowapp.repositories.NodeRepository;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
@@ -42,7 +41,10 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         } else {
             this.updateById(nodeEntity);
         }
-        return BoCover.INSTANCE.entityToBo(nodeEntity);
+        NodeBo res = BoCover.INSTANCE.entityToBo(nodeEntity);
+        List<JobConfigProperties> properties = this.parseConfig(res);
+        res.setProperties(properties);
+        return res;
     }
 
     public List<NodeBo> list(String jobId) {
@@ -50,7 +52,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
                 .eq(NodeEntity::getJobId, jobId)
                 .list()
                 .stream()
-                .map(entity->{
+                .map(entity -> {
                     NodeBo nodeBo = BoCover.INSTANCE.entityToBo(entity);
                     List<JobConfigProperties> properties = this.parseConfig(nodeBo);
                     nodeBo.setProperties(properties);
@@ -59,7 +61,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
                 .toList();
     }
 
-    public List<JobConfigProperties> parseConfig(NodeBo nodeBo){
+    public List<JobConfigProperties> parseConfig(NodeBo nodeBo) {
         PluginWrapper pluginWp = pluginManager.getPlugin(nodeBo.getPluginId());
         Assert.notNull(pluginWp, "插件不存在");
         Plugin plugin = pluginWp.getPlugin();

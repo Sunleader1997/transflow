@@ -14,12 +14,6 @@
       <q-page style="height: calc(100vh - 50px)">
         <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height">
           <MiniMap />
-<!--          <Controls>-->
-<!--            <div>jobId：{{ jobId }}</div>-->
-<!--            <ControlButton>-->
-<!--              <i class="fa fa-plus"></i>-->
-<!--            </ControlButton>-->
-<!--          </Controls>-->
           <DropzoneBackground
             :style="{
               backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
@@ -37,7 +31,7 @@
           </template>
           <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
           <template #node-output="specialNodeProps">
-            <DefOutput v-bind="specialNodeProps" @updateNodeInternals="()=>{}"/>
+            <DefOutput v-bind="specialNodeProps" @updateNodeInternals="() => {}" />
           </template>
 
           <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
@@ -75,28 +69,46 @@ export default {
   },
   props: ['jobId'],
   setup() {
-    const { onConnect, addEdges, setNodes, onNodeDragStop, onNodesChange, applyNodeChanges, findNode } = useVueFlow()
+    const {
+      onConnect,
+      addEdges,
+      setNodes,
+      setEdges,
+      onNodeDragStop,
+      onNodesChange,
+      applyNodeChanges,
+      findNode,
+    } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
-    onConnect(addEdges)
+    onConnect((newEdge) => {
+      axios
+        .post('/transflow/node/link', {
+          sourceId: newEdge.source,
+          targetId: newEdge.target,
+        })
+        .then((response) => {
+          addEdges({ ...response.data })
+        })
+    })
     onNodeDragStop(async (e) => {
-      for(const node of e.nodes) {
-        axios.post("/transflow/node/save",{...node})
+      for (const node of e.nodes) {
+        axios.post('/transflow/node/save', { ...node })
       }
     })
 
     onNodesChange(async (changes) => {
       for (const change of changes) {
-        console.log('change.type',change.type,change)
+        console.log('change.type', change.type, change)
         // 删除节点
         if (change.type === 'remove') {
-          await axios.post("/transflow/node/delete",{
+          await axios.post('/transflow/node/delete', {
             id: change.id,
           })
         }
         // 节点失去焦点 时 触发更新
         if (change.type === 'select' && !change.selected) {
-          const node = findNode(change.id);
-          axios.post("/transflow/node/save",{...node})
+          const node = findNode(change.id)
+          axios.post('/transflow/node/save', { ...node })
         }
       }
       applyNodeChanges(changes)
@@ -107,13 +119,14 @@ export default {
       onDragLeave,
       isDragOver,
       setNodes,
+      setEdges,
     }
   },
   methods: {
     reloadData(newJobId) {
-      this.$axios.get('/transflow/node/list?jobId=' + newJobId).then((response) => {
-        console.log(response.data)
-        this.setNodes(response.data)
+      this.$axios.get('/transflow/node/allForDraw?jobId=' + newJobId).then((response) => {
+        this.setNodes(response.data.nodes)
+        this.setEdges(response.data.edges)
       })
     },
   },
@@ -130,38 +143,5 @@ export default {
     },
   },
 }
-
-// these are our edges
-// const edges = ref([
-//   // default bezier edge
-//   // consists of an edge id, source node id and target node id
-//   {
-//     id: 'e1->2',
-//     source: '1',
-//     target: '2',
-//   },
-//
-//   // set `animated: true` to create an animated edge path
-//   {
-//     id: 'e2->3',
-//     source: '2',
-//     target: '3',
-//     animated: true,
-//   },
-//
-//   // a custom edge, specified by using a custom type name
-//   // we choose `type: 'special'` for this example
-//   {
-//     id: 'e3->4',
-//     type: 'special',
-//     source: '3',
-//     target: '4',
-//
-//     // all edges can have a data object containing any data you want to pass to the edge
-//     data: {
-//       hello: 'world',
-//     },
-//   },
-// ])
 </script>
 <style></style>

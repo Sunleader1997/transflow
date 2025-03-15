@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
@@ -69,6 +70,11 @@ public interface BoCover {
     })
     NodeLinkEntity boToEntity(NodeLinkBo nodeBo);
 
+    @Mappings({
+            @Mapping(source = "targetId", target = "target"),
+            @Mapping(source = "sourceId", target = "source"),
+    })
+    EdgeDto boToDto(NodeLinkBo nodeBo);
 
     @Named("position")
     default NodeDto.Position position(NodeBo nodeBo) {

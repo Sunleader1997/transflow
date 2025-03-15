@@ -6,7 +6,7 @@ import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 
 
 @ScopeContentCheck(
-        @JobParamItem(field = "jsonStr", label = "jsonStr", required = true, type = "json")
+        @JobParamItem(field = "jsonStr", label = "jsonStr", required = true)
 )
 public class DemoInputPlugin extends TransFlowInputPlugin {
 }

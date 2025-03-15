@@ -11,13 +11,14 @@ import java.util.List;
 
 @Service
 public class NodeLinkService extends ServiceImpl<NodeLinkRepository, NodeLinkEntity> {
-    public void save(NodeLinkBo linkBo) {
+    public NodeLinkBo save(NodeLinkBo linkBo) {
         NodeLinkEntity linkEntity = BoCover.INSTANCE.boToEntity(linkBo);
         if (linkBo.getId() == null) {
             this.save(linkEntity);
         } else {
             this.updateById(linkEntity);
         }
+        return BoCover.INSTANCE.entityToBo(linkEntity);
     }
 
     public List<NodeLinkBo> findLinksBySource(String sourceId) {
