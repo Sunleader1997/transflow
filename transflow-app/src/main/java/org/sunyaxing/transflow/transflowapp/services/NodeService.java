@@ -49,13 +49,13 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         this.parseConfig(nodeBo);
         NodeEntity nodeEntity = BoCover.INSTANCE.boToEntity(nodeBo);
         if (nodeBo.getId() == null) {
-            Boolean exist = this.lambdaQuery()
-                    .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
-                    .eq(NodeEntity::getJobId, nodeBo.getJobId())
-                    .exists();
-            if (exist) {
-                throw new RuntimeException("输入节点只能有一个");
-            }
+//            Boolean exist = this.lambdaQuery()
+////                    .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
+//                    .eq(NodeEntity::getJobId, nodeBo.getJobId())
+//                    .exists();
+//            if (exist) {
+//                throw new RuntimeException("输入节点只能有一个");
+//            }
             this.save(nodeEntity);
         } else {
             this.updateById(nodeEntity);

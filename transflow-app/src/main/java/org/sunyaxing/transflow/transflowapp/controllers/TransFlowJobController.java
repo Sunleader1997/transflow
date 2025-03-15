@@ -9,6 +9,7 @@ import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
+import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
@@ -44,6 +45,23 @@ public class TransFlowJobController {
     @PostMapping("/job/save")
     public Result<Boolean> jobSave(@RequestBody JobBo jobBo) {
         jobService.save(jobBo);
+        return Result.success(true);
+    }
+    @PostMapping("/job/delete")
+    public Result<Boolean> deleteJob(@RequestBody JobBo jobBo) {
+        jobService.removeById(jobBo.getId());
+        nodeService.lambdaQuery()
+                .eq(NodeEntity::getJobId, jobBo.getId())
+                .list()
+                .forEach(nodeEntity -> {
+                    nodeService.removeById(nodeEntity.getId());
+                    nodeLinkService.lambdaQuery()
+                            .eq(NodeLinkEntity::getSourceId, nodeEntity.getId())
+                            .or()
+                            .eq(NodeLinkEntity::getTargetId, nodeEntity.getId())
+                            .list()
+                            .forEach(nodeLinkService::removeById);
+                });
         return Result.success(true);
     }
 
