@@ -11,5 +11,5 @@ public @interface JobParamItem {
     String field();
     String label();
     boolean required() default true;
-    Class<?> type() default String.class;
+    String type() default "string";
 }

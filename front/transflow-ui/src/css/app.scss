@@ -24,46 +24,51 @@
   background-color: #f3f4f6
 }
 
+.node-input {
+  background-color: var(--q-secondary) !important;
+  color: #fff !important;
+}
+
 .vue-flow__node-input {
   display: flex;
-  align-items: center;
+  text-align: left;
   gap: 8px;
   padding: 0;
   width: fit-content;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #0003
+  box-shadow: 0 0 10px #0003;
+  border-width: 1px;
+  border-style: none;
+  border-color: #bbb;
 }
-
+.vue-flow__node-input input{
+  background-color: #169889 !important;
+}
 .vue-flow__node-input.selected {
-  box-shadow: 0 0 0 2px #ec4899
-}
-
-.vue-flow__node-input input {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #0000001a
-}
-
-.vue-flow__node-input input:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #ec4899;
-  transition: box-shadow .2s
+  border-color: var(--q-secondary);
 }
 
 .vue-flow__node-input .vue-flow__handle {
   background-color: #ec4899
 }
 
-.node-input {
-  background-color: var(--q-secondary) !important;
-  color: #fff !important;
-}
 .node-filter {
   background-color: var(--q-positive) !important;
   color: #fff !important;
 }
+
+.vue-flow__node-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  width: fit-content;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0003;
+  border-width: 1px;
+  border-style: none;
+  border-color: #bbb;
+}
+
 .node-output {
   background-color: var(--q-primary) !important;
   color: #fff !important;

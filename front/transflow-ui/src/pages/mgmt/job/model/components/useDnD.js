@@ -23,10 +23,11 @@ const state = {
   draggedType: ref(null),
   isDragOver: ref(false),
   isDragging: ref(false),
+  properties: ref(null)
 }
 
 export default function useDragAndDrop() {
-  const { pluginId, draggedType, isDragOver, isDragging } = state
+  const { pluginId, draggedType, isDragOver, isDragging, properties } = state
 
   const { addNodes, screenToFlowCoordinate, onNodesInitialized, updateNode } = useVueFlow()
 
@@ -42,6 +43,7 @@ export default function useDragAndDrop() {
     pluginId.value = plugin.id
     // input filter output
     draggedType.value = plugin.type
+    properties.value = plugin.properties
     isDragging.value = true
 
     document.addEventListener('drop', onDragEnd)
@@ -73,6 +75,7 @@ export default function useDragAndDrop() {
     isDragOver.value = false
     draggedType.value = null
     pluginId.value = null
+    properties.value = null
     document.removeEventListener('drop', onDragEnd)
   }
 
@@ -93,6 +96,7 @@ export default function useDragAndDrop() {
     const newNode = {
       type: draggedType.value,
       position,
+      properties,
       data: {
         name: "测试数据",
         jobId: jobId,

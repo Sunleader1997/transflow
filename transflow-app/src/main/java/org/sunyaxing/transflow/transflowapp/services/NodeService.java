@@ -26,7 +26,8 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
     public NodeBo boById(String nodeId) {
         NodeEntity nodeEntity = this.getById(nodeId);
         NodeBo nodeBo = BoCover.INSTANCE.entityToBo(nodeEntity);
-        this.parseConfig(nodeBo);
+        List<JobConfigProperties> properties = this.parseConfig(nodeBo);
+        nodeBo.setProperties(properties);
         return nodeBo;
     }
 
@@ -50,13 +51,14 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
                 .stream()
                 .map(entity->{
                     NodeBo nodeBo = BoCover.INSTANCE.entityToBo(entity);
-                    this.parseConfig(nodeBo);
+                    List<JobConfigProperties> properties = this.parseConfig(nodeBo);
+                    nodeBo.setProperties(properties);
                     return nodeBo;
                 })
                 .toList();
     }
 
-    public void parseConfig(NodeBo nodeBo){
+    public List<JobConfigProperties> parseConfig(NodeBo nodeBo){
         PluginWrapper pluginWp = pluginManager.getPlugin(nodeBo.getPluginId());
         Assert.notNull(pluginWp, "插件不存在");
         Plugin plugin = pluginWp.getPlugin();
@@ -66,6 +68,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
                 nodeBo.getConfig().put(jobConfigProperties.getKey(), "");
             }
         });
+        return configList;
     }
 
 }

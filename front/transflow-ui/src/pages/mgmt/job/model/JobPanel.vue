@@ -32,8 +32,8 @@
             <DefInput v-bind="specialNodeProps" />
           </template>
           <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
-          <template #node-special="specialNodeProps">
-            <SpecialNode v-bind="specialNodeProps" />
+          <template #node-filter="specialNodeProps">
+            <DefFilter v-bind="specialNodeProps"/>
           </template>
 
           <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
@@ -51,14 +51,15 @@ import { useVueFlow, VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import useDragAndDrop from './components/useDnD.js'
 import { ControlButton, Controls } from '@vue-flow/controls'
-import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
 import SideBar from './components/SideBar.vue'
 import DropzoneBackground from './components/DropzoneBackground.vue'
 import DefInput from './nodes/DefInput.vue'
+import DefFilter from 'pages/mgmt/job/model/nodes/DefFilter.vue'
 
 export default {
   components: {
+    DefFilter,
     DefInput,
     DropzoneBackground,
     SideBar,
@@ -66,15 +67,14 @@ export default {
     ControlButton,
     MiniMap,
     VueFlow,
-    SpecialEdge,
-    SpecialNode,
+    SpecialEdge
   },
   props: ['jobId'],
   setup() {
     const { onConnect, addEdges, setNodes, onNodeDragStop } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect(addEdges)
-    onNodeDragStop((e)=>{
+    onNodeDragStop((e) => {
       console.log(e)
     })
     return {

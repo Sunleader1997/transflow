@@ -24,7 +24,7 @@ public class JobConfigProperties {
                 for (JobParamItem jobParamItem : jobParamItems) {
                     JobConfigProperties jobConfigProperties = new JobConfigProperties();
                     jobConfigProperties.setKey(jobParamItem.field());
-                    jobConfigProperties.setType(jobParamItem.type().getName());
+                    jobConfigProperties.setType(jobParamItem.type());
                     jobProperties.add(jobConfigProperties);
                 }
             }
