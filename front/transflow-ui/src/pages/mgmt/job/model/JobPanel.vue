@@ -5,7 +5,7 @@
     style="min-height: calc(96vh)"
     @drop="onDrop($event, jobId)"
   >
-    <q-drawer show-if-above width="200" side="right">
+    <q-drawer show-if-above side="right">
       <q-scroll-area class="fit">
         <SideBar />
       </q-scroll-area>
@@ -14,12 +14,12 @@
       <q-page style="height: calc(100vh - 50px)">
         <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height">
           <MiniMap />
-          <Controls>
-            <div>jobId：{{ jobId }}</div>
-            <ControlButton>
-              <i class="fa fa-plus"></i>
-            </ControlButton>
-          </Controls>
+<!--          <Controls>-->
+<!--            <div>jobId：{{ jobId }}</div>-->
+<!--            <ControlButton>-->
+<!--              <i class="fa fa-plus"></i>-->
+<!--            </ControlButton>-->
+<!--          </Controls>-->
           <DropzoneBackground
             :style="{
               backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
@@ -37,7 +37,7 @@
           </template>
           <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
           <template #node-output="specialNodeProps">
-            <DefOutput v-bind="specialNodeProps" />
+            <DefOutput v-bind="specialNodeProps" @updateNodeInternals="()=>{}"/>
           </template>
 
           <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
@@ -54,13 +54,13 @@
 import { useVueFlow, VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import useDragAndDrop from './components/useDnD.js'
-import { ControlButton, Controls } from '@vue-flow/controls'
 import SpecialEdge from './components/SpecialEdge.vue'
 import SideBar from './components/SideBar.vue'
 import DropzoneBackground from './components/DropzoneBackground.vue'
 import DefInput from './nodes/DefInput.vue'
 import DefFilter from 'pages/mgmt/job/model/nodes/DefFilter.vue'
 import DefOutput from 'pages/mgmt/job/model/nodes/DefOutput.vue'
+import axios from 'axios'
 
 export default {
   components: {
@@ -69,19 +69,37 @@ export default {
     DefInput,
     DropzoneBackground,
     SideBar,
-    Controls,
-    ControlButton,
     MiniMap,
     VueFlow,
     SpecialEdge,
   },
   props: ['jobId'],
   setup() {
-    const { onConnect, addEdges, setNodes, onNodeDragStop } = useVueFlow()
+    const { onConnect, addEdges, setNodes, onNodeDragStop, onNodesChange, applyNodeChanges, findNode } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect(addEdges)
-    onNodeDragStop((e) => {
-      console.log(e)
+    onNodeDragStop(async (e) => {
+      for(const node of e.nodes) {
+        axios.post("/transflow/node/save",{...node})
+      }
+    })
+
+    onNodesChange(async (changes) => {
+      for (const change of changes) {
+        console.log('change.type',change.type,change)
+        // 删除节点
+        if (change.type === 'remove') {
+          await axios.post("/transflow/node/delete",{
+            id: change.id,
+          })
+        }
+        // 节点失去焦点 时 触发更新
+        if (change.type === 'select' && !change.selected) {
+          const node = findNode(change.id);
+          axios.post("/transflow/node/save",{...node})
+        }
+      }
+      applyNodeChanges(changes)
     })
     return {
       onDragOver,
@@ -112,6 +130,7 @@ export default {
     },
   },
 }
+
 // these are our edges
 // const edges = ref([
 //   // default bezier edge

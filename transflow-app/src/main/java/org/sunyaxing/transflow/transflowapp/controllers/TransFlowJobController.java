@@ -6,6 +6,8 @@ import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
+import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
+import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
 import org.sunyaxing.transflow.transflowapp.services.NodeService;
@@ -68,6 +70,17 @@ public class TransFlowJobController {
                 }).toList();
     }
 
+    @PostMapping("/node/delete")
+    public Boolean nodeDelete(@RequestBody NodeDto nodeDto) {
+        nodeService.removeById(nodeDto.getId());
+        nodeLinkService.lambdaQuery()
+                .eq(NodeLinkEntity::getSourceId, nodeDto.getId())
+                .or()
+                .eq(NodeLinkEntity::getTargetId, nodeDto.getId())
+                .list()
+                .forEach(nodeLinkService::removeById);
+        return true;
+    }
     @PostMapping("/node/save")
     public NodeDto nodeSave(@RequestBody NodeDto nodeDto) {
         NodeBo nodeBo = BoCover.INSTANCE.dtoToBo(nodeDto);
