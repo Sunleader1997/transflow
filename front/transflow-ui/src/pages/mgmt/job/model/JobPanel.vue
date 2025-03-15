@@ -14,6 +14,13 @@
       <q-page style="height: calc(100vh - 50px)">
         <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height">
           <MiniMap />
+          <Panel position="top-center">
+            <q-btn-group outline>
+              <q-btn outline color="brown" label="执行" @click="runJob"/>
+              <q-btn outline color="brown" label="Second" icon-right="watch_later" />
+              <q-btn outline color="brown" label="Third" />
+            </q-btn-group>
+          </Panel>
           <DropzoneBackground
             :style="{
               backgroundColor: isDragOver ? '#e7f3ff' : 'transparent',
@@ -45,7 +52,7 @@
 </template>
 
 <script>
-import { useVueFlow, VueFlow } from '@vue-flow/core'
+import { Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import { MiniMap } from '@vue-flow/minimap'
 import useDragAndDrop from './components/useDnD.js'
 import SpecialEdge from './components/SpecialEdge.vue'
@@ -58,6 +65,7 @@ import axios from 'axios'
 
 export default {
   components: {
+    Panel,
     DefOutput,
     DefFilter,
     DefInput,
@@ -140,6 +148,9 @@ export default {
         this.setEdges(response.data.edges)
       })
     },
+    runJob(){
+      this.$axios.post('/transflow/job/run', {id: this.jobId})
+    }
   },
   beforeMount() {
     console.log('beforeMount')

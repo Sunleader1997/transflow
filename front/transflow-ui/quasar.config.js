@@ -80,6 +80,9 @@ export default defineConfig((ctx) => {
       server: {
         type: 'http'
       },
+      client: {
+        overlay: false
+      },
       proxy: [
         {
           context: ['/transflow'],
@@ -87,9 +90,8 @@ export default defineConfig((ctx) => {
           secure: false,
         },
       ],
-      open: true // opens browser window automatically
+      open: false, // opens browser window automatically
     },
-
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#framework
     framework: {
       config: {},

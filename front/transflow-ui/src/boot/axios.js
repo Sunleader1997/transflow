@@ -1,5 +1,6 @@
 import { defineBoot } from '#q-app/wrappers'
 import axios from 'axios'
+import { Notify } from 'quasar'
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -21,4 +22,32 @@ export default defineBoot(({ app }) => {
   //       so you can easily perform requests against your app's API
 })
 
+axios.interceptors.response.use(
+  (res) => {
+    if (res.data.code === 200) {
+      return res.data
+    } else {
+      Notify.create({
+        color: 'red',
+        textColor: 'white',
+        icon: 'error',
+        message: '错误：' + res.data.message,
+        position: 'top-right',
+        timeout: Math.random() * 5000 + 3000,
+      })
+      return Promise.reject(res.data)
+    }
+  },
+  (error) => {
+    Notify.create({
+      color: 'red',
+      textColor: 'white',
+      icon: 'error',
+      message: '错误：' + error.response.data,
+      position: 'top-right',
+      timeout: Math.random() * 5000 + 3000,
+    })
+    return Promise.reject(error)
+  },
+)
 export { api }

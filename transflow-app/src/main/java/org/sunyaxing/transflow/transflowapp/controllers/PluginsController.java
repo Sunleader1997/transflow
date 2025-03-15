@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.sunyaxing.transflow.plugins.TransFlowFilterPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowOutputPlugin;
+import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.config.DirFileWatcher;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
@@ -27,8 +28,8 @@ public class PluginsController {
     private DirFileWatcher dirFileWatcher;
 
     @GetMapping("/list")
-    public List<PluginListDto> getPlugins() {
-        return pluginManager.getPlugins().stream().map(pluginWrapper -> {
+    public Result<List<PluginListDto>> getPlugins() {
+        List<PluginListDto> res = pluginManager.getPlugins().stream().map(pluginWrapper -> {
             PluginListDto pluginListDto = new PluginListDto();
             pluginListDto.setId(pluginWrapper.getPluginId());
             pluginListDto.setState(pluginWrapper.getPluginState().toString());
@@ -45,6 +46,7 @@ public class PluginsController {
             pluginListDto.setProperties(JobConfigProperties.getJobProperties(plugin));
             return pluginListDto;
         }).toList();
+        return Result.success(res);
     }
 
 }

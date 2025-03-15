@@ -64,10 +64,9 @@ public class TransFlowChainService {
      * @return
      */
     public TransFlowChain<TransFlowInput> buildChain(String jobId) {
-        JobBo jobBo = jobService.boById(jobId);
+        // JobBo jobBo = jobService.boById(jobId);
         // 获取输入节点
-        String inputId = jobBo.getInputId();
-        NodeBo inputNode = nodeService.boById(inputId);
+        NodeBo inputNode = nodeService.boByJobId(jobId);
         // 获取 input 插件
         TransFlowInput transFlowInput = pluginManager.getExtensions(TransFlowInput.class, inputNode.getPluginId()).getFirst();
         // 执行 input 节点初始化
