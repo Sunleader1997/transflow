@@ -114,4 +114,9 @@ public class TransFlowJobController {
     public EdgeDto nodeSave(@RequestBody NodeLinkBo linkBo) {
         return BoCover.INSTANCE.boToDto(nodeLinkService.save(linkBo));
     }
+
+    @PostMapping("/node/unlink")
+    public Boolean unlink(@RequestBody NodeLinkBo linkBo) {
+        return nodeLinkService.removeById(linkBo.getId());
+    }
 }

@@ -76,6 +76,7 @@ export default {
       setEdges,
       onNodeDragStop,
       onNodesChange,
+      onEdgesChange,
       applyNodeChanges,
       findNode,
     } = useVueFlow()
@@ -111,6 +112,16 @@ export default {
           axios.post('/transflow/node/save', { ...node })
         }
       }
+      onEdgesChange(async changes => {
+        for (const change of changes) {
+          // 删除连接
+          if (change.type === 'remove') {
+            await axios.post('/transflow/node/unlink', {
+              id: change.id,
+            })
+          }
+        }
+      })
       applyNodeChanges(changes)
     })
     return {
