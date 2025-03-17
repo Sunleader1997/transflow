@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
@@ -11,6 +12,7 @@ import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
+import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
 import org.sunyaxing.transflow.transflowapp.services.NodeService;
@@ -153,5 +155,21 @@ public class TransFlowJobController {
     public Result<Boolean> unlink(@RequestBody NodeLinkBo linkBo) {
         nodeLinkService.removeById(linkBo.getId());
         return Result.success(true);
+    }
+
+    @GetMapping("/node/status")
+    public Result<Long> unlink(@RequestParam("nodeId") String nodeId) {
+        NodeBo nodeBo = nodeService.boById(nodeId);
+        String jobId = nodeBo.getJobId();
+        TransFlowRunnable transFlowRunnable = transFlowChainService.get(jobId);
+        if(transFlowRunnable!=null){
+            TransFlowChain<TransFlowInput> rootChain = transFlowRunnable.getChain();
+            ExtensionLifecycle transFlowInput = rootChain.getExtension(nodeId);
+            if(transFlowInput instanceof TransFlowInput){
+                return Result.success(((TransFlowInput) transFlowInput).getRemainingDataSize());
+            }
+            return Result.success(0L);
+        }
+        return Result.success(0L);
     }
 }

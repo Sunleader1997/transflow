@@ -3,10 +3,11 @@
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import CodeMirror from 'vue-codemirror6'
 import { java } from '@codemirror/lang-java'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { basicSetup } from 'codemirror'
+import axios from 'axios'
 
 defineEmits(['updateNodeInternals'])
 
@@ -42,18 +43,23 @@ const name = computed({
 })
 const extensions = [basicSetup, java(), oneDark]
 const extensions_json = [basicSetup, json(), oneDark]
+const remainDataSize = ref(0)
+
+onMounted(() => {
+  axios.get('/transflow/node/status?nodeId=' + props.id).then((response) => {
+    remainDataSize.value = response.data
+  })
+})
 </script>
 
 <template>
   <q-card class="my-node-card bg-secondary text-white">
     <q-card-section horizontal>
       <q-card-section>
-        <div class="text-h6">
-          {{ name }}
-        </div>
+        <div class="text-h6">{{ name }} {{ remainDataSize }}</div>
         <div class="text-subtitle2">{{ data.pluginId }}</div>
       </q-card-section>
-      <q-space/>
+      <q-space />
       <q-card-section>
         <q-btn dense flat icon="edit">
           <q-popup-edit v-model="name" auto-save v-slot="scope">

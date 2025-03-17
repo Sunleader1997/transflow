@@ -2,6 +2,7 @@ package org.sunyaxing.transflow.transflowapp.reactor;
 
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.map.MapUtil;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
@@ -25,6 +26,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
     private final TransFlowInput input;
+    @Getter
     private final TransFlowChain<TransFlowInput> chain;
 
     public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {

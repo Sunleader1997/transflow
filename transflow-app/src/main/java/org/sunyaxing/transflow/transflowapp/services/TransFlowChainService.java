@@ -72,6 +72,7 @@ public class TransFlowChainService {
         transFlowInput.init(inputNode.getConfig());
         // 创建 责任链
         TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, null, transFlowInput);
+        startChain.addAllExtension(inputNode.getId(), transFlowInput);
         try {
             buildChain(startChain, startChain);
         } catch (Exception e) {

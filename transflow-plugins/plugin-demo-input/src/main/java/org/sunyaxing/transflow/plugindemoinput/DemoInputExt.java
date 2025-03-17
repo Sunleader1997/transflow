@@ -10,13 +10,14 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 @Extension
 public class DemoInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(DemoInputExt.class);
     private String jsonStr;
-
+    private final AtomicLong count = new AtomicLong(0);
     public DemoInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
@@ -25,6 +26,12 @@ public class DemoInputExt extends TransFlowInput {
     @Override
     public void commit(Long offset) {
 //        log.info("提交偏移量 {}", offset);
+        count.incrementAndGet();
+    }
+
+    @Override
+    public Long getRemainingDataSize() {
+        return count.get();
     }
 
     @Override
