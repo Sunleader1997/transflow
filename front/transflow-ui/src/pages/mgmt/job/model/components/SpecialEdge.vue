@@ -56,7 +56,6 @@ export default {
       }"
       class="nodrag nopan"
     >
-      {{ props }}
     </div>
   </EdgeLabelRenderer>
 </template>

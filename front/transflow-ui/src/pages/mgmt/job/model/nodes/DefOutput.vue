@@ -44,15 +44,21 @@ const extensions_json = [basicSetup, json(), oneDark]
 
 <template>
   <q-card class="my-node-card bg-primary text-white">
-    <q-card-section>
-      <div class="text-h6">
-        {{ name }}
-        <q-popup-edit v-model="name" auto-save v-slot="scope">
-          <q-input v-model="scope.value" dense autofocus counter />
-        </q-popup-edit>
-      </div>
-      <div class="text-subtitle2">{{ data.pluginId }}</div>
-      <Handle type="target" :position="Position.Left" />
+    <q-card-section horizontal>
+      <q-card-section>
+        <div class="text-h6">
+          {{ name }}
+        </div>
+        <div class="text-subtitle2">{{ data.pluginId }}</div>
+      </q-card-section>
+      <q-space/>
+      <q-card-section>
+        <q-btn dense flat icon="edit">
+          <q-popup-edit v-model="name" auto-save v-slot="scope">
+            <q-input v-model="scope.value" dense autofocus counter />
+          </q-popup-edit>
+        </q-btn>
+      </q-card-section>
     </q-card-section>
     <q-separator dark />
     <q-card-section class="nodrag">
@@ -110,4 +116,5 @@ const extensions_json = [basicSetup, json(), oneDark]
       </div>
     </q-card-section>
   </q-card>
+  <Handle type="target" :position="Position.Left" />
 </template>
