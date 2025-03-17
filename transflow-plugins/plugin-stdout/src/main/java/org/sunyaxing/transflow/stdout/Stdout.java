@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.stdout;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +9,6 @@ import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
-import java.util.Properties;
 
 @Extension
 public class Stdout extends TransFlowOutput {
@@ -19,13 +19,13 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public List<TransData> execDatas(List<TransData> data) {
+    public List<TransData> execDatas(String handle,List<TransData> data) {
         logger.info("输出数据：{}", data.size());
         return data;
     }
 
     @Override
-    public void init(Properties config) {
+    public void init(JSONObject config) {
         logger.info("初始化连接");
     }
 

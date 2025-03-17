@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.pluginkafkaoutput;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -20,16 +21,15 @@ public class KafkaOutputExt extends TransFlowOutput {
     private static final Logger log = LogManager.getLogger(KafkaOutputExt.class);
 
     private KafkaProducer<String, String> producer;
-    private String topic;
 
     public KafkaOutputExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
-    public List<TransData> execDatas(List<TransData> data) {
+    public List<TransData> execDatas(String handle, List<TransData> data) {
         data.forEach(transData -> {
-            this.producer.send(new ProducerRecord<>(topic, transData.getData(String.class)), (metadata, e) -> {
+            this.producer.send(new ProducerRecord<>(handle, transData.getData(String.class)), (metadata, e) -> {
                 if (e != null) {
                     log.error("kafka output 异常", e);
                 }
@@ -39,14 +39,13 @@ public class KafkaOutputExt extends TransFlowOutput {
     }
 
     @Override
-    public void init(Properties config) {
-        this.topic = config.getProperty("topic");
+    public void init(JSONObject config) {
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-servers", "127.0.0.1:9093"));
-        properties.put(ProducerConfig.ACKS_CONFIG, config.getProperty("acks", "0"));
-        properties.put(ProducerConfig.RETRIES_CONFIG, config.getProperty("retries", "3"));
-        properties.put(ProducerConfig.LINGER_MS_CONFIG, config.getProperty("linger", "1"));
-        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getProperty("buffer-memory", "524288"));
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
+        properties.put(ProducerConfig.ACKS_CONFIG, config.getString("acks"));
+        properties.put(ProducerConfig.RETRIES_CONFIG, config.getString("retries"));
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, config.getString("linger"));
+        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getString("buffer-memory"));
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 

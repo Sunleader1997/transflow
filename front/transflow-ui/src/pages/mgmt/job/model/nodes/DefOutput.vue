@@ -2,10 +2,11 @@
 // import { computed } from 'vue'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import CodeMirror from 'vue-codemirror6'
-import { javascript } from '@codemirror/lang-javascript'
-import { json } from '@codemirror/lang-json';
+import { java } from '@codemirror/lang-java'
+import { json } from '@codemirror/lang-json'
 import { computed } from 'vue'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { basicSetup } from 'codemirror'
 
 defineEmits(['updateNodeInternals'])
 const props = defineProps([
@@ -34,11 +35,11 @@ const { updateNodeData } = useVueFlow()
 const name = computed({
   get: () => props.data.name,
   set: (name) => {
-    updateNodeData(props.id,  {name})
+    updateNodeData(props.id, { name })
   },
 })
-const extensions = [javascript()]
-const extensions_json = [json(), oneDark]
+const extensions = [basicSetup, java(), oneDark]
+const extensions_json = [basicSetup, json(), oneDark]
 </script>
 
 <template>
@@ -47,10 +48,11 @@ const extensions_json = [json(), oneDark]
       <div class="text-h6">
         {{ name }}
         <q-popup-edit v-model="name" auto-save v-slot="scope">
-          <q-input v-model="scope.value" dense autofocus counter/>
+          <q-input v-model="scope.value" dense autofocus counter />
         </q-popup-edit>
       </div>
       <div class="text-subtitle2">{{ data.pluginId }}</div>
+      <Handle type="target" :position="Position.Left" />
     </q-card-section>
     <q-separator dark />
     <q-card-section class="nodrag">
@@ -74,6 +76,26 @@ const extensions_json = [json(), oneDark]
               :tabSize="4"
               :extensions="[extensions]"
             />
+            <div
+              v-else-if="property.type === 'handlers'"
+              class="q-gutter-md"
+            >
+              <div v-for="(handler, index) in dataConfig[property.key]" :key="index">
+                <q-input
+                  v-model="dataConfig[property.key][index]"
+                  dark
+                  dense
+                  borderless
+                  square
+                  standout
+                >
+                  <template v-slot:prepend>
+                    <Handle :id="dataConfig[property.key][index]" type="target" :position="Position.Left" />
+                  </template>
+                </q-input>
+              </div>
+              <q-btn label="+" @click="dataConfig[property.key].push('')"></q-btn>
+            </div>
             <q-input
               v-else
               dark
@@ -88,5 +110,4 @@ const extensions_json = [json(), oneDark]
       </div>
     </q-card-section>
   </q-card>
-  <Handle type="target" :position="Position.Left" />
 </template>

@@ -26,7 +26,7 @@ public class JsonFilterExt extends TransFlowFilter {
     }
 
     @Override
-    public List<TransData> execDatas(List<TransData> input) {
+    public List<TransData> execDatas(String handle, List<TransData> input) {
         return input.stream()
                 .map(result -> {
                     if (result.isType(JSONObject.class)) {
@@ -53,11 +53,11 @@ public class JsonFilterExt extends TransFlowFilter {
 
 
     @Override
-    public void init(Properties config) {
+    public void init(JSONObject config) {
         ScriptEngineManager manager = new ScriptEngineManager();
         manager.registerEngineName("groovy", new GroovyScriptEngineFactory());
         this.scriptEngine = manager.getEngineByName("groovy");
-        this.script = config.getProperty("script");
+        this.script = config.getString("script");
     }
 
     @Override

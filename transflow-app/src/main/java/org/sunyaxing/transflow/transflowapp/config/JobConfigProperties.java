@@ -15,6 +15,7 @@ public class JobConfigProperties {
     private String label;
     private String type;
     private Boolean required;
+    private Class<?> javaType;
     private String defaultValue;
 
     public static List<JobConfigProperties> getJobProperties(Plugin plugin) {
@@ -29,6 +30,7 @@ public class JobConfigProperties {
                     jobConfigProperties.setKey(jobParamItem.field());
                     jobConfigProperties.setLabel(jobParamItem.label());
                     jobConfigProperties.setType(jobParamItem.type());
+                    jobConfigProperties.setJavaType(jobParamItem.javaType());
                     jobConfigProperties.setRequired(jobParamItem.required());
                     jobConfigProperties.setDefaultValue(jobParamItem.defaultValue());
                     jobProperties.add(jobConfigProperties);

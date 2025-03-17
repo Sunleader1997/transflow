@@ -24,6 +24,12 @@ public class NodeLinkEntity implements Serializable {
     @TableField("sourceId")
     private String sourceId;
 
+    @TableField("sourceHandle")
+    private String sourceHandle;
+
     @TableField("targetId")
     private String targetId;
+
+    @TableField("targetHandle")
+    private String targetHandle;
 }

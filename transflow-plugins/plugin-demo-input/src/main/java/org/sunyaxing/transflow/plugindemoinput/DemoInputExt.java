@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.plugindemoinput;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
@@ -9,7 +10,6 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 
 @Extension
@@ -44,8 +44,8 @@ public class DemoInputExt extends TransFlowInput {
     }
 
     @Override
-    public void init(Properties config) {
-        this.jsonStr = config.getProperty("jsonStr", "{\"param\":\"1\"}");
+    public void init(JSONObject config) {
+        this.jsonStr = config.getString("jsonStr");
     }
 
     @Override

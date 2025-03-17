@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 
-import java.util.Properties;
 
 @Named("CommonCover")
 public class CommonCover {
@@ -19,9 +18,9 @@ public class CommonCover {
     }
 
     @Named("strToProperties")
-    public Properties strToProperties(String properties) {
+    public JSONObject strToProperties(String properties) {
         try {
-            return JSONObject.parseObject(properties, Properties.class);
+            return JSONObject.parseObject(properties);
         } catch (Exception e) {
             log.error("json字符串转换异常", e);
             return null;
@@ -29,7 +28,7 @@ public class CommonCover {
     }
 
     @Named("propertiesToStr")
-    public String propertiesToStr(Properties properties) {
+    public String propertiesToStr(JSONObject properties) {
         return JSONObject.toJSONString(properties);
     }
     @Named("nodeTypeToString")

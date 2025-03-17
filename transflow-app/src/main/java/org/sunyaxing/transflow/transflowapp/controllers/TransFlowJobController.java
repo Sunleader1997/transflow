@@ -77,6 +77,12 @@ public class TransFlowJobController {
         return Result.success(true);
     }
 
+    @PostMapping("/job/stop")
+    public Result<Boolean> runStop(@RequestBody JobBo jobBo) {
+        transFlowChainService.stop(jobBo.getId());
+        return Result.success(true);
+    }
+
     @GetMapping("/node/list")
     public Result<List<NodeDto>> nodeList(@RequestParam("jobId") String jobId) {
         boolean hasKey = transFlowChainService.hasKey(jobId);

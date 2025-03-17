@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.transflowapp.services;
 
 import cn.hutool.core.lang.Assert;
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.pf4j.Plugin;
 import org.pf4j.PluginManager;
@@ -49,7 +50,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         this.parseConfig(nodeBo);
         NodeEntity nodeEntity = BoCover.INSTANCE.boToEntity(nodeBo);
         if (nodeBo.getId() == null) {
-            if(TransFlowTypeEnum.INPUT.equals(nodeBo.getNodeType())){
+            if (TransFlowTypeEnum.INPUT.equals(nodeBo.getNodeType())) {
                 boolean exist = this.lambdaQuery()
                         .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
                         .eq(NodeEntity::getJobId, nodeBo.getJobId())
@@ -89,10 +90,31 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         List<JobConfigProperties> configList = JobConfigProperties.getJobProperties(plugin);
         configList.forEach(jobConfigProperties -> {
             if (!nodeBo.getConfig().containsKey(jobConfigProperties.getKey())) {
-                nodeBo.getConfig().put(jobConfigProperties.getKey(), jobConfigProperties.getDefaultValue());
+                nodeBo.getConfig().put(
+                        jobConfigProperties.getKey(),
+                        parseDefaultValue(jobConfigProperties.getJavaType(), jobConfigProperties.getDefaultValue())
+                );
             }
         });
         return configList;
     }
 
+    private static Object parseDefaultValue(Class<?> javaType, String defaultValue) {
+        if (javaType == String.class) {
+            return defaultValue;
+        } else if (javaType == Integer.class || javaType == int.class) {
+            return Integer.parseInt(defaultValue);
+        } else if (javaType == Long.class || javaType == long.class) {
+            return Long.parseLong(defaultValue);
+        } else if (javaType == Double.class || javaType == double.class) {
+            return Double.parseDouble(defaultValue);
+        } else if (javaType == Boolean.class || javaType == boolean.class) {
+            return Boolean.parseBoolean(defaultValue);
+        } else if (javaType.isArray()) {
+            // 支持数组类型
+            return JSONArray.parseArray(defaultValue, String.class);
+        } else {
+            throw new IllegalArgumentException("Failed to parse default value: " + defaultValue);
+        }
+    }
 }

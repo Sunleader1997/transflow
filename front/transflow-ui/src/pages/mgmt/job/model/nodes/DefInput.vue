@@ -2,10 +2,11 @@
 // import { computed } from 'vue'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import CodeMirror from 'vue-codemirror6'
-import { javascript } from '@codemirror/lang-javascript'
+import { java } from '@codemirror/lang-java'
 import { computed } from 'vue'
 import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { basicSetup } from 'codemirror'
 
 defineEmits(['updateNodeInternals'])
 
@@ -39,8 +40,8 @@ const name = computed({
     updateNodeData(props.id, { name })
   },
 })
-const extensions = [javascript()]
-const extensions_json = [json(), oneDark]
+const extensions = [basicSetup, java(), oneDark]
+const extensions_json = [basicSetup, json(), oneDark]
 </script>
 
 <template>
@@ -92,5 +93,4 @@ const extensions_json = [json(), oneDark]
   </q-card>
   <Handle type="source" :position="Position.Right" />
 </template>
-<style scoped>
-</style>
+<style scoped></style>

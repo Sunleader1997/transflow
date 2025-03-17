@@ -25,7 +25,7 @@ public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
     }
 
     @Override
-    public List<TransData> execDatas(List<TransData> data) {
+    public List<TransData> execDatas(String handle, List<TransData> data) {
         return data;
     }
 

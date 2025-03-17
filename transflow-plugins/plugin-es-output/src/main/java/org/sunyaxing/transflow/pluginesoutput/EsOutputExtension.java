@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.pluginesoutput;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -22,7 +23,6 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Extension
 public class EsOutputExtension extends TransFlowOutput {
@@ -35,7 +35,7 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
-    public List<TransData> execDatas(List<TransData> data) {
+    public List<TransData> execDatas(String handler, List<TransData> data) {
         BulkRequest bulkRequest = new BulkRequest();
         data.forEach(transData -> {
             Map sourceData = transData.getData(Map.class);
@@ -50,12 +50,12 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
-    public void init(Properties config) {
-        this.indexName = config.getProperty("index-name", "transflow");
+    public void init(JSONObject config) {
+        this.indexName = config.getString("index-name");
         HttpHost targetHost = new HttpHost(
-                config.getProperty("host", "127.0.0.1"),
-                Integer.valueOf(config.getProperty("port", "9200")),
-                config.getProperty("scheme", "http")
+                config.getString("host"),
+                config.getInteger("port"),
+                config.getString("scheme")
         );
         RestClientBuilder builder = RestClient.builder(targetHost);
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
@@ -63,8 +63,8 @@ public class EsOutputExtension extends TransFlowOutput {
             credentialsProvider.setCredentials(
                     AuthScope.ANY,
                     new UsernamePasswordCredentials(
-                            config.getProperty("username", "elastic"),
-                            config.getProperty("password", "elastic")
+                            config.getString("username"),
+                            config.getString("password")
                     )
             );
             return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);

@@ -16,8 +16,8 @@
           <MiniMap />
           <Panel position="top-center">
             <q-btn-group outline>
-              <q-btn outline color="brown" label="执行" @click="runJob"/>
-              <q-btn outline color="brown" label="Second" icon-right="watch_later" />
+              <q-btn outline color="brown" label="执行" @click="runJob" />
+              <q-btn outline color="brown" label="停止" @click="stopJob" />
               <q-btn outline color="brown" label="Third" />
             </q-btn-group>
           </Panel>
@@ -90,10 +90,13 @@ export default {
     } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect((newEdge) => {
+      console.log('newEdge',newEdge)
       axios
         .post('/transflow/node/link', {
           sourceId: newEdge.source,
           targetId: newEdge.target,
+          sourceHandle: newEdge.sourceHandle,
+          targetHandle: newEdge.targetHandle,
         })
         .then((response) => {
           addEdges({ ...response.data })
@@ -120,7 +123,7 @@ export default {
           axios.post('/transflow/node/save', { ...node })
         }
       }
-      onEdgesChange(async changes => {
+      onEdgesChange(async (changes) => {
         for (const change of changes) {
           // 删除连接
           if (change.type === 'remove') {
@@ -148,9 +151,12 @@ export default {
         this.setEdges(response.data.edges)
       })
     },
-    runJob(){
-      this.$axios.post('/transflow/job/run', {id: this.jobId})
-    }
+    runJob() {
+      this.$axios.post('/transflow/job/run', { id: this.jobId })
+    },
+    stopJob() {
+      this.$axios.post('/transflow/job/stop', { id: this.jobId })
+    },
   },
   beforeMount() {
     console.log('beforeMount')

@@ -1,12 +1,13 @@
 <script setup>
 // import { computed } from 'vue'
 import { Handle, Position, useVueFlow } from '@vue-flow/core'
-import { javascript } from '@codemirror/lang-javascript'
+import { java } from '@codemirror/lang-java'
 import CodeMirror from 'vue-codemirror6'
 
 import { computed } from 'vue'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { json } from '@codemirror/lang-json';
+import { json } from '@codemirror/lang-json'
+import { basicSetup } from 'codemirror'
 
 defineEmits(['updateNodeInternals'])
 
@@ -41,8 +42,8 @@ const name = computed({
     updateNodeData(props.id, { name })
   },
 })
-const extensions = [javascript(), oneDark]
-const extensions_json = [json(), oneDark]
+const extensions = [basicSetup, java(), oneDark]
+const extensions_json = [basicSetup, json(), oneDark]
 </script>
 
 <template>
@@ -95,5 +96,4 @@ const extensions_json = [json(), oneDark]
   <Handle type="target" :position="Position.Left" />
   <Handle type="source" :position="Position.Right" />
 </template>
-<style scoped>
-</style>
+<style scoped></style>

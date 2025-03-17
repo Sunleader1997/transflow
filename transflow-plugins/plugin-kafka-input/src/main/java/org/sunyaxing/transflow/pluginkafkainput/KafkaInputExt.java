@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.pluginkafkainput;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListConsumerGroupOffsetsResult;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -80,14 +81,14 @@ public class KafkaInputExt extends TransFlowInput {
     }
 
     @Override
-    public void init(Properties config) {
-        this.groupId = config.getProperty("group-id", "transflow");
-        this.topics = config.getProperty("topics");
+    public void init(JSONObject config) {
+        this.groupId = config.getString("group-id");
+        this.topics = config.getString("topics");
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("bootstrap-servers", "127.0.0.1:9093"));
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getProperty("max-poll-records", "1000"));
+        properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getString("max-poll-records"));
         // 手动提交 offset false
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

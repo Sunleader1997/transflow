@@ -7,7 +7,6 @@ import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
-import org.sunyaxing.transflow.transflowapp.services.bos.JobBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 
@@ -72,7 +71,7 @@ public class TransFlowChainService {
         // 执行 input 节点初始化
         transFlowInput.init(inputNode.getConfig());
         // 创建 责任链
-        TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, transFlowInput);
+        TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, null, transFlowInput);
         buildChain(startChain);
         return startChain;
     }
@@ -83,19 +82,19 @@ public class TransFlowChainService {
         // 以当前节点为源的连线
         List<NodeLinkBo> links = nodeLinkService.findLinksBySource(sourceId);
         // 下一个节点数据
-        List<NodeBo> nodeBos = links.stream().map(link -> {
-            return nodeService.boById(link.getTargetId());
-        }).filter(Objects::nonNull).toList();
-        nodeBos.forEach(nodeBo -> {
-            ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
-            // 初始化 插件
-            extension.init(nodeBo.getConfig());
-            // 创建 子责任链
-            TransFlowChain<?> chain = new TransFlowChain<>(nodeBo, extension);
-            // 添加到父链
-            parentChain.addChild(chain);
-            // 递归创建子责任链
-            buildChain(chain);
+        links.forEach(link -> {
+            NodeBo nodeBo = nodeService.boById(link.getTargetId());
+            if (Objects.nonNull(nodeBo)) {
+                ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
+                // 初始化 插件
+                extension.init(nodeBo.getConfig());
+                // 创建 子责任链
+                TransFlowChain<?> chain = new TransFlowChain<>(nodeBo, link.getTargetHandle(), extension);
+                // 添加到父链
+                parentChain.addChild(chain);
+                // 递归创建子责任链
+                buildChain(chain);
+            }
         });
     }
 }

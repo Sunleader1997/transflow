@@ -9,7 +9,6 @@ import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -23,17 +22,20 @@ public class TransFlowChain<T extends ExtensionLifecycle> {
     // 状态 0 未执行 1 执行中 2 执行完成
     private ChainStatusEnum status;
     private final T currentNode;
+    // 属于 当前节点的哪一个 handle
+    private final String handleId;
     private final List<TransFlowChain<?>> children;
 
-    public TransFlowChain(NodeBo nodeBo, T currentNode) {
+    public TransFlowChain(NodeBo nodeBo, String handleId, T currentNode) {
         this.nodeId = nodeBo.getId();
+        this.handleId = handleId;
         this.typeEnum = nodeBo.getNodeType();
         this.status = ChainStatusEnum.INIT;
         this.currentNode = currentNode;
         this.children = new ArrayList<>();
     }
 
-    public void chains(Map<String, TransFlowChain<?>> map){
+    public void chains(Map<String, TransFlowChain<?>> map) {
         map.put(nodeId, this);
         children.forEach(child -> child.chains(map));
     }
@@ -44,7 +46,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> {
 
     public void exec(List<TransData> orgData) {
         sign(ChainStatusEnum.RUNNING);
-        final List<TransData> res = currentNode.execDatas(orgData);
+        final List<TransData> res = currentNode.execDatas(handleId, orgData);
         if (!children.isEmpty()) {
             CountDownLatch countDownLatch = new CountDownLatch(children.size());
             children.forEach(child -> {

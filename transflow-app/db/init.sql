@@ -27,7 +27,9 @@ create table NODE_LINK
 (
     ID       CHARACTER VARYING not null,
     SOURCEID CHARACTER VARYING not null,
+    SOURCEHANDLE CHARACTER VARYING ,
     TARGETID CHARACTER VARYING not null,
+    TARGETHADNLE CHARACTER VARYING ,
     constraint NODE_LINK_PK
         primary key (ID)
 );
