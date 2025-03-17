@@ -9,17 +9,24 @@ import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Extension
 public class Stdout extends TransFlowOutput {
     private Logger logger = LoggerFactory.getLogger(Stdout.class);
-
+    private final AtomicLong rec = new AtomicLong(0);
     public Stdout(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
+    public Long getRecNumb() {
+        return rec.get();
+    }
+
+    @Override
     public List<TransData> execDatas(String handle, List<TransData> data) {
+        rec.addAndGet(data.size());
         logger.info("输出 {} 数据：{}", handle, data.size());
         return data;
     }

@@ -24,6 +24,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/transflow")
@@ -166,11 +167,13 @@ public class TransFlowJobController {
         if (transFlowRunnable != null) {
             TransFlowChain<TransFlowInput> rootChain = transFlowRunnable.getChain();
             ExtensionLifecycle extension = rootChain.getExtension(nodeId);
-            ChainStatus chainStatus = new ChainStatus();
-            chainStatus.setRemainNumb(extension.getRemainingDataSize());
-            chainStatus.setRecNumb(extension.getRecNumb());
-            chainStatus.setSendNumb(extension.getSendNumb());
-            return Result.success(chainStatus);
+            if(Objects.nonNull(extension)){
+                ChainStatus chainStatus = new ChainStatus();
+                chainStatus.setRemainNumb(extension.getRemainingDataSize());
+                chainStatus.setRecNumb(extension.getRecNumb());
+                chainStatus.setSendNumb(extension.getSendNumb());
+                return Result.success(chainStatus);
+            }
         }
         return Result.success(new ChainStatus());
     }

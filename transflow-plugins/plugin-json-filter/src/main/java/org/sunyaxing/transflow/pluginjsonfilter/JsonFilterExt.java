@@ -14,20 +14,38 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Extension
 public class JsonFilterExt extends TransFlowFilter {
     private static final Logger log = LoggerFactory.getLogger(JsonFilterExt.class);
     private ScriptEngine scriptEngine;
     private String script;
-
+    private final AtomicLong rec = new AtomicLong(0);
+    private final AtomicLong send = new AtomicLong(0);
     public JsonFilterExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
+    public Long getRecNumb() {
+        return rec.get();
+    }
+
+    @Override
+    public Long getSendNumb() {
+        return send.get();
+    }
+
+    @Override
+    public Long getRemainingDataSize() {
+        return super.getRemainingDataSize();
+    }
+
+    @Override
     public List<TransData> execDatas(String handle, List<TransData> input) {
-        return input.stream()
+        rec.addAndGet(input.size());
+        List<TransData> sendData =  input.stream()
                 .map(result -> {
                     if (result.isType(JSONObject.class)) {
                         return result;
@@ -49,6 +67,8 @@ public class JsonFilterExt extends TransFlowFilter {
                     return true;
                 })
                 .toList();
+        send.addAndGet(sendData.size());
+        return sendData;
     }
 
 

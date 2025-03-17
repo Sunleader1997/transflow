@@ -15,19 +15,27 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Extension
 public class KafkaOutputExt extends TransFlowOutput {
     private static final Logger log = LogManager.getLogger(KafkaOutputExt.class);
 
     private KafkaProducer<String, String> producer;
+    private AtomicLong rec = new AtomicLong(0L);
 
     public KafkaOutputExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
+    public Long getRecNumb() {
+        return rec.get();
+    }
+
+    @Override
     public List<TransData> execDatas(String handle, List<TransData> data) {
+        rec.addAndGet(data.size());
         data.forEach(transData -> {
             this.producer.send(new ProducerRecord<>(handle, transData.getData(String.class)), (metadata, e) -> {
                 if (e != null) {

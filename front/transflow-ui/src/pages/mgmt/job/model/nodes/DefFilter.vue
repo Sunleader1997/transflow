@@ -4,10 +4,11 @@ import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { java } from '@codemirror/lang-java'
 import CodeMirror from 'vue-codemirror6'
 
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { json } from '@codemirror/lang-json'
 import { basicSetup } from 'codemirror'
+import axios from 'axios'
 
 defineEmits(['updateNodeInternals'])
 
@@ -44,6 +45,17 @@ const name = computed({
 })
 const extensions = [basicSetup, java(), oneDark]
 const extensions_json = [basicSetup, json(), oneDark]
+const nodeStatus = ref({
+  remainNumb: 0,
+  recNumb: 0,
+  sendNumb: 0,
+})
+
+onMounted(() => {
+  axios.get('/transflow/node/status?nodeId=' + props.id).then((response) => {
+    nodeStatus.value = response.data
+  })
+})
 </script>
 
 <template>
@@ -54,6 +66,7 @@ const extensions_json = [basicSetup, json(), oneDark]
           {{ name }}
         </div>
         <div class="text-subtitle2">{{ data.pluginId }}</div>
+        <div class="text-subtitle2">剩余：{{nodeStatus.remainNumb}} 接收：{{nodeStatus.recNumb}} 发送：{{nodeStatus.sendNumb}}</div>
       </q-card-section>
       <q-space/>
       <q-card-section>

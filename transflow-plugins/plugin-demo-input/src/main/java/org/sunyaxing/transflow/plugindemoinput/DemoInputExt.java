@@ -10,6 +10,8 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -17,7 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DemoInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(DemoInputExt.class);
     private String jsonStr;
-    private final AtomicLong count = new AtomicLong(0);
+    private final AtomicLong rec = new AtomicLong(0);
+    private final BlockingDeque<String> queue = new LinkedBlockingDeque<>(100);
     public DemoInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
@@ -26,13 +29,23 @@ public class DemoInputExt extends TransFlowInput {
     @Override
     public void commit(Long offset) {
 //        log.info("提交偏移量 {}", offset);
-        count.incrementAndGet();
     }
 
     @Override
     public Long getRemainingDataSize() {
-        return count.get();
+        return this.queue.stream().count();
     }
+
+    @Override
+    public Long getRecNumb() {
+        return rec.get();
+    }
+
+    @Override
+    public Long getSendNumb() {
+        return rec.get();
+    }
+
 
     @Override
     public List<TransData> dequeue() {
@@ -41,8 +54,10 @@ public class DemoInputExt extends TransFlowInput {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        String queue = this.queue.poll();
         List<TransData> transData = new ArrayList<>();
-        transData.add(new TransData(0L, jsonStr));
+        transData.add(new TransData(0L, queue));
+        rec.incrementAndGet();
         return transData;
     }
 
@@ -53,6 +68,9 @@ public class DemoInputExt extends TransFlowInput {
     @Override
     public void init(JSONObject config) {
         this.jsonStr = config.getString("jsonStr");
+        for(int i = 0; i < 100; i++){
+            this.queue.add(this.jsonStr);
+        }
     }
 
     @Override
