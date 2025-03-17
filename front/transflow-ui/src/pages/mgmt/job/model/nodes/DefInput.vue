@@ -43,11 +43,15 @@ const name = computed({
 })
 const extensions = [basicSetup, java(), oneDark]
 const extensions_json = [basicSetup, json(), oneDark]
-const remainDataSize = ref(0)
+const nodeStatus = ref({
+  remainNumb: 0,
+  recNumb: 0,
+  sendNumb: 0,
+})
 
 onMounted(() => {
   axios.get('/transflow/node/status?nodeId=' + props.id).then((response) => {
-    remainDataSize.value = response.data
+    nodeStatus.value = response.data
   })
 })
 </script>
@@ -56,8 +60,9 @@ onMounted(() => {
   <q-card class="my-node-card bg-secondary text-white">
     <q-card-section horizontal>
       <q-card-section>
-        <div class="text-h6">{{ name }} {{ remainDataSize }}</div>
-        <div class="text-subtitle2">{{ data.pluginId }}</div>
+        <div class="text-h6">{{ name }} </div>
+        <div class="text-subtitle2">{{ data.pluginId }} </div>
+        <div class="text-subtitle2">剩余：{{nodeStatus.remainNumb}} 接收：{{nodeStatus.recNumb}} 发送：{{nodeStatus.sendNumb}}</div>
       </q-card-section>
       <q-space />
       <q-card-section>

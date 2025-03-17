@@ -12,5 +12,4 @@ public abstract class TransFlowOutput implements ExtensionLifecycle {
     public TransFlowOutput(ExtensionContext extensionContext) {
         this.extensionContext = extensionContext;
     }
-
 }

@@ -2,11 +2,11 @@ package org.sunyaxing.transflow.transflowapp.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.ChainStatus;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
@@ -49,6 +49,7 @@ public class TransFlowJobController {
         jobService.save(jobBo);
         return Result.success(true);
     }
+
     @PostMapping("/job/delete")
     public Result<Boolean> deleteJob(@RequestBody JobBo jobBo) {
         jobService.removeById(jobBo.getId());
@@ -158,18 +159,19 @@ public class TransFlowJobController {
     }
 
     @GetMapping("/node/status")
-    public Result<Long> unlink(@RequestParam("nodeId") String nodeId) {
+    public Result<ChainStatus> unlink(@RequestParam("nodeId") String nodeId) {
         NodeBo nodeBo = nodeService.boById(nodeId);
         String jobId = nodeBo.getJobId();
         TransFlowRunnable transFlowRunnable = transFlowChainService.get(jobId);
-        if(transFlowRunnable!=null){
+        if (transFlowRunnable != null) {
             TransFlowChain<TransFlowInput> rootChain = transFlowRunnable.getChain();
-            ExtensionLifecycle transFlowInput = rootChain.getExtension(nodeId);
-            if(transFlowInput instanceof TransFlowInput){
-                return Result.success(((TransFlowInput) transFlowInput).getRemainingDataSize());
-            }
-            return Result.success(0L);
+            ExtensionLifecycle extension = rootChain.getExtension(nodeId);
+            ChainStatus chainStatus = new ChainStatus();
+            chainStatus.setRemainNumb(extension.getRemainingDataSize());
+            chainStatus.setRecNumb(extension.getRecNumb());
+            chainStatus.setSendNumb(extension.getSendNumb());
+            return Result.success(chainStatus);
         }
-        return Result.success(0L);
+        return Result.success(new ChainStatus());
     }
 }

@@ -31,7 +31,7 @@
             </q-item-section>
             <q-item-section side v-show="jobEditFlag">
               <q-btn-group outline>
-                <q-btn dense flat icon="edit"></q-btn>
+                <q-btn dense flat icon="edit" @click="openEditor(job)"></q-btn>
                 <q-btn dense flat icon="delete" @click="removeJob(job.id)"></q-btn>
               </q-btn-group>
             </q-item-section>
@@ -58,6 +58,20 @@
       </q-card-actions>
     </q-card>
   </q-dialog>
+  <q-dialog v-model="editJobPanelFlag">
+    <q-card style="min-width: 350px">
+      <q-card-section>
+        <div class="text-h6">修改任务</div>
+      </q-card-section>
+      <q-card-section class="q-pt-none">
+        <q-input dense v-model="editJob.name" label="名称" autofocus />
+        <q-input dense v-model="editJob.description" label="描述" autofocus />
+      </q-card-section>
+      <q-card-actions align="right" class="text-primary">
+        <q-btn flat label="确认" @click="saveJob" />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script>
@@ -68,8 +82,14 @@ export default {
   setup() {
     const jobs = ref([])
     const newJobPanelFlag = ref(false)
+    const editJobPanelFlag = ref(false)
     const jobEditFlag = ref(false)
     const newJob = ref({
+      name: '',
+      description: '',
+    })
+    const editJob = ref({
+      id: '',
       name: '',
       description: '',
     })
@@ -77,7 +97,9 @@ export default {
       jobs,
       newJobPanelFlag,
       newJob,
-      jobEditFlag
+      editJob,
+      jobEditFlag,
+      editJobPanelFlag,
     }
   },
   methods: {
@@ -96,10 +118,22 @@ export default {
         this.newJobPanelFlag = false
       })
     },
+    saveJob(){
+      this.$axios.post('/transflow/job/save', this.editJob).then(() => {
+        this.editJobPanelFlag = false
+        this.queryForJobs()
+      })
+    },
     removeJob(jobId){
       this.$axios.post('/transflow/job/delete', { id: jobId }).then(() => {
         this.queryForJobs()
       })
+    },
+    openEditor(job){
+      this.editJobPanelFlag = true
+      this.editJob = {
+        ...job
+      }
     }
   },
   beforeMount() {
