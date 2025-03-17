@@ -1,8 +1,11 @@
 <script setup>
 // import { computed } from 'vue'
-import { Handle, Position } from '@vue-flow/core'
-import { Codemirror } from 'vue-codemirror'
+import { Handle, Position, useVueFlow } from '@vue-flow/core'
+import CodeMirror from 'vue-codemirror6'
 import { javascript } from '@codemirror/lang-javascript'
+import { json } from '@codemirror/lang-json';
+import { computed } from 'vue'
+import { oneDark } from '@codemirror/theme-one-dark'
 
 defineEmits(['updateNodeInternals'])
 const props = defineProps([
@@ -27,18 +30,26 @@ const props = defineProps([
   'dragHandle',
 ])
 const dataConfig = props.data.config
-// const { updateNodeData } = useVueFlow()
-// const value = computed({
-//   get: () => props.data.config,
-//   set: (value) => updateNodeData(props.id, { value }),
-// })
+const { updateNodeData } = useVueFlow()
+const name = computed({
+  get: () => props.data.name,
+  set: (name) => {
+    updateNodeData(props.id,  {name})
+  },
+})
 const extensions = [javascript()]
+const extensions_json = [json(), oneDark]
 </script>
 
 <template>
   <q-card class="my-node-card bg-primary text-white">
     <q-card-section>
-      <div class="text-h6">{{ data.name }}</div>
+      <div class="text-h6">
+        {{ name }}
+        <q-popup-edit v-model="name" auto-save v-slot="scope">
+          <q-input v-model="scope.value" dense autofocus counter/>
+        </q-popup-edit>
+      </div>
       <div class="text-subtitle2">{{ data.pluginId }}</div>
     </q-card-section>
     <q-separator dark />
@@ -49,9 +60,18 @@ const extensions = [javascript()]
             {{ property.key }}
           </div>
           <div class="col">
-            <codemirror
-              v-if="property.type === 'code'"
+            <code-mirror
+              v-if="property.type === 'json'"
               v-model="dataConfig[property.key]"
+              :wrap="true"
+              :tabSize="4"
+              :extensions="[extensions_json]"
+            />
+            <code-mirror
+              v-else-if="property.type === 'code'"
+              v-model="dataConfig[property.key]"
+              :wrap="true"
+              :tabSize="4"
               :extensions="[extensions]"
             />
             <q-input

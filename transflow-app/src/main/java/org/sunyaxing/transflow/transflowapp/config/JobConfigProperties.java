@@ -12,7 +12,10 @@ import java.util.List;
 @Data
 public class JobConfigProperties {
     private String key;
+    private String label;
     private String type;
+    private Boolean required;
+    private String defaultValue;
 
     public static List<JobConfigProperties> getJobProperties(Plugin plugin) {
         ScopeContentCheck scopeContentCheck = AnnotationUtils.findAnnotation(plugin.getClass(), ScopeContentCheck.class);
@@ -24,7 +27,10 @@ public class JobConfigProperties {
                 for (JobParamItem jobParamItem : jobParamItems) {
                     JobConfigProperties jobConfigProperties = new JobConfigProperties();
                     jobConfigProperties.setKey(jobParamItem.field());
+                    jobConfigProperties.setLabel(jobParamItem.label());
                     jobConfigProperties.setType(jobParamItem.type());
+                    jobConfigProperties.setRequired(jobParamItem.required());
+                    jobConfigProperties.setDefaultValue(jobParamItem.defaultValue());
                     jobProperties.add(jobConfigProperties);
                 }
             }

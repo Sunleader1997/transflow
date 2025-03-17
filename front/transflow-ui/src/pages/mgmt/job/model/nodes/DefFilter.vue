@@ -1,8 +1,12 @@
 <script setup>
 // import { computed } from 'vue'
-import { Handle, Position } from '@vue-flow/core'
-import { Codemirror } from 'vue-codemirror'
+import { Handle, Position, useVueFlow } from '@vue-flow/core'
 import { javascript } from '@codemirror/lang-javascript'
+import CodeMirror from 'vue-codemirror6'
+
+import { computed } from 'vue'
+import { oneDark } from '@codemirror/theme-one-dark'
+import { json } from '@codemirror/lang-json';
 
 defineEmits(['updateNodeInternals'])
 
@@ -27,19 +31,29 @@ const props = defineProps([
   'label',
   'dragHandle',
 ])
+//const name = ref(props.data.name)
 const dataConfig = props.data.config
-// const { updateNodeData } = useVueFlow()
-// const value = computed({
-//   get: () => props.data.config,
-//   set: (value) => updateNodeData(props.id, { value }),
-// })
-const extensions = [javascript()]
+
+const { updateNodeData } = useVueFlow()
+const name = computed({
+  get: () => props.data.name,
+  set: (name) => {
+    updateNodeData(props.id, { name })
+  },
+})
+const extensions = [javascript(), oneDark]
+const extensions_json = [json(), oneDark]
 </script>
 
 <template>
   <q-card class="my-node-card bg-positive text-white">
     <q-card-section>
-      <div class="text-h6">{{ data.name }}</div>
+      <div class="text-h6">
+        {{ name }}
+        <q-popup-edit v-model="name" auto-save v-slot="scope">
+          <q-input v-model="scope.value" dense autofocus counter />
+        </q-popup-edit>
+      </div>
       <div class="text-subtitle2">{{ data.pluginId }}</div>
     </q-card-section>
     <q-separator dark />
@@ -50,21 +64,28 @@ const extensions = [javascript()]
             {{ property.key }}
           </div>
           <div class="col">
+            <code-mirror
+              v-if="property.type === 'json'"
+              v-model="dataConfig[property.key]"
+              :wrap="true"
+              :tabSize="4"
+              :extensions="[extensions_json]"
+            />
+            <code-mirror
+              v-else-if="property.type === 'code'"
+              v-model="dataConfig[property.key]"
+              :wrap="true"
+              :tabSize="4"
+              :extensions="[extensions]"
+            />
             <q-input
-              v-if="property.type === 'string'"
+              v-else
               dark
               v-model="dataConfig[property.key]"
               dense
               borderless
-            >
-              <template v-slot:before>
-                <a class="text-subtitle2 text-white">{{ property.key }}</a>
-              </template>
-            </q-input>
-            <codemirror
-              v-if="property.type === 'code'"
-              v-model="dataConfig[property.key]"
-              :extensions="[extensions]"
+              square
+              standout
             />
           </div>
         </div>
@@ -74,3 +95,5 @@ const extensions = [javascript()]
   <Handle type="target" :position="Position.Left" />
   <Handle type="source" :position="Position.Right" />
 </template>
+<style scoped>
+</style>

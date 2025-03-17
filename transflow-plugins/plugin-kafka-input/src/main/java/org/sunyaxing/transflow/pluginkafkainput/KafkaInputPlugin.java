@@ -5,10 +5,10 @@ import org.sunyaxing.transflow.common.ano.ScopeContentCheck;
 import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 
 @ScopeContentCheck({
-        @JobParamItem(field = "group-id", label = "group-id", required = true),
-        @JobParamItem(field = "topics", label = "topic", required = true),
-        @JobParamItem(field = "bootstrap-servers", label = "bootstrap-servers", required = true),
-        @JobParamItem(field = "max-poll-records", label = "max-poll-records", required = true)
+        @JobParamItem(field = "group-id", label = "GroupId", defaultValue = "transflow"),
+        @JobParamItem(field = "topics", label = "Topic", defaultValue = "topic"),
+        @JobParamItem(field = "bootstrap-servers", label = "节点(ip:port)", defaultValue = "127.0.0.1:9093"),
+        @JobParamItem(field = "max-poll-records", label = "批量拉取大小", defaultValue = "1000")
 })
 public class KafkaInputPlugin extends TransFlowInputPlugin {
 }

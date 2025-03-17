@@ -49,13 +49,15 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         this.parseConfig(nodeBo);
         NodeEntity nodeEntity = BoCover.INSTANCE.boToEntity(nodeBo);
         if (nodeBo.getId() == null) {
-//            Boolean exist = this.lambdaQuery()
-////                    .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
-//                    .eq(NodeEntity::getJobId, nodeBo.getJobId())
-//                    .exists();
-//            if (exist) {
-//                throw new RuntimeException("输入节点只能有一个");
-//            }
+            if(TransFlowTypeEnum.INPUT.equals(nodeBo.getNodeType())){
+                boolean exist = this.lambdaQuery()
+                        .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
+                        .eq(NodeEntity::getJobId, nodeBo.getJobId())
+                        .exists();
+                if (exist) {
+                    throw new RuntimeException("输入节点只能有一个");
+                }
+            }
             this.save(nodeEntity);
         } else {
             this.updateById(nodeEntity);
@@ -87,7 +89,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         List<JobConfigProperties> configList = JobConfigProperties.getJobProperties(plugin);
         configList.forEach(jobConfigProperties -> {
             if (!nodeBo.getConfig().containsKey(jobConfigProperties.getKey())) {
-                nodeBo.getConfig().put(jobConfigProperties.getKey(), "");
+                nodeBo.getConfig().put(jobConfigProperties.getKey(), jobConfigProperties.getDefaultValue());
             }
         });
         return configList;

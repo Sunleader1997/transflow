@@ -20,6 +20,7 @@ public class GlobeExceptionHandler {
     @ResponseBody
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity<Result> illegalArgumentExceptionHandler(RuntimeException e) {
+        log.error("业务异常：", e);
         return ResponseEntity.ok(Result.fail(e.getMessage()));
     }
 }
