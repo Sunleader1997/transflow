@@ -70,7 +70,12 @@ public class TransFlowChainService {
         transFlowInput.init(inputNode.getConfig());
         // 创建 责任链
         TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, null, transFlowInput);
-        buildChain(startChain, startChain);
+        try {
+            buildChain(startChain, startChain);
+        }catch (Exception e){
+            startChain.dispose();
+            throw new RuntimeException("构建责任链失败");
+        }
         return startChain;
     }
 

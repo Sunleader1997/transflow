@@ -42,10 +42,10 @@ public class KafkaOutputExt extends TransFlowOutput {
     public void init(JSONObject config) {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
-        properties.put(ProducerConfig.ACKS_CONFIG, config.getString("acks"));
-        properties.put(ProducerConfig.RETRIES_CONFIG, config.getString("retries"));
-        properties.put(ProducerConfig.LINGER_MS_CONFIG, config.getString("linger"));
-        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getString("buffer-memory"));
+        properties.put(ProducerConfig.ACKS_CONFIG, config.getOrDefault("acks","0"));
+        properties.put(ProducerConfig.RETRIES_CONFIG, config.getOrDefault("retries","3"));
+        properties.put(ProducerConfig.LINGER_MS_CONFIG, config.getOrDefault("linger","1"));
+        properties.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getOrDefault("buffer-memory","524288"));
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 
