@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Named("CommonCover")
 public class CommonCover {
@@ -42,5 +45,12 @@ public class CommonCover {
     @Named("useSet")
     public <T> T useSet(T data) {
         return data;
+    }
+    @Named("emptyIfNull")
+    public List emptyIfNull(List list){
+        if(list == null){
+            return new ArrayList();
+        }
+        return list;
     }
 }

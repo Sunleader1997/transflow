@@ -59,6 +59,9 @@ importers:
       core-js:
         specifier: ^3.31.1
         version: 3.41.0
+      nanoid:
+        specifier: ^5.1.4
+        version: 5.1.4
       pinia:
         specifier: ^3.0.1
         version: 3.0.1(vue@3.5.13)
@@ -2948,6 +2951,11 @@ packages:
   nanoid@3.3.9:
     resolution: {integrity: sha512-SppoicMGpZvbF1l3z4x7No3OlIjP7QJvC9XR7AhZr1kL133KHnKPztkKDc+Ir4aJ/1VhTySrtKhrsycmrMQfvg==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
+  nanoid@5.1.4:
+    resolution: {integrity: sha512-GTFcMIDgR7tqji/LpSY8rtg464VnJl/j6ypoehYnuGb+Y8qZUdtKB8WVCXon0UEZgFDbuUxpIl//6FHLHgXSNA==}
+    engines: {node: ^18 || >=20}
     hasBin: true
 
   natural-compare@1.4.0:
@@ -7582,6 +7590,8 @@ snapshots:
   mute-stream@1.0.0: {}
 
   nanoid@3.3.9: {}
+
+  nanoid@5.1.4: {}
 
   natural-compare@1.4.0: {}
 

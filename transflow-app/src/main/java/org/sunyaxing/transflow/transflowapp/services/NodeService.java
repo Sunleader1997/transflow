@@ -112,7 +112,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
             return Boolean.parseBoolean(defaultValue);
         } else if (javaType.isArray()) {
             // 支持数组类型
-            return JSONArray.parseArray(defaultValue, String.class);
+            return JSONArray.parseArray(defaultValue);
         } else {
             throw new IllegalArgumentException("Failed to parse default value: " + defaultValue);
         }

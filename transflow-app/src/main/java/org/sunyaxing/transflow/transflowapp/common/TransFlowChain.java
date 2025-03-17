@@ -26,16 +26,16 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
     private ChainStatusEnum status;
     private final T currentNode;
     // 属于 当前节点的哪一个 handle
-    private final String handleId;
+    private final String handleValue;
     private final List<TransFlowChain<?>> children;
     private final Map<String, Map<String, TransFlowChain<?>>> allChains;
     private final Map<String, ExtensionLifecycle> allExtensions;
 
-    public TransFlowChain(NodeBo nodeBo, String handleId, T currentNode) {
+    public TransFlowChain(NodeBo nodeBo, String handleValue, T currentNode) {
         this.allExtensions = new ConcurrentHashMap<>();
         this.allChains = new ConcurrentHashMap<>();
         this.nodeId = nodeBo.getId();
-        this.handleId = handleId;
+        this.handleValue = handleValue;
         this.typeEnum = nodeBo.getNodeType();
         this.status = ChainStatusEnum.INIT;
         this.currentNode = currentNode;
@@ -48,7 +48,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
 
     public void exec(List<TransData> orgData) {
         sign(ChainStatusEnum.RUNNING);
-        final List<TransData> res = currentNode.execDatas(handleId, orgData);
+        final List<TransData> res = currentNode.execDatas(handleValue, orgData);
         if (!children.isEmpty()) {
             CountDownLatch countDownLatch = new CountDownLatch(children.size());
             children.forEach(child -> {

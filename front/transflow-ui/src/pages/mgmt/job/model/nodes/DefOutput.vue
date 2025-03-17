@@ -7,6 +7,7 @@ import { json } from '@codemirror/lang-json'
 import { computed } from 'vue'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { basicSetup } from 'codemirror'
+import { nanoid } from 'nanoid'
 
 defineEmits(['updateNodeInternals'])
 const props = defineProps([
@@ -31,6 +32,7 @@ const props = defineProps([
   'dragHandle',
 ])
 const dataConfig = props.data.config
+const handles = props.data.handles
 const { updateNodeData } = useVueFlow()
 const name = computed({
   get: () => props.data.name,
@@ -51,7 +53,7 @@ const extensions_json = [basicSetup, json(), oneDark]
         </div>
         <div class="text-subtitle2">{{ data.pluginId }}</div>
       </q-card-section>
-      <q-space/>
+      <q-space />
       <q-card-section>
         <q-btn dense flat icon="edit">
           <q-popup-edit v-model="name" auto-save v-slot="scope">
@@ -82,26 +84,6 @@ const extensions_json = [basicSetup, json(), oneDark]
               :tabSize="4"
               :extensions="[extensions]"
             />
-            <div
-              v-else-if="property.type === 'handlers'"
-              class="q-gutter-md"
-            >
-              <div v-for="(handler, index) in dataConfig[property.key]" :key="index">
-                <q-input
-                  v-model="dataConfig[property.key][index]"
-                  dark
-                  dense
-                  borderless
-                  square
-                  standout
-                >
-                  <template v-slot:prepend>
-                    <Handle :id="dataConfig[property.key][index]" type="target" :position="Position.Left" />
-                  </template>
-                </q-input>
-              </div>
-              <q-btn label="+" @click="dataConfig[property.key].push('')"></q-btn>
-            </div>
             <q-input
               v-else
               dark
@@ -115,6 +97,33 @@ const extensions_json = [basicSetup, json(), oneDark]
         </div>
       </div>
     </q-card-section>
+
+    <q-card-section class="nodrag">
+      <div class="col text-overline">handle</div>
+      <div class="q-gutter-md">
+        <div v-for="(handler, index) in handles" :key="index">
+          <q-input v-model="handles[index].value" dark dense borderless square standout>
+            <template v-slot:prepend>
+              <Handle :id="handles[index].id" type="target" :position="Position.Left" />
+            </template>
+          </q-input>
+        </div>
+        <div class="q-ml-md">
+          <q-btn
+            dense
+            class="full-width"
+            flat
+            label="+"
+            @click="
+              handles.push({
+                id: nanoid(),
+                value: '',
+              })
+            "
+          ></q-btn>
+        </div>
+      </div>
+    </q-card-section>
   </q-card>
-  <Handle type="target" :position="Position.Left" />
+  <Handle v-if="handles.length === 0" type="target" :position="Position.Left" />
 </template>

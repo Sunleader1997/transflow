@@ -3,6 +3,7 @@ package org.sunyaxing.transflow.transflowapp.services;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
@@ -12,6 +13,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -72,7 +74,7 @@ public class TransFlowChainService {
         TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, null, transFlowInput);
         try {
             buildChain(startChain, startChain);
-        }catch (Exception e){
+        } catch (Exception e) {
             startChain.dispose();
             throw new RuntimeException("构建责任链失败");
         }
@@ -92,7 +94,7 @@ public class TransFlowChainService {
                 // 如果没有缓存，就创建 chain 并添加到根节点缓存
                 if (Objects.isNull(chain)) { // 如果没有创建过 chain，则新建并初始化
                     ExtensionLifecycle extension = rootChain.getExtension(nodeBo.getId());
-                    if(Objects.isNull(extension)){
+                    if (Objects.isNull(extension)) {
                         // extension 在初始化之后其实是可以再次利用的，防止资源重复创建
                         extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
                         // 初始化 插件
@@ -100,8 +102,10 @@ public class TransFlowChainService {
                         // 添加到缓存
                         rootChain.addAllExtension(nodeBo.getId(), extension);
                     }
+                    Optional<Handle> linkHandle = nodeBo.getHandles().stream()
+                            .filter(handle -> handle.getId().equals(link.getTargetHandle())).findFirst();
                     // 创建 责任链
-                    chain = new TransFlowChain<>(nodeBo, link.getTargetHandle(), extension);
+                    chain = new TransFlowChain<>(nodeBo, linkHandle.map(Handle::getValue).orElse(null), extension);
                     // 添加到根节点缓存
                     rootChain.addChainForSingle(nodeBo.getId(), link.getTargetHandle(), chain);
                     // 递归创建子责任链，下次再遇到本节点时，将会命中缓存

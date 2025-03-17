@@ -2,6 +2,7 @@ package org.sunyaxing.transflow.transflowapp.services.bos;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 
@@ -18,4 +19,5 @@ public class NodeBo {
     private Integer x;
     private Integer y;
     private List<JobConfigProperties> properties;
+    private List<Handle> handles;
 }

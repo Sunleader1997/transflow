@@ -43,4 +43,7 @@ public class NodeEntity implements Serializable {
 
     @TableField("Y")
     private Integer y;
+
+    @TableField("handles")
+    private String handles;
 }
