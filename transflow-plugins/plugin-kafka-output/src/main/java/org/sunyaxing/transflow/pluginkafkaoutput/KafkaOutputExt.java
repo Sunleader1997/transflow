@@ -55,6 +55,7 @@ public class KafkaOutputExt extends TransFlowOutput {
 
     @Override
     public void destroy() {
-
+        log.info("kafka 生产者 资源清理");
+        this.producer.close();
     }
 }

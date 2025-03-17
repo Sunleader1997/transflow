@@ -18,7 +18,7 @@
             <q-btn-group outline>
               <q-btn outline color="brown" label="执行" @click="runJob" />
               <q-btn outline color="brown" label="停止" @click="stopJob" />
-              <q-btn outline color="brown" label="Third" />
+              <q-btn outline color="brown" label="构建测试" @click="buildJob" />
             </q-btn-group>
           </Panel>
           <DropzoneBackground
@@ -157,6 +157,9 @@ export default {
     stopJob() {
       this.$axios.post('/transflow/job/stop', { id: this.jobId })
     },
+    buildJob(){
+      this.$axios.post('/transflow/job/build', { id: this.jobId })
+    }
   },
   beforeMount() {
     console.log('beforeMount')

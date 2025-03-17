@@ -74,6 +74,7 @@ public class EsOutputExtension extends TransFlowOutput {
 
     @Override
     public void destroy() {
+        log.info("es client 执行清理");
         if(restHighLevelClient!=null){
             try {
                 restHighLevelClient.close();

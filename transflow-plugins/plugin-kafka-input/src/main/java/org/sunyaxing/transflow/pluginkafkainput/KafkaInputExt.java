@@ -101,7 +101,7 @@ public class KafkaInputExt extends TransFlowInput {
 
     @Override
     public void destroy() {
+        log.info("kafka 消费者 执行清理");
         this.kafkaConsumer.close();
-        Thread.currentThread().interrupt();
     }
 }

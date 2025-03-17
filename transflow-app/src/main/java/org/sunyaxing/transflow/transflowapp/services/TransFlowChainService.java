@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TransFlowChainService {
 
     @Autowired
-    private JobService jobService;
-    @Autowired
     private NodeService nodeService;
     @Autowired
     private NodeLinkService nodeLinkService;
@@ -72,12 +70,12 @@ public class TransFlowChainService {
         transFlowInput.init(inputNode.getConfig());
         // 创建 责任链
         TransFlowChain<TransFlowInput> startChain = new TransFlowChain<>(inputNode, null, transFlowInput);
-        buildChain(startChain);
+        buildChain(startChain, startChain);
         return startChain;
     }
 
     // 递归创建责任链
-    public void buildChain(TransFlowChain<?> parentChain) {
+    public void buildChain(TransFlowChain<?> rootChain, TransFlowChain<?> parentChain) {
         String sourceId = parentChain.getNodeId();
         // 以当前节点为源的连线
         List<NodeLinkBo> links = nodeLinkService.findLinksBySource(sourceId);
@@ -85,15 +83,27 @@ public class TransFlowChainService {
         links.forEach(link -> {
             NodeBo nodeBo = nodeService.boById(link.getTargetId());
             if (Objects.nonNull(nodeBo)) {
-                ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
-                // 初始化 插件
-                extension.init(nodeBo.getConfig());
-                // 创建 子责任链
-                TransFlowChain<?> chain = new TransFlowChain<>(nodeBo, link.getTargetHandle(), extension);
+                TransFlowChain<?> chain = rootChain.getChainByNodeId(nodeBo.getId(), link.getTargetHandle());
+                // 如果没有缓存，就创建 chain 并添加到根节点缓存
+                if (Objects.isNull(chain)) { // 如果没有创建过 chain，则新建并初始化
+                    ExtensionLifecycle extension = rootChain.getExtension(nodeBo.getId());
+                    if(Objects.isNull(extension)){
+                        // extension 在初始化之后其实是可以再次利用的，防止资源重复创建
+                        extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
+                        // 初始化 插件
+                        extension.init(nodeBo.getConfig());
+                        // 添加到缓存
+                        rootChain.addAllExtension(nodeBo.getId(), extension);
+                    }
+                    // 创建 责任链
+                    chain = new TransFlowChain<>(nodeBo, link.getTargetHandle(), extension);
+                    // 添加到根节点缓存
+                    rootChain.addChainForSingle(nodeBo.getId(), link.getTargetHandle(), chain);
+                    // 递归创建子责任链，下次再遇到本节点时，将会命中缓存
+                    buildChain(rootChain, chain);
+                }
                 // 添加到父链
                 parentChain.addChild(chain);
-                // 递归创建子责任链
-                buildChain(chain);
             }
         });
     }

@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.transflowapp.reactor;
 
 import cn.hutool.core.date.StopWatch;
+import cn.hutool.core.map.MapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
@@ -12,9 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class TransFlowRunnable implements Runnable, Disposable {
@@ -27,7 +26,6 @@ public class TransFlowRunnable implements Runnable, Disposable {
     private Disposable disposable;
     private final TransFlowInput input;
     private final TransFlowChain<TransFlowInput> chain;
-    private final Map<String, TransFlowChain<?>> allNodes;
 
     public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {
         this.input = chain.getCurrentNode();
@@ -35,12 +33,6 @@ public class TransFlowRunnable implements Runnable, Disposable {
         this.dataDequeue = Mono.defer(this::dequeue).repeat();
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
-        this.allNodes = new HashMap<>();
-        this.chain.chains(this.allNodes);
-    }
-
-    public TransFlowChain<?> getChainByNodeId(String nodeId) {
-        return allNodes.get(nodeId);
     }
 
     private Mono<Void> dataFlowWithEachFilter(List<TransData> datas) {
@@ -54,7 +46,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             stopWatch.stop();
             stopWatch.start("chain 处理");
             // 交给 chain 处理
-            chain.exec(datas);
+            this.chain.exec(datas);
             stopWatch.stop();
             log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         }), dataBk -> {
@@ -84,6 +76,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     @Override
     public void dispose() {
+        this.chain.dispose();
         this.disposable.dispose();
     }
 }

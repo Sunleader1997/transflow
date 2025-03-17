@@ -68,6 +68,7 @@ public class TransFlowJobController {
     @PostMapping("/job/build")
     public Result<TransFlowChain<TransFlowInput>> jobBuild(@RequestBody JobBo jobBo) {
         TransFlowChain<TransFlowInput> res = transFlowChainService.buildChain(jobBo.getId());
+        res.dispose();
         return Result.success(res);
     }
 
@@ -89,12 +90,13 @@ public class TransFlowJobController {
         List<NodeDto> res = nodeService.list(jobId)
                 .stream().map(bo -> {
                     NodeDto nodeDto = BoCover.INSTANCE.boToDto(bo);
-                    if (hasKey) {
-                        TransFlowChain<?> chain = transFlowChainService.get(jobId).getChainByNodeId(bo.getId());
-                        nodeDto.getData().setStatus(chain.getStatus());
-                    } else {
-                        nodeDto.getData().setStatus(ChainStatusEnum.INIT);
-                    }
+                    // TODO 暂时无法获取到节点状态
+//                    if (hasKey) {
+//                        TransFlowChain<?> chain = transFlowChainService.get(jobId).getChainByNodeId(bo.getId());
+//                        nodeDto.getData().setStatus(chain.getStatus());
+//                    } else {
+//                        nodeDto.getData().setStatus(ChainStatusEnum.INIT);
+//                    }
                     return nodeDto;
                 }).toList();
         return Result.success(res);
