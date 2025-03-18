@@ -62,7 +62,6 @@ onMounted(() => {
       <q-card-section>
         <div class="text-h6">{{ name }} </div>
         <div class="text-subtitle2">{{ data.pluginId }} </div>
-        <div class="text-subtitle2">剩余：{{nodeStatus.remainNumb}} 接收：{{nodeStatus.recNumb}} 发送：{{nodeStatus.sendNumb}}</div>
       </q-card-section>
       <q-space />
       <q-card-section>
@@ -73,6 +72,12 @@ onMounted(() => {
         </q-btn>
       </q-card-section>
     </q-card-section>
+    <q-separator dark/>
+    <q-list dense padding class="full-width">
+      <q-item class="text-subtitle2" clickable >剩余：{{nodeStatus.remainNumb}}</q-item>
+      <q-item class="text-subtitle2" clickable >接收：{{nodeStatus.recNumb}}</q-item>
+      <q-item class="text-subtitle2" clickable >发送：{{nodeStatus.sendNumb}}</q-item>
+    </q-list>
     <q-separator dark />
     <q-card-section class="nodrag">
       <div v-for="property in data.properties" :key="property.key">

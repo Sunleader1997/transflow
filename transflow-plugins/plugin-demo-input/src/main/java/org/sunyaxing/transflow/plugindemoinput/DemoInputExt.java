@@ -51,12 +51,13 @@ public class DemoInputExt extends TransFlowInput {
     @Override
     public List<TransData> dequeue() {
         String queue = this.queue.poll();
-        List<TransData> transData = new ArrayList<>();
         if(!StringUtils.isNullOrEmpty(queue)){
+            List<TransData> transData = new ArrayList<>();
             transData.add(new TransData(0L, queue));
             rec.incrementAndGet();
+            return transData;
         }
-        return transData;
+        return null;
     }
 
     @Override

@@ -5,7 +5,7 @@
     style="min-height: calc(96vh)"
     @drop="onDrop($event, jobId)"
   >
-    <q-drawer show-if-above side="right">
+    <q-drawer show-if-above side="right" :width="200">
       <q-scroll-area class="fit">
         <SideBar />
       </q-scroll-area>

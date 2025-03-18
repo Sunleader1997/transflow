@@ -52,7 +52,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         }), dataBk -> {
             datas.forEach(data -> {
-                input.commit(data.offset());
+                input.commit(data.getOffset());
             });
         });
     }

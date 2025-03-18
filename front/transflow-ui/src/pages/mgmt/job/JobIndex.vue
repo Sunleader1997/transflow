@@ -1,18 +1,15 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-drawer show-if-above side="left" bordered>
-      <q-scroll-area class="fit">
-        <q-list bordered separator>
-          <q-btn-group outline class="full-width">
-            <q-btn outline color="brown" label="新增任务" @click="openNewJobPanel" />
-            <q-space/>
-            <q-toggle
+    <q-drawer show-if-above side="left" bordered
               v-model="jobEditFlag"
-              checked-icon="check"
-              color="green"
-              unchecked-icon="clear"
-            />
-          </q-btn-group>
+              :mini="miniState"
+              @mouseenter="miniState = false"
+              @mouseleave="miniState = true"
+              :width="200"
+              :breakpoint="500"
+    >
+      <q-scroll-area class="fit">
+        <q-list padding>
           <q-item
             v-for="job in jobs"
             clickable
@@ -25,17 +22,20 @@
             "
             :key="job.id"
           >
+            <q-item-section avatar>
+              <q-avatar color="red" text-color="white">{{ job.name }}</q-avatar>
+            </q-item-section>
             <q-item-section>
-              <q-item-label overline>{{ job.name }}</q-item-label>
               <q-item-label>{{ job.description }}</q-item-label>
             </q-item-section>
-            <q-item-section side v-show="jobEditFlag">
+            <q-item-section side>
               <q-btn-group outline>
                 <q-btn dense flat icon="edit" @click="openEditor(job)"></q-btn>
                 <q-btn dense flat icon="delete" @click="removeJob(job.id)"></q-btn>
               </q-btn-group>
             </q-item-section>
           </q-item>
+          <q-btn flat dense color="brown" icon="add" @click="openNewJobPanel" class="full-width" />
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -83,6 +83,7 @@ export default {
     const jobs = ref([])
     const newJobPanelFlag = ref(false)
     const editJobPanelFlag = ref(false)
+    const miniState = ref(true)
     const jobEditFlag = ref(false)
     const newJob = ref({
       name: '',
@@ -100,6 +101,7 @@ export default {
       editJob,
       jobEditFlag,
       editJobPanelFlag,
+      miniState
     }
   },
   methods: {
