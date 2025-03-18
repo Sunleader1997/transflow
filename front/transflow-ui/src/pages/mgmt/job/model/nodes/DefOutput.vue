@@ -76,7 +76,7 @@ onMounted(() => {
       </q-card-section>
     </q-card-section>
     <q-separator dark />
-    <q-card-section class="nodrag">
+    <q-card-section class="nodrag" v-if="data.properties.length > 0">
       <div v-for="property in data.properties" :key="property.key">
         <div class="column">
           <div class="col text-overline">

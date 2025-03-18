@@ -68,6 +68,12 @@
   border-style: none;
   border-color: #bbb;
 }
+.vue-flow__node-filter input{
+  background-color: rgb(70, 155, 181) !important;
+}
+.vue-flow__node-filter .vue-flow__handle{
+  background-color: rgb(70, 155, 181) !important;
+}
 
 .node-output {
   background-color: var(--q-primary) !important;

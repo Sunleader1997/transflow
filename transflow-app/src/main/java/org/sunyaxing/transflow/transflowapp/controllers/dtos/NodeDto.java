@@ -2,7 +2,6 @@ package org.sunyaxing.transflow.transflowapp.controllers.dtos;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Data;
-import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
@@ -27,7 +26,6 @@ public class NodeDto {
         private String name;
         private String jobId;
         private String pluginId;
-        private ChainStatusEnum status;
         private TransFlowTypeEnum nodeType;
         private JSONObject config;
         private List<JobConfigProperties> properties;

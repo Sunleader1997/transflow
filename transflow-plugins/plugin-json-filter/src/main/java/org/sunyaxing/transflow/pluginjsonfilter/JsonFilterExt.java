@@ -44,9 +44,9 @@ public class JsonFilterExt extends TransFlowFilter {
         rec.addAndGet(input.size());
         List<TransData> sendData = input.stream()
                 .filter(transData -> {
-                    if (StringUtils.isNotNullOrEmpty(this.script)) {
+                    if (StringUtils.isNotNullOrEmpty(handle)) {
                         try {
-                            Object o = AviatorEvaluator.execute(this.script, transData.getData(JSONObject.class));
+                            Object o = AviatorEvaluator.execute(handle, transData.getData(JSONObject.class));
                             return Boolean.TRUE.equals(o);
                         } catch (Exception e) {
                             log.error("脚本执行异常", e);

@@ -21,7 +21,7 @@ public class DemoInputExt extends TransFlowInput {
     private static final Logger log = LogManager.getLogger(DemoInputExt.class);
     private String jsonStr;
     private final AtomicLong rec = new AtomicLong(0);
-    private final BlockingDeque<String> queue = new LinkedBlockingDeque<>(100);
+    private final BlockingDeque<String> queue = new LinkedBlockingDeque<>(10000);
     public DemoInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
@@ -50,11 +50,6 @@ public class DemoInputExt extends TransFlowInput {
 
     @Override
     public List<TransData> dequeue() {
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         String queue = this.queue.poll();
         List<TransData> transData = new ArrayList<>();
         if(!StringUtils.isNullOrEmpty(queue)){
@@ -71,7 +66,7 @@ public class DemoInputExt extends TransFlowInput {
     @Override
     public void init(JSONObject config) {
         this.jsonStr = config.getString("jsonStr");
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 1000; i++){
             this.queue.add(this.jsonStr);
         }
     }

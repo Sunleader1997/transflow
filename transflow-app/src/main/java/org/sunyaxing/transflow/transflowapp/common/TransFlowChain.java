@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
-import org.sunyaxing.transflow.common.ChainStatusEnum;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
@@ -23,8 +22,6 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
     private final NodeBo nodeBo;
     private final String nodeId;
     private final TransFlowTypeEnum typeEnum;
-    // 状态 0 未执行 1 执行中 2 执行完成
-    private ChainStatusEnum status;
     private final T currentNode;
     // 下一个节点的连线
     private final List<NodeLinkBo> linkBos;
@@ -36,7 +33,6 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
         this.linkBos = links;
         this.nodeId = nodeBo.getId();
         this.typeEnum = nodeBo.getNodeType();
-        this.status = ChainStatusEnum.INIT;
         this.currentNode = currentNode;
     }
 
@@ -68,7 +64,6 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
     }
 
     public void exec(String handleValue, List<TransData> orgData) {
-        sign(ChainStatusEnum.RUNNING);
         final List<TransData> res = currentNode.execDatas(handleValue, orgData);
         execForChild(res);
     }
@@ -98,15 +93,10 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
             });
             try {
                 countDownLatch.await();
-                sign(ChainStatusEnum.FINISHED);
             } catch (InterruptedException e) {
-                sign(ChainStatusEnum.ERROR);
+                e.printStackTrace();
             }
         }
-    }
-
-    public void sign(ChainStatusEnum status) {
-        this.status = status;
     }
 
     @Override

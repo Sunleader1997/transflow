@@ -9,6 +9,7 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { json } from '@codemirror/lang-json'
 import { basicSetup } from 'codemirror'
 import axios from 'axios'
+import { nanoid } from 'nanoid'
 
 defineEmits(['updateNodeInternals'])
 
@@ -35,6 +36,7 @@ const props = defineProps([
 ])
 //const name = ref(props.data.name)
 const dataConfig = props.data.config
+const handles = props.data.handles
 
 const { updateNodeData } = useVueFlow()
 const name = computed({
@@ -78,7 +80,7 @@ onMounted(() => {
       </q-card-section>
     </q-card-section>
     <q-separator dark />
-    <q-card-section class="nodrag">
+    <q-card-section class="nodrag" v-if="data.properties.length > 0">
       <div v-for="property in data.properties" :key="property.key">
         <div class="column">
           <div class="col text-overline">
@@ -112,8 +114,37 @@ onMounted(() => {
         </div>
       </div>
     </q-card-section>
+    <q-card-section class="nodrag">
+      <div class="col text-overline">handle</div>
+      <div class="q-gutter-md">
+        <div v-for="(handler, index) in handles" :key="index">
+          <q-input v-model="handles[index].value" dark dense borderless square standout>
+            <template v-slot:prepend>
+              <Handle :id="handles[index].id" type="target" :position="Position.Left" />
+            </template>
+            <template v-slot:append>
+              <Handle :id="handles[index].id" type="source" :position="Position.Right" />
+            </template>
+          </q-input>
+        </div>
+        <div class="q-ml-md">
+          <q-btn
+            dense
+            class="full-width"
+            flat
+            label="+"
+            @click="
+              handles.push({
+                id: nanoid(),
+                value: '',
+              })
+            "
+          ></q-btn>
+        </div>
+      </div>
+    </q-card-section>
   </q-card>
-  <Handle type="target" :position="Position.Left" />
-  <Handle type="source" :position="Position.Right" />
+  <Handle type="target" v-if="handles.length === 0"  :position="Position.Left" />
+  <Handle type="source" v-if="handles.length === 0"  :position="Position.Right" />
 </template>
 <style scoped></style>
