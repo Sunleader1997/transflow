@@ -8,7 +8,6 @@ import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.repositories.JobRepository;
@@ -25,17 +24,6 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
     @Autowired
     private JobRepository jobRepository;
 
-    public NodeBo boByJobId(String jobId) {
-        NodeEntity nodeEntity = this.lambdaQuery()
-                .eq(NodeEntity::getJobId, jobId)
-                .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
-                .one();
-        NodeBo nodeBo = BoCover.INSTANCE.entityToBo(nodeEntity);
-        List<JobConfigProperties> properties = this.parseConfig(nodeBo);
-        nodeBo.setProperties(properties);
-        return nodeBo;
-    }
-
     public NodeBo boById(String nodeId) {
         NodeEntity nodeEntity = this.getById(nodeId);
         NodeBo nodeBo = BoCover.INSTANCE.entityToBo(nodeEntity);
@@ -50,15 +38,6 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
         this.parseConfig(nodeBo);
         NodeEntity nodeEntity = BoCover.INSTANCE.boToEntity(nodeBo);
         if (nodeBo.getId() == null) {
-            if (TransFlowTypeEnum.INPUT.equals(nodeBo.getNodeType())) {
-                boolean exist = this.lambdaQuery()
-                        .eq(NodeEntity::getNodeType, TransFlowTypeEnum.INPUT)
-                        .eq(NodeEntity::getJobId, nodeBo.getJobId())
-                        .exists();
-                if (exist) {
-                    throw new RuntimeException("输入节点只能有一个");
-                }
-            }
             this.save(nodeEntity);
         } else {
             this.updateById(nodeEntity);

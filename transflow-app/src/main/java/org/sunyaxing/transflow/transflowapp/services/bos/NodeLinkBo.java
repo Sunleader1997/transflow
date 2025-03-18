@@ -9,4 +9,5 @@ public class NodeLinkBo {
     private String sourceHandle;
     private String targetId;
     private String targetHandle;
+    private String targetHandleValue;
 }

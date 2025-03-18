@@ -1,7 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.reactor;
 
 import cn.hutool.core.date.StopWatch;
-import cn.hutool.core.map.MapUtil;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             stopWatch.stop();
             stopWatch.start("chain 处理");
             // 交给 chain 处理
-            this.chain.exec(datas);
+            this.chain.execForChild(datas);
             stopWatch.stop();
             log.info("处理完成：{}", stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         }), dataBk -> {
@@ -78,7 +77,15 @@ public class TransFlowRunnable implements Runnable, Disposable {
 
     @Override
     public void dispose() {
-        this.chain.dispose();
-        this.disposable.dispose();
+        try {
+            this.chain.dispose();
+        } catch (Exception e) {
+            log.error("销毁chain 异常", e);
+        }
+        try {
+            this.disposable.dispose();
+        } catch (Exception e) {
+            log.error("销毁线程异常", e);
+        }
     }
 }

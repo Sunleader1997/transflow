@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
+import org.pf4j.util.StringUtils;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
@@ -56,8 +57,10 @@ public class DemoInputExt extends TransFlowInput {
         }
         String queue = this.queue.poll();
         List<TransData> transData = new ArrayList<>();
-        transData.add(new TransData(0L, queue));
-        rec.incrementAndGet();
+        if(!StringUtils.isNullOrEmpty(queue)){
+            transData.add(new TransData(0L, queue));
+            rec.incrementAndGet();
+        }
         return transData;
     }
 
@@ -75,5 +78,6 @@ public class DemoInputExt extends TransFlowInput {
 
     @Override
     public void destroy() {
+        log.info("demoInput destroy");
     }
 }

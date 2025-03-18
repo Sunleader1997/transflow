@@ -6,7 +6,9 @@ import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowTypeEnum;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class NodeBo {
@@ -20,4 +22,22 @@ public class NodeBo {
     private Integer y;
     private List<JobConfigProperties> properties;
     private List<Handle> handles;
+    private Map<String, String> handlesCache;
+
+    public String getHandle(String handleId) {
+        if (handlesCache == null) {
+            handlesCache = new HashMap<>();
+        }
+        if (handlesCache.containsKey(handleId)) {
+            return handlesCache.get(handleId);
+        } else {
+            String value = handles.stream()
+                    .filter(handle -> handle.getId().equals(handleId))
+                    .findFirst()
+                    .map(Handle::getValue)
+                    .orElse(null);
+            handlesCache.put(handleId, value);
+            return value;
+        }
+    }
 }

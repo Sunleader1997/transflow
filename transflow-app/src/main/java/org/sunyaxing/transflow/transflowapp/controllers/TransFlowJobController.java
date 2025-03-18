@@ -2,7 +2,6 @@ package org.sunyaxing.transflow.transflowapp.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
@@ -12,7 +11,6 @@ import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
-import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
 import org.sunyaxing.transflow.transflowapp.services.NodeLinkService;
 import org.sunyaxing.transflow.transflowapp.services.NodeService;
@@ -24,7 +22,6 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/transflow")
@@ -70,10 +67,9 @@ public class TransFlowJobController {
     }
 
     @PostMapping("/job/build")
-    public Result<TransFlowChain<TransFlowInput>> jobBuild(@RequestBody JobBo jobBo) {
-        TransFlowChain<TransFlowInput> res = transFlowChainService.buildChain(jobBo.getId());
-        res.dispose();
-        return Result.success(res);
+    public Result<Boolean> jobBuild(@RequestBody JobBo jobBo) {
+        transFlowChainService.buildChain(jobBo.getId());
+        return Result.success(true);
     }
 
     @PostMapping("/job/run")
@@ -90,19 +86,8 @@ public class TransFlowJobController {
 
     @GetMapping("/node/list")
     public Result<List<NodeDto>> nodeList(@RequestParam("jobId") String jobId) {
-        boolean hasKey = transFlowChainService.hasKey(jobId);
         List<NodeDto> res = nodeService.list(jobId)
-                .stream().map(bo -> {
-                    NodeDto nodeDto = BoCover.INSTANCE.boToDto(bo);
-                    // TODO 暂时无法获取到节点状态
-//                    if (hasKey) {
-//                        TransFlowChain<?> chain = transFlowChainService.get(jobId).getChainByNodeId(bo.getId());
-//                        nodeDto.getData().setStatus(chain.getStatus());
-//                    } else {
-//                        nodeDto.getData().setStatus(ChainStatusEnum.INIT);
-//                    }
-                    return nodeDto;
-                }).toList();
+                .stream().map(BoCover.INSTANCE::boToDto).toList();
         return Result.success(res);
     }
 
@@ -161,19 +146,14 @@ public class TransFlowJobController {
 
     @GetMapping("/node/status")
     public Result<ChainStatus> unlink(@RequestParam("nodeId") String nodeId) {
-        NodeBo nodeBo = nodeService.boById(nodeId);
-        String jobId = nodeBo.getJobId();
-        TransFlowRunnable transFlowRunnable = transFlowChainService.get(jobId);
-        if (transFlowRunnable != null) {
-            TransFlowChain<TransFlowInput> rootChain = transFlowRunnable.getChain();
-            ExtensionLifecycle extension = rootChain.getExtension(nodeId);
-            if(Objects.nonNull(extension)){
-                ChainStatus chainStatus = new ChainStatus();
-                chainStatus.setRemainNumb(extension.getRemainingDataSize());
-                chainStatus.setRecNumb(extension.getRecNumb());
-                chainStatus.setSendNumb(extension.getSendNumb());
-                return Result.success(chainStatus);
-            }
+        TransFlowChain<?> chain = TransFlowChain.getChainCache(nodeId);
+        if (chain != null) {
+            ExtensionLifecycle extension = chain.getCurrentNode();
+            ChainStatus chainStatus = new ChainStatus();
+            chainStatus.setRemainNumb(extension.getRemainingDataSize());
+            chainStatus.setRecNumb(extension.getRecNumb());
+            chainStatus.setSendNumb(extension.getSendNumb());
+            return Result.success(chainStatus);
         }
         return Result.success(new ChainStatus());
     }
