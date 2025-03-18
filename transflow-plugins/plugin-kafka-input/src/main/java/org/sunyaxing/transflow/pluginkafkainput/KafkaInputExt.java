@@ -17,10 +17,7 @@ import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 
@@ -95,7 +92,9 @@ public class KafkaInputExt extends TransFlowInput {
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         this.kafkaConsumer = new KafkaConsumer<>(properties);
         log.info("初始化 KafkaConsumer {}", properties);
-        this.kafkaConsumer.subscribe(List.of(this.topics));
+        List<String> topic = new ArrayList<>();
+        topic.add(this.topics);
+        this.kafkaConsumer.subscribe(topic);
         this.adminClient = AdminClient.create(properties);
     }
 

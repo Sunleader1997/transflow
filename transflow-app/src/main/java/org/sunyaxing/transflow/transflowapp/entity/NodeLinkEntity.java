@@ -18,7 +18,8 @@ import java.io.Serializable;
 @ToString
 @TableName("node_link")
 public class NodeLinkEntity implements Serializable {
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableField("id")
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     @TableField("sourceId")

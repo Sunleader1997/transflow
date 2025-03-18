@@ -20,7 +20,8 @@ import java.io.Serializable;
 @ToString
 @TableName("node")
 public class NodeEntity implements Serializable {
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableField("id")
+    @TableId(value = "id", type = IdType.INPUT)
     private String id;
 
     @TableField("jobId")

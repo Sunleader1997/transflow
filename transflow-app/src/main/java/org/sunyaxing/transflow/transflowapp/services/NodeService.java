@@ -9,6 +9,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
+import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.repositories.JobRepository;
 import org.sunyaxing.transflow.transflowapp.repositories.NodeRepository;
@@ -34,7 +35,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
     }
 
     public NodeBo save(NodeBo nodeBo) {
-        var job = jobRepository.selectById(nodeBo.getJobId());
+        JobEntity job = jobRepository.selectById(nodeBo.getJobId());
         Assert.notNull(job, "空间不存在");
         this.parseConfig(nodeBo);
         NodeEntity nodeEntity = BoCover.INSTANCE.boToEntity(nodeBo);

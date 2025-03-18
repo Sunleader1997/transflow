@@ -77,7 +77,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
                 final String nextHandle = linkBo.getTargetHandle();
                 if (CHAIN_CACHE.containsKey(nextNodeId)) {
                     TransFlowChain<?> nextChain = CHAIN_CACHE.get(nextNodeId);
-                    Thread.ofVirtual().start(() -> {
+                    new Thread(() -> {
                         try {
                             String handleValue = nextChain.getNodeBo().getHandle(nextHandle);
                             nextChain.exec(handleValue, orgData);
@@ -86,7 +86,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
                         } finally {
                             countDownLatch.countDown();
                         }
-                    });
+                    }).start();
                 } else {
                     countDownLatch.countDown();
                 }

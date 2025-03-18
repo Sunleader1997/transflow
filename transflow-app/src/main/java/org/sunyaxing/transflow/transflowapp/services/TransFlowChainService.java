@@ -53,7 +53,7 @@ public class TransFlowChainService {
         // 初始化所有的插件
         List<NodeBo> nodeBos = nodeService.list(jobId);
         return nodeBos.stream().map(nodeBo -> {
-            ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).getFirst();
+            ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).get(0);
             // 初始化 插件
             extension.init(nodeBo.getConfig());
             // 下一个节点的连线
