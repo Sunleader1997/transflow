@@ -17,6 +17,7 @@ import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transflow/plugins")
@@ -45,7 +46,7 @@ public class PluginsController {
             }
             pluginListDto.setProperties(JobConfigProperties.getJobProperties(plugin));
             return pluginListDto;
-        }).toList();
+        }).collect(Collectors.toList());
         return Result.success(res);
     }
 

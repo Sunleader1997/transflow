@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class TransFlowChainService {
@@ -62,6 +63,6 @@ public class TransFlowChainService {
             // 放到全局缓存
             TransFlowChain.addChainCache(chain);
             return chain;
-        }).map(TransFlowChain::getIfIsInput).filter(Objects::nonNull).toList();
+        }).map(TransFlowChain::getIfIsInput).filter(Objects::nonNull).collect(Collectors.toList());
     }
 }

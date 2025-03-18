@@ -8,6 +8,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NodeLinkService extends ServiceImpl<NodeLinkRepository, NodeLinkEntity> {
@@ -26,6 +27,6 @@ public class NodeLinkService extends ServiceImpl<NodeLinkRepository, NodeLinkEnt
                 .eq(NodeLinkEntity::getSourceId, sourceId)
                 .list()
                 .stream().map(BoCover.INSTANCE::entityToBo)
-                .toList();
+                .collect(Collectors.toList());
     }
 }

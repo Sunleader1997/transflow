@@ -9,6 +9,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class JobService extends ServiceImpl<JobRepository, JobEntity> {
@@ -33,6 +34,6 @@ public class JobService extends ServiceImpl<JobRepository, JobEntity> {
                 .orderByDesc(JobEntity::getUpdateTime)
                 .list()
                 .stream().map(BoCover.INSTANCE::entityToBo)
-                .toList();
+                .collect(Collectors.toList());
     }
 }

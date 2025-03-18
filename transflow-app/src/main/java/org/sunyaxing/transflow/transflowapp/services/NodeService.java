@@ -16,6 +16,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
@@ -59,7 +60,7 @@ public class NodeService extends ServiceImpl<NodeRepository, NodeEntity> {
                     nodeBo.setProperties(properties);
                     return nodeBo;
                 })
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<JobConfigProperties> parseConfig(NodeBo nodeBo) {

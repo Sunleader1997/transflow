@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/transflow-app/pom.xml" />
         <option value="$PROJECT_DIR$/transflow-plugins/pom.xml" />
         <option value="$PROJECT_DIR$/transflow-api/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>

@@ -22,6 +22,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transflow")
@@ -87,7 +88,7 @@ public class TransFlowJobController {
     @GetMapping("/node/list")
     public Result<List<NodeDto>> nodeList(@RequestParam("jobId") String jobId) {
         List<NodeDto> res = nodeService.list(jobId)
-                .stream().map(BoCover.INSTANCE::boToDto).toList();
+                .stream().map(BoCover.INSTANCE::boToDto).collect(Collectors.toList());
         return Result.success(res);
     }
 
@@ -116,7 +117,7 @@ public class TransFlowJobController {
         List<NodeDto> nodes = nodeList(jobId).getData();
         List<EdgeDto> edges = nodes.stream().map(nodeDto -> {
             return nodeEdges(nodeDto.getId()).getData();
-        }).flatMap(Collection::stream).toList();
+        }).flatMap(Collection::stream).collect(Collectors.toList());
         NodesAndEdgesDto res = new NodesAndEdgesDto(nodes, edges);
         return Result.success(res);
     }
@@ -128,7 +129,7 @@ public class TransFlowJobController {
                 .list()
                 .stream().map(BoCover.INSTANCE::entityToBo)
                 .map(BoCover.INSTANCE::boToDto)
-                .toList();
+                .collect(Collectors.toList());
         return Result.success(res);
     }
 

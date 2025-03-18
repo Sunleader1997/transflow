@@ -12,6 +12,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Extension
 public class JsonFilterExt extends TransFlowFilter {
@@ -61,7 +62,7 @@ public class JsonFilterExt extends TransFlowFilter {
                     }
                     return true;
                 })
-                .toList();
+                .collect(Collectors.toList());
         send.addAndGet(sendData.size());
         return sendData;
     }

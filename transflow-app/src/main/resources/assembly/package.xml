@@ -1,0 +1,55 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+    <id>distribution</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <!--if auto generate a root folder-->
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <!--set the class file output directory-->
+        <!--<fileSet>
+            <directory>${project.build.directory}${file.separator}classes</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>-->
+        <!--set the output path includes jar . Always in the directory ,target, of the zip-->
+        <!--<fileSet>
+            <includes>
+                <include>${project.build.directory}${file.separator}pro*.jar</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>-->
+        <fileSet>
+            <directory>${project.basedir}${file.separator}src${file.separator}main${file.separator}resources</directory>
+            <outputDirectory>/opt/transflow</outputDirectory>
+            <fileMode>777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}${file.separator}db</directory>
+            <outputDirectory>/opt/transflow/db</outputDirectory>
+            <fileMode>777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>D:/plugins</directory>
+            <outputDirectory>/plugins</outputDirectory>
+            <fileMode>777</fileMode>
+        </fileSet>
+    </fileSets>
+
+    <!--copy the jar into the zip-->
+    <files>
+        <file>
+            <source>${project.build.directory}${file.separator}transflow-app-0.1.0.jar</source>
+            <outputDirectory>/opt/transflow</outputDirectory>
+            <fileMode>777</fileMode>
+        </file>
+    </files>
+    <!--package the jar and figure out if contain artifact, if true there will be many dependency jars-->
+    <!--<dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+    </dependencySets>-->
+</assembly>
