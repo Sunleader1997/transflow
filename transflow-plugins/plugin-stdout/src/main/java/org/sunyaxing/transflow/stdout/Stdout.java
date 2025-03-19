@@ -5,6 +5,7 @@ import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
@@ -25,14 +26,14 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public List<TransData> execDatas(String handle, List<TransData> data) {
+    public List<TransData> execDatas(String handleValue, List<TransData> data) {
         rec.addAndGet(data.size());
-        logger.info("输出 {} 数据：{}", handle, data.size());
+        logger.info("输出 {} 数据：{}", handleValue, data.size());
         return data;
     }
 
     @Override
-    public void init(JSONObject config) {
+    public void initSelf(JSONObject config, List<Handle> handles) {
         logger.info("初始化连接");
     }
 

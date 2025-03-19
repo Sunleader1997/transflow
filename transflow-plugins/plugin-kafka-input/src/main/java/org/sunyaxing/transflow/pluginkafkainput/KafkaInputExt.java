@@ -12,26 +12,38 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
+import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.common.Handle;
+import org.sunyaxing.transflow.extensions.TransFlowMultiInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 @Extension
-public class KafkaInputExt extends TransFlowInput {
+public class KafkaInputExt extends TransFlowMultiInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private String groupId;
     private String topics;
     private KafkaConsumer<String, String> kafkaConsumer;
     private AdminClient adminClient;
+    private List<Handle> handles;
+    private AtomicLong senNumb = new AtomicLong(0);
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
+    }
+
+    @Override
+    public Long getSendNumb() {
+        return senNumb.get();
     }
 
     @Override
@@ -53,34 +65,37 @@ public class KafkaInputExt extends TransFlowInput {
     }
 
     @Override
-    public void commit(Long offset) {
+    public void commit(HandleData offset) {
 //        log.info("提交偏移量 {}", offset);
     }
 
     @Override
-    public List<TransData> dequeue() {
+    public List<HandleData> handleDequeue() {
+        List<HandleData> res = new ArrayList<>();
         // kafka 批量消费
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
         if (!consumerRecords.isEmpty()) {
-            log.info("消费数据量：{}", consumerRecords.count());
-            List<TransData> res = new ArrayList<>();
-            consumerRecords.forEach(record -> {
-                TransData transData = new TransData(record.offset(), record.value());
-                res.add(transData);
+            handles.forEach(handle -> {
+                HandleData handleData = new HandleData(handle.getValue(), new ArrayList<>());
+                consumerRecords.records(handle.getValue()).forEach(record -> {
+                    handleData.getTransData().add(new TransData(record.offset(), record.value()));
+                });
+                if (!handleData.getTransData().isEmpty()) {
+                    res.add(handleData);
+                }
             });
-            return res;
+            log.info("消费数据量：{}", consumerRecords.count());
+            senNumb.addAndGet(consumerRecords.count());
+            return res.isEmpty() ? null : res;
         }
         return null;
     }
 
     @Override
-    public void run() {
-    }
-
-    @Override
-    public void init(JSONObject config) {
+    protected void initSelf(JSONObject config, List<Handle> handles) {
         this.groupId = config.getString("group-id");
         this.topics = config.getString("topics");
+        this.handles = handles;
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -93,7 +108,9 @@ public class KafkaInputExt extends TransFlowInput {
         this.kafkaConsumer = new KafkaConsumer<>(properties);
         log.info("初始化 KafkaConsumer {}", properties);
         List<String> topic = new ArrayList<>();
-        topic.add(this.topics);
+        handles.forEach(handle -> {
+            topic.add(handle.getValue());
+        });
         this.kafkaConsumer.subscribe(topic);
         this.adminClient = AdminClient.create(properties);
     }

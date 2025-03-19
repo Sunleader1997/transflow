@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.extensions;
 
+import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * 一个 input 就是一个虚拟线程，用于从外部获取数据
  */
-public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
+public abstract class TransFlowInput extends ExtensionLifecycle{
 
     public ExtensionContext extensionContext;
 
@@ -17,13 +18,13 @@ public abstract class TransFlowInput implements ExtensionLifecycle, Runnable {
         this.extensionContext = extensionContext;
     }
 
-    public void commit(Long offset){
-    }
-
     @Override
-    public List<TransData> execDatas(String handle, List<TransData> data) {
+    protected List<TransData> execDatas(String handleValue, List<TransData> data) {
         return data;
     }
 
-    public abstract List<TransData> dequeue();
+    public void commit(HandleData handleData) {
+    }
+
+    public abstract HandleData dequeue();
 }

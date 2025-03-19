@@ -55,7 +55,7 @@ public class TransFlowChainService {
         return nodeBos.stream().map(nodeBo -> {
             ExtensionLifecycle extension = pluginManager.getExtensions(ExtensionLifecycle.class, nodeBo.getPluginId()).get(0);
             // 初始化 插件
-            extension.init(nodeBo.getConfig());
+            extension.init(nodeBo.getConfig(),nodeBo.getHandles());
             // 下一个节点的连线
             List<NodeLinkBo> links = nodeLinkService.findLinksBySource(nodeBo.getId());
             // 创建 责任链

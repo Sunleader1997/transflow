@@ -7,6 +7,7 @@ import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowFilter;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
@@ -41,17 +42,22 @@ public class JsonFilterExt extends TransFlowFilter {
     }
 
     @Override
-    public List<TransData> execDatas(String handle, List<TransData> input) {
+    protected void initSelf(JSONObject config, List<Handle> handles) {
+
+    }
+
+    @Override
+    public List<TransData> execDatas(String handleValue, List<TransData> input) {
         rec.addAndGet(input.size());
         List<TransData> sendData = input.stream()
                 .filter(transData -> {
-                    if (StringUtils.isNotNullOrEmpty(handle)) {
+                    if (StringUtils.isNotNullOrEmpty(handleValue)) {
                         try {
                             JSONObject jsonObject = transData.getData(JSONObject.class);
-                            Object o = AviatorEvaluator.execute(handle, jsonObject);
-                            if(o instanceof Boolean){
+                            Object o = AviatorEvaluator.execute(handleValue, jsonObject);
+                            if (o instanceof Boolean) {
                                 return Boolean.TRUE.equals(o);
-                            }else{
+                            } else {
                                 transData.setData(jsonObject);
                                 return true;
                             }
@@ -68,10 +74,6 @@ public class JsonFilterExt extends TransFlowFilter {
     }
 
 
-    @Override
-    public void init(JSONObject config) {
-        this.script = config.getString("script");
-    }
 
     @Override
     public void destroy() {

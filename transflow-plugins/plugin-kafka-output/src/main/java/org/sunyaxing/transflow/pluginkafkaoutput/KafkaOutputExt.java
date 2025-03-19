@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.Assert;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
@@ -34,10 +35,10 @@ public class KafkaOutputExt extends TransFlowOutput {
     }
 
     @Override
-    public List<TransData> execDatas(String handle, List<TransData> data) {
+    public List<TransData> execDatas(String handleValue, List<TransData> data) {
         rec.addAndGet(data.size());
         data.forEach(transData -> {
-            this.producer.send(new ProducerRecord<>(handle, transData.getData(String.class)), (metadata, e) -> {
+            this.producer.send(new ProducerRecord<>(handleValue, transData.getData(String.class)), (metadata, e) -> {
                 if (e != null) {
                     log.error("kafka output 异常", e);
                 }
@@ -47,7 +48,7 @@ public class KafkaOutputExt extends TransFlowOutput {
     }
 
     @Override
-    public void init(JSONObject config) {
+    public void initSelf(JSONObject config, List<Handle> handles) {
         Properties properties = new Properties();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
         properties.put(ProducerConfig.ACKS_CONFIG, config.getOrDefault("acks","0"));

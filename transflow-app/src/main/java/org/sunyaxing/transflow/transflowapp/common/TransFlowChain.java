@@ -1,8 +1,10 @@
 package org.sunyaxing.transflow.transflowapp.common;
 
 import lombok.Getter;
+import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
@@ -63,39 +65,71 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
         return CHAIN_CACHE.get(nodeId);
     }
 
-    public void exec(String handleValue, List<TransData> orgData) {
-        final List<TransData> res = currentNode.execDatas(handleValue, orgData);
-        execForChild(res);
+    public void exec(String handleId, List<TransData> orgData) {
+        final List<TransData> res = currentNode.exec(handleId, orgData);
+        execForChild(new HandleData(handleId,res));
     }
 
-    public void execForChild(List<TransData> orgData) {
+    public void execForChild(HandleData handleData) {
         if (!linkBos.isEmpty()) {
             CountDownLatch countDownLatch = new CountDownLatch(linkBos.size());
             // 通过下一个节点的连线，查询出实际 chain, 执行其chain的handle
             linkBos.forEach(linkBo -> {
-                final String nextNodeId = linkBo.getTargetId();
-                final String nextHandle = linkBo.getTargetHandle();
-                if (CHAIN_CACHE.containsKey(nextNodeId)) {
-                    TransFlowChain<?> nextChain = CHAIN_CACHE.get(nextNodeId);
-                    new Thread(() -> {
-                        try {
-                            String handleValue = nextChain.getNodeBo().getHandle(nextHandle);
-                            nextChain.exec(handleValue, orgData);
-                        } catch (Exception e) {
-                            log.error("子节点执行异常", e);
-                        } finally {
-                            countDownLatch.countDown();
-                        }
-                    }).start();
-                } else {
-                    countDownLatch.countDown();
-                }
+                executeByLinkHandle(handleData, linkBo, countDownLatch);
             });
             try {
                 countDownLatch.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 根据连线信息，执行下一个节点的handle
+     * @param handleData
+     * @param linkBo
+     * @param countDownLatch
+     */
+    private void executeByLinkHandle(HandleData handleData, NodeLinkBo linkBo, CountDownLatch countDownLatch) {
+        // 只有当数据来源的 handle 是 handleData里的handle才能进行处理
+        final String sourceHandle = linkBo.getSourceHandle();
+        // 如果限制了数据源
+        if(StringUtils.isNotNullOrEmpty(sourceHandle)){
+            // 只有当连线为该数据源时，才会进行处理
+            if(sourceHandle.equals(handleData.getHandleId())){
+                executeWhenNextExist(handleData, countDownLatch, linkBo);
+            }else{
+                log.info("数据来源的handle与连线不匹配，不进行处理");
+                countDownLatch.countDown();
+            }
+        }else{//如果没有限制数据源
+            executeWhenNextExist(handleData, countDownLatch, linkBo);
+        }
+    }
+
+    /**
+     * 执行下一个节点
+     * @param handleData
+     * @param countDownLatch
+     * @param linkBo
+     */
+    private void executeWhenNextExist(HandleData handleData, CountDownLatch countDownLatch, NodeLinkBo linkBo) {
+        final String nextNodeId = linkBo.getTargetId();
+        final String nextHandle = linkBo.getTargetHandle();
+        if (CHAIN_CACHE.containsKey(nextNodeId)) {
+            TransFlowChain<?> nextChain = CHAIN_CACHE.get(nextNodeId);
+            new Thread(() -> {
+                try {
+                    nextChain.exec(nextHandle, handleData.getTransData());
+                } catch (Exception e) {
+                    log.error("子节点执行异常", e);
+                } finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        } else {
+            countDownLatch.countDown();
         }
     }
 

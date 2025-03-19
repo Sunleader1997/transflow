@@ -17,6 +17,7 @@ import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
+import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowOutput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
@@ -35,7 +36,7 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
-    public List<TransData> execDatas(String handler, List<TransData> data) {
+    public List<TransData> execDatas(String handlerValue, List<TransData> data) {
         BulkRequest bulkRequest = new BulkRequest();
         data.forEach(transData -> {
             Map sourceData = transData.getData(Map.class);
@@ -50,7 +51,7 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
-    public void init(JSONObject config) {
+    protected void initSelf(JSONObject config, List<Handle> handles) {
         this.indexName = config.getString("index-name");
         HttpHost targetHost = new HttpHost(
                 config.getString("host"),
