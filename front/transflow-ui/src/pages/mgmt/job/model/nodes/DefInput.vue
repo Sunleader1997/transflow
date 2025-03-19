@@ -8,6 +8,7 @@ import { json } from '@codemirror/lang-json'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { basicSetup } from 'codemirror'
 import axios from 'axios'
+import { nanoid } from 'nanoid'
 
 defineEmits(['updateNodeInternals'])
 
@@ -33,6 +34,7 @@ const props = defineProps([
   'dragHandle',
 ])
 const dataConfig = props.data.config
+const handles = props.data.handles
 
 const { updateNodeData } = useVueFlow()
 const name = computed({
@@ -110,6 +112,33 @@ onMounted(() => {
               standout
             />
           </div>
+        </div>
+      </div>
+    </q-card-section>
+
+    <q-card-section class="nodrag">
+      <div class="col text-overline">handle</div>
+      <div class="q-gutter-md">
+        <div v-for="(handler, index) in handles" :key="index">
+          <q-input v-model="handles[index].value" dark dense borderless square standout>
+            <template v-slot:append>
+              <Handle :id="handles[index].id" type="source" :position="Position.Right" />
+            </template>
+          </q-input>
+        </div>
+        <div class="q-ml-md">
+          <q-btn
+            dense
+            class="full-width"
+            flat
+            label="+"
+            @click="
+              handles.push({
+                id: nanoid(),
+                value: '',
+              })
+            "
+          ></q-btn>
         </div>
       </div>
     </q-card-section>
