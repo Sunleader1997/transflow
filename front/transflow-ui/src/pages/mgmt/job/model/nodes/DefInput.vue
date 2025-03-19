@@ -51,35 +51,39 @@ const nodeStatus = ref({
   sendNumb: 0,
 })
 
-onMounted(() => {
+function countChain(){
   axios.get('/transflow/node/status?nodeId=' + props.id).then((response) => {
     nodeStatus.value = response.data
   })
+}
+onMounted(() => {
 })
 </script>
 
 <template>
   <q-card class="my-node-card bg-secondary text-white">
-    <q-card-section horizontal>
-      <q-card-section>
-        <div class="text-h6">{{ name }} </div>
-        <div class="text-subtitle2">{{ data.pluginId }} </div>
-      </q-card-section>
-      <q-space />
-      <q-card-section>
-        <q-btn dense flat icon="edit">
-          <q-popup-edit v-model="name" auto-save v-slot="scope">
-            <q-input v-model="scope.value" dense autofocus counter />
-          </q-popup-edit>
-        </q-btn>
-      </q-card-section>
-    </q-card-section>
-    <q-separator dark/>
-    <q-list dense padding class="full-width">
-      <q-item class="text-subtitle2" clickable >剩余：{{nodeStatus.remainNumb}}</q-item>
-      <q-item class="text-subtitle2" clickable >接收：{{nodeStatus.recNumb}}</q-item>
-      <q-item class="text-subtitle2" clickable >发送：{{nodeStatus.sendNumb}}</q-item>
-    </q-list>
+    <q-expansion-item expand-icon-class="text-white" @show="countChain">
+      <template v-slot:header>
+        <q-item-section>
+          <div class="text-h6">{{ name }} </div>
+          <div class="text-subtitle2">{{ data.pluginId }} </div>
+        </q-item-section>
+        <q-item-section side class="text-white">
+          <q-btn dense flat icon="edit">
+            <q-popup-edit v-model="name" auto-save v-slot="scope">
+              <q-input v-model="scope.value" dense autofocus counter />
+            </q-popup-edit>
+          </q-btn>
+        </q-item-section>
+      </template>
+      <q-card dark class="bg-secondary text-white">
+        <q-list dense padding class="full-width">
+          <q-item class="text-subtitle2" clickable >剩余：{{nodeStatus.remainNumb}}</q-item>
+          <q-item class="text-subtitle2" clickable >接收：{{nodeStatus.recNumb}}</q-item>
+          <q-item class="text-subtitle2" clickable >发送：{{nodeStatus.sendNumb}}</q-item>
+        </q-list>
+      </q-card>
+    </q-expansion-item>
     <q-separator dark />
     <q-card-section class="nodrag">
       <div v-for="property in data.properties" :key="property.key">
@@ -120,7 +124,7 @@ onMounted(() => {
       <div class="col text-overline">handle</div>
       <div class="q-gutter-md">
         <div v-for="(handler, index) in handles" :key="index">
-          <q-input v-model="handles[index].value" dark dense borderless square standout>
+          <q-input type="text" v-model="handles[index].value" dark dense borderless square standout>
             <template v-slot:append>
               <Handle :id="handles[index].id" type="source" :position="Position.Right" />
             </template>
