@@ -18,27 +18,8 @@ import java.util.stream.Collectors;
 @Extension
 public class JsonFilterExt extends TransFlowFilter {
     private static final Logger log = LoggerFactory.getLogger(JsonFilterExt.class);
-    private String script;
-    private final AtomicLong rec = new AtomicLong(0);
-    private final AtomicLong send = new AtomicLong(0);
-
     public JsonFilterExt(ExtensionContext extensionContext) {
         super(extensionContext);
-    }
-
-    @Override
-    public Long getRecNumb() {
-        return rec.get();
-    }
-
-    @Override
-    public Long getSendNumb() {
-        return send.get();
-    }
-
-    @Override
-    public Long getRemainingDataSize() {
-        return super.getRemainingDataSize();
     }
 
     @Override
@@ -48,7 +29,6 @@ public class JsonFilterExt extends TransFlowFilter {
 
     @Override
     public List<TransData> execDatas(String handleValue, List<TransData> input) {
-        rec.addAndGet(input.size());
         List<TransData> sendData = input.stream()
                 .filter(transData -> {
                     if (StringUtils.isNotNullOrEmpty(handleValue)) {
@@ -69,7 +49,6 @@ public class JsonFilterExt extends TransFlowFilter {
                     return true;
                 })
                 .collect(Collectors.toList());
-        send.addAndGet(sendData.size());
         return sendData;
     }
 

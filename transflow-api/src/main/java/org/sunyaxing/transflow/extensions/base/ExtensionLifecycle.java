@@ -70,16 +70,4 @@ public abstract class ExtensionLifecycle implements ExtensionPoint {
 
     public abstract void destroy();
 
-    public Long getRecNumb() {
-        return 0L;
-    }
-
-    public Long getSendNumb() {
-        return 0L;
-    }
-
-    // 获取剩余未消费的数据量
-    public Long getRemainingDataSize() {
-        return 0L;
-    }
 }

@@ -30,11 +30,6 @@ public class KafkaOutputExt extends TransFlowOutput {
     }
 
     @Override
-    public Long getRecNumb() {
-        return rec.get();
-    }
-
-    @Override
     public List<TransData> execDatas(String handleValue, List<TransData> data) {
         rec.addAndGet(data.size());
         data.forEach(transData -> {

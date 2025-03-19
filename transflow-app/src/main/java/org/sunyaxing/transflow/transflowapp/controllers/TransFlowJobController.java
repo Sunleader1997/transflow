@@ -150,11 +150,10 @@ public class TransFlowJobController {
     public Result<ChainStatus> unlink(@RequestParam("nodeId") String nodeId) {
         TransFlowChain<?> chain = ChainManager.getChainCache(nodeId);
         if (chain != null) {
-            ExtensionLifecycle extension = chain.getCurrentNode();
             ChainStatus chainStatus = new ChainStatus();
-            chainStatus.setRemainNumb(extension.getRemainingDataSize());
-            chainStatus.setRecNumb(extension.getRecNumb());
-            chainStatus.setSendNumb(extension.getSendNumb());
+            chainStatus.setRemainNumb(chain.getRemainingDataSize());
+            chainStatus.setRecNumb(chain.getRecNumb());
+            chainStatus.setSendNumb(chain.getSendNumb());
             return Result.success(chainStatus);
         }
         return Result.success(new ChainStatus());

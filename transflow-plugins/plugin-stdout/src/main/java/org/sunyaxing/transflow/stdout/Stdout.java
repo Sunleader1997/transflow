@@ -21,11 +21,6 @@ public class Stdout extends TransFlowOutput {
     }
 
     @Override
-    public Long getRecNumb() {
-        return rec.get();
-    }
-
-    @Override
     public List<TransData> execDatas(String handleValue, List<TransData> data) {
         rec.addAndGet(data.size());
         logger.info("输出 {} 数据：{}", handleValue, JSONObject.toJSONString(data));

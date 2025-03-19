@@ -57,21 +57,6 @@ public class DemoInputExt extends TransFlowMultiInput {
     }
 
     @Override
-    public Long getRemainingDataSize() {
-        return this.queue.stream().count();
-    }
-
-    @Override
-    public Long getRecNumb() {
-        return rec.get();
-    }
-
-    @Override
-    public Long getSendNumb() {
-        return rec.get();
-    }
-
-    @Override
     public HandleData dequeue() {
         String queue = this.queue.poll();
         if (!StringUtils.isNullOrEmpty(queue)) {
