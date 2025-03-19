@@ -42,7 +42,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             return Mono.just(handleData);
         }, dataBk -> Mono.fromRunnable(() -> {
             // 交给 chain 处理
-            this.chain.exec(handleData.getHandleId(), handleData.getTransData());
+            this.chain.addQueue(handleData);
         }), dataBk -> {
             input.commit(handleData);
         });
@@ -70,6 +70,9 @@ public class TransFlowRunnable implements Runnable, Disposable {
     public void run() {
         this.disposable = Flux.from(this.dataDequeue)
                 .flatMap(datas -> dataFlowWithEachFilter(datas).subscribeOn(processScheduler), 10)
+                .onBackpressureBuffer(100, (data) -> {
+                    log.error("压力过大 {}", data);
+                })
                 .onErrorContinue((throwable, o) -> log.error("线程异常", throwable))
                 .subscribeOn(dequeueScheduler)
                 .subscribe();

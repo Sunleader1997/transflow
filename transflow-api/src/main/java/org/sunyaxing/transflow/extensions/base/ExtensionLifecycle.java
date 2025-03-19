@@ -2,23 +2,30 @@ package org.sunyaxing.transflow.extensions.base;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.pf4j.ExtensionPoint;
+import org.pf4j.util.StringUtils;
+import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class ExtensionLifecycle implements ExtensionPoint {
 
     protected Map<String, String> handleMap;
 
     public void initForHandle(JSONObject config, List<Handle> handles) {
-        this.handleMap = handles.stream().collect(Collectors.toMap(Handle::getId, Handle::getValue));
+        this.handleMap = new LinkedHashMap<>();
+        for (Handle handle : handles) {
+            this.handleMap.put(handle.getId(), handle.getValue());
+        }
     }
 
     /**
      * 插件初始化
+     *
      * @param config
      * @param handles
      */
@@ -29,6 +36,7 @@ public abstract class ExtensionLifecycle implements ExtensionPoint {
 
     /**
      * 自定义插件需要自己实现的初始化方法
+     *
      * @param config
      * @param handles
      */
@@ -36,16 +44,25 @@ public abstract class ExtensionLifecycle implements ExtensionPoint {
 
     /**
      * chain 需要调用的消费方法
-     * @param handleId
-     * @param data
      */
-    public List<TransData> exec(String handleId, List<TransData> data) {
-        String handValue = this.handleMap.get(handleId);
-        return execDatas(handValue, data);
+    public List<HandleData> exec(HandleData handleData) {
+        List<HandleData> handleDatas = new ArrayList<>();
+        if (StringUtils.isNullOrEmpty(handleData.getHandleId())) {
+            this.handleMap.forEach((k, v) -> {
+                List<TransData> data = execDatas(v, handleData.getTransData());
+                if (!data.isEmpty()) handleDatas.add(new HandleData(k, data));
+            });
+        } else {
+            String handValue = this.handleMap.get(handleData.getHandleId());
+            List<TransData> data = execDatas(handValue, handleData.getTransData());
+            if (!data.isEmpty()) handleDatas.add(new HandleData(handleData.getHandleId(), data));
+        }
+        return handleDatas;
     }
 
     /**
      * 自定义插件需要自己实现的消息消费逻辑
+     *
      * @param handleValue
      * @param data
      */
@@ -60,8 +77,9 @@ public abstract class ExtensionLifecycle implements ExtensionPoint {
     public Long getSendNumb() {
         return 0L;
     }
+
     // 获取剩余未消费的数据量
-    public Long getRemainingDataSize(){
+    public Long getRemainingDataSize() {
         return 0L;
     }
 }

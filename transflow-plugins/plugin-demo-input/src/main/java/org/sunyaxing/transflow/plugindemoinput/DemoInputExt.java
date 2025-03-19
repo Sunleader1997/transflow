@@ -42,16 +42,13 @@ public class DemoInputExt extends TransFlowMultiInput {
             List<TransData> transData = new ArrayList<>();
             transData.add(new TransData(0L, v));
             res.add(new HandleData(k, transData));
+            rec.incrementAndGet();
         });
         return res;
     }
 
     @Override
     protected void initSelf(JSONObject config, List<Handle> handles) {
-        this.jsonStr = config.getString("jsonStr");
-        for (int i = 0; i < 1000; i++) {
-            this.queue.add(this.jsonStr);
-        }
     }
 
     @Override

@@ -30,11 +30,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class KafkaInputExt extends TransFlowMultiInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private String groupId;
-    private String topics;
     private KafkaConsumer<String, String> kafkaConsumer;
     private AdminClient adminClient;
-    private List<Handle> handles;
-    private AtomicLong senNumb = new AtomicLong(0);
+    private final AtomicLong senNumb = new AtomicLong(0);
 
     public KafkaInputExt(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -53,7 +51,7 @@ public class KafkaInputExt extends TransFlowMultiInput {
             ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = adminClient.listConsumerGroupOffsets(groupId);
             Map<TopicPartition, OffsetAndMetadata> metaDataMap = listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get();
             metaDataMap.forEach((topicPartition, offsetAndMetadata) -> {
-                if (topicPartition.topic().equals(topics)) {
+                if (this.handleMap.values().contains(topicPartition.topic())) {
                     int lag = offsetAndMetadata.leaderEpoch().orElse(0);
                     count.addAndGet(lag);
                 }
@@ -75,16 +73,15 @@ public class KafkaInputExt extends TransFlowMultiInput {
         // kafka 批量消费
         ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
         if (!consumerRecords.isEmpty()) {
-            handles.forEach(handle -> {
-                HandleData handleData = new HandleData(handle.getValue(), new ArrayList<>());
-                consumerRecords.records(handle.getValue()).forEach(record -> {
+            this.handleMap.forEach((handleId, handleV) -> {
+                HandleData handleData = new HandleData(handleId, new ArrayList<>());
+                consumerRecords.records(handleV).forEach(record -> {
                     handleData.getTransData().add(new TransData(record.offset(), record.value()));
                 });
                 if (!handleData.getTransData().isEmpty()) {
                     res.add(handleData);
                 }
             });
-            log.info("消费数据量：{}", consumerRecords.count());
             senNumb.addAndGet(consumerRecords.count());
             return res.isEmpty() ? null : res;
         }
@@ -94,8 +91,6 @@ public class KafkaInputExt extends TransFlowMultiInput {
     @Override
     protected void initSelf(JSONObject config, List<Handle> handles) {
         this.groupId = config.getString("group-id");
-        this.topics = config.getString("topics");
-        this.handles = handles;
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
@@ -106,7 +101,6 @@ public class KafkaInputExt extends TransFlowMultiInput {
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         this.kafkaConsumer = new KafkaConsumer<>(properties);
-        log.info("初始化 KafkaConsumer {}", properties);
         List<String> topic = new ArrayList<>();
         handles.forEach(handle -> {
             topic.add(handle.getValue());

@@ -143,6 +143,6 @@ onMounted(() => {
       </div>
     </q-card-section>
   </q-card>
-  <Handle type="source" :position="Position.Right" />
+  <Handle type="source" v-if="handles.length === 0" :position="Position.Right" />
 </template>
 <style scoped></style>

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
@@ -61,7 +62,7 @@ public class TransFlowChainService {
             // 创建 责任链
             TransFlowChain<?> chain = new TransFlowChain<>(nodeBo, extension, links);
             // 放到全局缓存
-            TransFlowChain.addChainCache(chain);
+            ChainManager.addChainCache(chain);
             return chain;
         }).map(TransFlowChain::getIfIsInput).filter(Objects::nonNull).collect(Collectors.toList());
     }

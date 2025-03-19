@@ -5,21 +5,27 @@ import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
-import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import reactor.core.Disposable;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.stream.Collectors;
 
-
+/**
+ * 每一个 chain 需要维护一个队列
+ * 每个 chain 有单独的线程，负责拉取消息并消费
+ *
+ * @param <T>
+ */
 @Getter
-public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable {
+public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable, Runnable {
     private static final Logger log = LoggerFactory.getLogger(TransFlowChain.class);
     private final NodeBo nodeBo;
     private final String nodeId;
@@ -27,8 +33,9 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
     private final T currentNode;
     // 下一个节点的连线
     private final List<NodeLinkBo> linkBos;
-    // 单例静态缓存
-    private final static Map<String, TransFlowChain<?>> CHAIN_CACHE = new ConcurrentHashMap<>();
+
+    private final BlockingDeque<HandleData> queue;
+
 
     public TransFlowChain(NodeBo nodeBo, T currentNode, List<NodeLinkBo> links) {
         this.nodeBo = nodeBo;
@@ -36,6 +43,8 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
         this.nodeId = nodeBo.getId();
         this.typeEnum = nodeBo.getNodeType();
         this.currentNode = currentNode;
+
+        this.queue = new LinkedBlockingDeque<>(1000);
     }
 
     public boolean isInput() {
@@ -50,107 +59,70 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable 
         }
     }
 
-    public static void addChainCache(TransFlowChain<?> chain) {
-        if (CHAIN_CACHE.containsKey(chain.getNodeId())) {
-            // 销毁线程
-            CHAIN_CACHE.get(chain.getNodeId()).dispose();
-            // 移除引用
-            CHAIN_CACHE.remove(chain.getNodeId());
-        }
-        // 重新放到缓存
-        CHAIN_CACHE.put(chain.getNodeId(), chain);
-    }
 
-    public static TransFlowChain<?> getChainCache(String nodeId) {
-        return CHAIN_CACHE.get(nodeId);
-    }
-
-    public void exec(String handleId, List<TransData> orgData) {
-        final List<TransData> res = currentNode.exec(handleId, orgData);
-        execForChild(new HandleData(handleId,res));
-    }
-
-    public void execForChild(HandleData handleData) {
-        if (!linkBos.isEmpty()) {
-            CountDownLatch countDownLatch = new CountDownLatch(linkBos.size());
-            // 通过下一个节点的连线，查询出实际 chain, 执行其chain的handle
-            linkBos.forEach(linkBo -> {
-                executeByLinkHandle(handleData, linkBo, countDownLatch);
-            });
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    /**
+     * 根据产生的HandleData，选择对应连线
+     *
+     * @param handleData
+     */
+    public List<NodeLinkBo> selectOutHandle(HandleData handleData) {
+        return this.linkBos.stream().filter(linkBo -> {
+            if (StringUtils.isNullOrEmpty(handleData.getHandleId())) { // 如果源数据没有对应 handle,直接输出
+                return true;
+            } else {
+                return handleData.getHandleId().equals(linkBo.getSourceHandle()); // 过滤元数据对应连线
             }
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据连线下发到下一个节点对应 handle
+     */
+    public void sendDataToNextHandle(HandleData handleData, List<NodeLinkBo> links) {
+        links.forEach(linkBo -> {
+            final String nextNodeId = linkBo.getTargetId();
+            final String nextHandleId = linkBo.getTargetHandle();
+            if (ChainManager.containsChain(nextNodeId)) {
+                TransFlowChain<?> nextChain = ChainManager.getChainCache(nextNodeId);
+                HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
+                nextChain.addQueue(nextHandleData);
+            }
+        });
+    }
+
+    public void addQueue(HandleData nextHandleData) {
+        try {
+            // 如果队列满了，调用该方法的线程会阻塞
+            this.queue.put(nextHandleData);
+        } catch (InterruptedException e) {
+            log.error("队列异常", e);
         }
     }
 
     /**
-     * 根据连线信息，执行下一个节点的handle
-     * @param handleData
-     * @param linkBo
-     * @param countDownLatch
+     * 仅关闭 input 线程
+     * 等待子节点把剩余数据处理完
      */
-    private void executeByLinkHandle(HandleData handleData, NodeLinkBo linkBo, CountDownLatch countDownLatch) {
-        // 只有当数据来源的 handle 是 handleData里的handle才能进行处理
-        final String sourceHandle = linkBo.getSourceHandle();
-        // 如果限制了数据源
-        if(StringUtils.isNotNullOrEmpty(sourceHandle)){
-            // 只有当连线为该数据源时，才会进行处理
-            if(sourceHandle.equals(handleData.getHandleId())){
-                executeWhenNextExist(handleData, countDownLatch, linkBo);
-            }else{
-                log.info("数据来源的handle与连线不匹配，不进行处理");
-                countDownLatch.countDown();
-            }
-        }else{//如果没有限制数据源
-            executeWhenNextExist(handleData, countDownLatch, linkBo);
-        }
-    }
-
-    /**
-     * 执行下一个节点
-     * @param handleData
-     * @param countDownLatch
-     * @param linkBo
-     */
-    private void executeWhenNextExist(HandleData handleData, CountDownLatch countDownLatch, NodeLinkBo linkBo) {
-        final String nextNodeId = linkBo.getTargetId();
-        final String nextHandle = linkBo.getTargetHandle();
-        if (CHAIN_CACHE.containsKey(nextNodeId)) {
-            TransFlowChain<?> nextChain = CHAIN_CACHE.get(nextNodeId);
-            new Thread(() -> {
-                try {
-                    nextChain.exec(nextHandle, handleData.getTransData());
-                } catch (Exception e) {
-                    log.error("子节点执行异常", e);
-                } finally {
-                    countDownLatch.countDown();
-                }
-            }).start();
-        } else {
-            countDownLatch.countDown();
-        }
+    @Override
+    public void dispose() {
+        // 结束当前线程
+        Thread.currentThread().interrupt();
+        // 销毁节点的监听器
+        this.currentNode.destroy();
     }
 
     @Override
-    public void dispose() {
-        try {
-            log.info("--------------销毁 {}----------------", this.nodeBo.getName());
-            currentNode.destroy();
-            CHAIN_CACHE.remove(this.nodeId);
-        } catch (Exception e) {
-            log.error("销毁节点异常", e);
+    public void run() {
+        HandleData handleData = this.queue.poll();
+        if (handleData != null) {
+            // 本节点先处理数据
+            List<HandleData> results = this.currentNode.exec(handleData);
+            results.forEach(result -> {
+                // 选择该数据对应的下一个连线
+                List<NodeLinkBo> links = this.selectOutHandle(result);
+                // 将该数据发送到下一个节点
+                this.sendDataToNextHandle(result, links);
+            });
         }
-        this.linkBos.forEach(linkBo -> {
-            String nextNodeId = linkBo.getTargetId();
-            if (CHAIN_CACHE.containsKey(nextNodeId)) {
-                try {
-                    CHAIN_CACHE.get(nextNodeId).dispose();
-                } catch (Exception e) {
-                    log.error("销毁子节点异常", e);
-                }
-            }
-        });
     }
 }

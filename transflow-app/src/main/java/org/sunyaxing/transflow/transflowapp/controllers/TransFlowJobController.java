@@ -3,6 +3,7 @@ package org.sunyaxing.transflow.transflowapp.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.ChainStatus;
@@ -147,7 +148,7 @@ public class TransFlowJobController {
 
     @GetMapping("/node/status")
     public Result<ChainStatus> unlink(@RequestParam("nodeId") String nodeId) {
-        TransFlowChain<?> chain = TransFlowChain.getChainCache(nodeId);
+        TransFlowChain<?> chain = ChainManager.getChainCache(nodeId);
         if (chain != null) {
             ExtensionLifecycle extension = chain.getCurrentNode();
             ChainStatus chainStatus = new ChainStatus();

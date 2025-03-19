@@ -124,9 +124,6 @@ onMounted(() => {
       <div class="q-gutter-md">
         <div v-for="(handler, index) in handles" :key="index">
           <q-input v-model="handles[index].value" dark dense borderless square standout>
-            <template v-slot:prepend>
-              <Handle :id="handles[index].id" type="target" :position="Position.Left" />
-            </template>
             <template v-slot:append>
               <Handle :id="handles[index].id" type="source" :position="Position.Right" />
             </template>
@@ -149,7 +146,7 @@ onMounted(() => {
       </div>
     </q-card-section>
   </q-card>
-  <Handle type="target" v-if="handles.length === 0"  :position="Position.Left" />
+  <Handle type="target" :position="Position.Left" />
   <Handle type="source" v-if="handles.length === 0"  :position="Position.Right" />
 </template>
 <style scoped></style>
