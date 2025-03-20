@@ -6,18 +6,15 @@ spring:
 server:
   port: 18987
 
-transflow:
-  inputs:
-#    - plugin-id: plugin-demo-input
-#      config:
-#        jsonStr: '{"param":"demo1"}'
-#      filters:
-#        - plugin-id: plugin-json-filter
-#          config:
-#            script: '
-#              return data.containsKey("param") && data.param == "demo";
-#            '
-#      outputs:
-#        - plugin-id: plugin-stdout
-#          config:
-#            param1: "value1"
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    javax.activation: info
+    org.apache.catalina: INFO
+    org.apache.commons.beanutils.converters: INFO
+    org.apache.coyote.http11.Http11Processor: INFO
+    org.apache.http: INFO
+    org.apache.tomcat: INFO
+    org.springframework: INFO
+    com.chinamobile.cmss.bdpaas.resource.monitor: DEBUG
