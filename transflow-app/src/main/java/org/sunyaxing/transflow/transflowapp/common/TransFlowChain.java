@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+import org.sunyaxing.transflow.transflowapp.controllers.EventWsController;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import reactor.core.Disposable;
@@ -82,6 +83,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
             final String nextNodeId = linkBo.getTargetId();
             final String nextHandleId = linkBo.getTargetHandle();
             if (ChainManager.containsChain(nextNodeId)) {
+                EventWsController.sendMessageByCache(linkBo.getId(), "edge", linkBo.getId());
                 TransFlowChain<?> nextChain = ChainManager.getChainCache(nextNodeId);
                 HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
                 this.sendAtomic.addAndGet(nextHandleData.getTransData().size());

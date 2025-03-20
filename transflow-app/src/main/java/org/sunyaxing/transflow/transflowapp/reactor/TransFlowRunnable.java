@@ -32,7 +32,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
     public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {
         this.input = chain.getCurrentNode();
         this.chain = chain;
-        this.dataDequeue = Flux.defer(this::dequeue).repeat();
+        this.dataDequeue = Flux.defer(this::dequeue).repeat().doOnCancel(this.chain::dispose);
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
     }

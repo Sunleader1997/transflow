@@ -82,14 +82,15 @@ export default defineConfig((ctx) => {
         type: 'http'
       },
       client: {
-        overlay: false
+        overlay: false,
       },
       proxy: [
         {
           context: ['/transflow'],
           target: 'http://localhost:18987',
+          ws: true,
           secure: false,
-        },
+        }
       ],
       open: false, // opens browser window automatically
     },
