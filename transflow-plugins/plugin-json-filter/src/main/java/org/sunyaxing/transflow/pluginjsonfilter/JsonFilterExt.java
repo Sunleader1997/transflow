@@ -12,12 +12,12 @@ import org.sunyaxing.transflow.extensions.TransFlowFilter;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Extension
 public class JsonFilterExt extends TransFlowFilter {
     private static final Logger log = LoggerFactory.getLogger(JsonFilterExt.class);
+
     public JsonFilterExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
@@ -51,7 +51,6 @@ public class JsonFilterExt extends TransFlowFilter {
                 .collect(Collectors.toList());
         return sendData;
     }
-
 
 
     @Override

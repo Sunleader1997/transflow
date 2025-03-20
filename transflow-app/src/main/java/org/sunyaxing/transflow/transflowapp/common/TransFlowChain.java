@@ -12,8 +12,6 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import reactor.core.Disposable;
 
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -24,7 +22,7 @@ import java.util.stream.Collectors;
  * @param <T>
  */
 @Getter
-public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable, Runnable, Countable {
+public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable, Countable {
     private static final Logger log = LoggerFactory.getLogger(TransFlowChain.class);
     private final NodeBo nodeBo;
     private final String nodeId;
@@ -33,9 +31,8 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
     // 下一个节点的连线
     private final List<NodeLinkBo> linkBos;
 
-    private final BlockingDeque<HandleData> queue;
-    private final AtomicLong sendAtomic ;
-    private final AtomicLong recAtomic ;
+    private final AtomicLong sendAtomic;
+    private final AtomicLong recAtomic;
 
 
     public TransFlowChain(NodeBo nodeBo, T currentNode, List<NodeLinkBo> links) {
@@ -45,7 +42,6 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
         this.typeEnum = nodeBo.getNodeType();
         this.currentNode = currentNode;
 
-        this.queue = new LinkedBlockingDeque<>(1000);
         this.sendAtomic = new AtomicLong(0);
         this.recAtomic = new AtomicLong(0);
     }
@@ -88,20 +84,10 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
             if (ChainManager.containsChain(nextNodeId)) {
                 TransFlowChain<?> nextChain = ChainManager.getChainCache(nextNodeId);
                 HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
-                nextChain.addQueue(nextHandleData);
                 this.sendAtomic.addAndGet(nextHandleData.getTransData().size());
+                nextChain.handle(nextHandleData);
             }
         });
-    }
-
-    public void addQueue(HandleData nextHandleData) {
-        try {
-            this.recAtomic.addAndGet(nextHandleData.getTransData().size());
-            // 如果队列满了，调用该方法的线程会阻塞
-            this.queue.put(nextHandleData);
-        } catch (InterruptedException e) {
-            log.error("队列异常", e);
-        }
     }
 
     /**
@@ -116,10 +102,9 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
         this.currentNode.destroy();
     }
 
-    @Override
-    public void run() {
-        HandleData handleData = this.queue.poll();
-        if (handleData != null) {
+    public void handle(HandleData handleData) {
+        if (handleData != null && !handleData.getTransData().isEmpty()) {
+            this.recAtomic.addAndGet(handleData.getTransData().size());
             // 本节点先处理数据
             List<HandleData> results = this.currentNode.exec(handleData);
             results.forEach(result -> {
@@ -141,8 +126,4 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
         return this.sendAtomic.get();
     }
 
-    @Override
-    public Long getRemainingDataSize() {
-        return (long) this.queue.size();
-    }
 }

@@ -15,6 +15,7 @@
         <module>plugin-stdout</module>
         <module>plugin-kafka-output</module>
         <module>plugin-demo-input</module>
+        <module>plugin-json-gateway</module>
     </modules>
 
     <properties>

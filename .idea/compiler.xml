@@ -13,6 +13,7 @@
         <module name="transflow-api" />
         <module name="plugin-demo-input" />
         <module name="plugin-json-filter" />
+        <module name="plugin-json-gateway" />
         <module name="transflow-app" />
         <module name="plugin-kafka-output" />
       </profile>

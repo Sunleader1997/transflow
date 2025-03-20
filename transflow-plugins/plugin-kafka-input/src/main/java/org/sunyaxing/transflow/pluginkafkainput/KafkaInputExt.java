@@ -1,7 +1,7 @@
 package org.sunyaxing.transflow.pluginkafkainput;
 
 import com.alibaba.fastjson2.JSONObject;
-import org.apache.kafka.clients.admin.AdminClient;
+//import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -27,7 +27,6 @@ public class KafkaInputExt extends TransFlowMultiInput {
     private static final Logger log = LogManager.getLogger(KafkaInputExt.class);
     private String groupId;
     private KafkaConsumer<String, String> kafkaConsumer;
-    private AdminClient adminClient;
     private final AtomicLong senNumb = new AtomicLong(0);
 
     public KafkaInputExt(ExtensionContext extensionContext) {
@@ -79,13 +78,13 @@ public class KafkaInputExt extends TransFlowMultiInput {
             topic.add(handle.getValue());
         });
         this.kafkaConsumer.subscribe(topic);
-        this.adminClient = AdminClient.create(properties);
+//        this.adminClient = AdminClient.create(properties);
     }
 
     @Override
     public void destroy() {
         log.info("kafka 消费者 执行清理");
-        this.adminClient.close();
+//        this.adminClient.close();
         this.kafkaConsumer.close();
     }
 }

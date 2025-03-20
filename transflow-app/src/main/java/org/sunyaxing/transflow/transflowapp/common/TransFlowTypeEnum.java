@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum TransFlowTypeEnum {
     INPUT("input"),
     FILTER("filter"),
-    OUTPUT("output")
+    OUTPUT("output"),
+    GATEWAY("gateway")
     ;
     private final String value;
 }

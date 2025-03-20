@@ -10,11 +10,10 @@ import org.sunyaxing.transflow.common.Handle;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class ExtensionLifecycle implements ExtensionPoint {
 
-    protected Map<String, String> handleMap;
+    protected LinkedHashMap<String, String> handleMap;
 
     public void initForHandle(JSONObject config, List<Handle> handles) {
         this.handleMap = new LinkedHashMap<>();
@@ -43,6 +42,8 @@ public abstract class ExtensionLifecycle implements ExtensionPoint {
     protected abstract void initSelf(JSONObject config, List<Handle> handles);
 
     /**
+     * 过滤器模式
+     * 即 所有的handle都会处理HandleData内的数据
      * chain 需要调用的消费方法
      */
     public List<HandleData> exec(HandleData handleData) {

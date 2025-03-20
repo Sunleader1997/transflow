@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="tools">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../jdk/corretto-1.8.0_382/lib/tools.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../jdk/corretto-1.8.0_382/lib/tools.jar!/" />
+    </SOURCES>
+  </library>
+</component>

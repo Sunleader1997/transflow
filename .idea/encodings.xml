@@ -10,6 +10,8 @@
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-es-output/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-json-filter/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-json-filter/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-json-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-json-gateway/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-kafka-input/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-kafka-input/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/transflow-plugins/plugin-kafka-output/src/main/java" charset="UTF-8" />

@@ -75,6 +75,31 @@
   background-color: rgb(70, 155, 181) !important;
 }
 
+
+.node-gateway {
+  background-color: var(--q-positive) !important;
+  color: #fff !important;
+}
+
+.vue-flow__node-gateway {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  width: fit-content;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0003;
+  border-width: 1px;
+  border-style: none;
+  border-color: #bbb;
+}
+.vue-flow__node-gateway input{
+  background-color: rgb(70, 155, 181) !important;
+}
+.vue-flow__node-gateway .vue-flow__handle{
+  background-color: rgb(70, 155, 181) !important;
+}
+
 .node-output {
   background-color: var(--q-primary) !important;
   color: #fff !important;

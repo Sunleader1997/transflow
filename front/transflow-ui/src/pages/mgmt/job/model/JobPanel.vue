@@ -40,6 +40,10 @@
           <template #node-output="specialNodeProps">
             <DefOutput v-bind="specialNodeProps" @updateNodeInternals="() => {}" />
           </template>
+          <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
+          <template #node-gateway="specialNodeProps">
+            <DefGateway v-bind="specialNodeProps" @updateNodeInternals="() => {}" />
+          </template>
 
           <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
           <template #edge-special="specialEdgeProps">
@@ -62,9 +66,11 @@ import DefInput from './nodes/DefInput.vue'
 import DefFilter from 'pages/mgmt/job/model/nodes/DefFilter.vue'
 import DefOutput from 'pages/mgmt/job/model/nodes/DefOutput.vue'
 import axios from 'axios'
+import DefGateway from 'pages/mgmt/job/model/nodes/DefGateway.vue'
 
 export default {
   components: {
+    DefGateway,
     Panel,
     DefOutput,
     DefFilter,
@@ -90,7 +96,7 @@ export default {
     } = useVueFlow()
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect((newEdge) => {
-      console.log('newEdge',newEdge)
+      console.log('newEdge', newEdge)
       axios
         .post('/transflow/node/link', {
           sourceId: newEdge.source,
@@ -157,9 +163,9 @@ export default {
     stopJob() {
       this.$axios.post('/transflow/job/stop', { id: this.jobId })
     },
-    buildJob(){
+    buildJob() {
       this.$axios.post('/transflow/job/build', { id: this.jobId })
-    }
+    },
   },
   beforeMount() {
     console.log('beforeMount')

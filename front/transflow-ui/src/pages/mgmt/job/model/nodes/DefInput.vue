@@ -62,7 +62,7 @@ onMounted(() => {
 
 <template>
   <q-card class="my-node-card bg-secondary text-white">
-    <q-expansion-item expand-icon-class="text-white" @show="countChain">
+    <q-expansion-item expand-icon-class="text-white" @show="countChain" expand-icon-toggle>
       <template v-slot:header>
         <q-item-section>
           <div class="text-h6">{{ name }} </div>
@@ -78,14 +78,13 @@ onMounted(() => {
       </template>
       <q-card dark class="bg-secondary text-white">
         <q-list dense padding class="full-width">
-          <q-item class="text-subtitle2" clickable >剩余：{{nodeStatus.remainNumb}}</q-item>
           <q-item class="text-subtitle2" clickable >接收：{{nodeStatus.recNumb}}</q-item>
           <q-item class="text-subtitle2" clickable >发送：{{nodeStatus.sendNumb}}</q-item>
         </q-list>
       </q-card>
     </q-expansion-item>
     <q-separator dark />
-    <q-card-section class="nodrag">
+    <q-card-section class="nodrag" v-if="data.properties.length > 0">
       <div v-for="property in data.properties" :key="property.key">
         <div class="column">
           <div class="col text-overline">

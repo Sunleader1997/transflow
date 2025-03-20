@@ -42,7 +42,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
             return Mono.just(handleData);
         }, dataBk -> Mono.fromRunnable(() -> {
             // 交给 chain 处理
-            this.chain.addQueue(handleData);
+            this.chain.handle(handleData);
         }), dataBk -> {
             input.commit(handleData);
         });

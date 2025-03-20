@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.sunyaxing.transflow.plugins.TransFlowFilterPlugin;
+import org.sunyaxing.transflow.plugins.TransFlowGatewayPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowOutputPlugin;
 import org.sunyaxing.transflow.transflowapp.common.Result;
@@ -43,6 +44,8 @@ public class PluginsController {
                 pluginListDto.setType("filter");
             } else if (plugin instanceof TransFlowOutputPlugin) {
                 pluginListDto.setType("output");
+            } else if(plugin instanceof TransFlowGatewayPlugin){
+                pluginListDto.setType("gateway");
             }
             pluginListDto.setProperties(JobConfigProperties.getJobProperties(plugin));
             return pluginListDto;
