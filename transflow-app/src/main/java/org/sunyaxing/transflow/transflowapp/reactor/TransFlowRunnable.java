@@ -17,7 +17,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 
-public class TransFlowRunnable implements Runnable, Disposable {
+public class TransFlowRunnable implements Disposable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
@@ -32,9 +32,11 @@ public class TransFlowRunnable implements Runnable, Disposable {
     public TransFlowRunnable(TransFlowChain<TransFlowInput> chain) {
         this.input = chain.getCurrentNode();
         this.chain = chain;
+        // 手动结束 dequeue 线程后，执行 this.chain::dispose 销毁 input chain
         this.dataDequeue = Flux.defer(this::dequeue).repeat().doOnCancel(this.chain::dispose);
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
+        this.run();
     }
 
     private Mono<Void> dataFlowWithEachFilter(HandleData handleData) {
@@ -66,14 +68,16 @@ public class TransFlowRunnable implements Runnable, Disposable {
         }
     }
 
-    @Override
     public void run() {
         this.disposable = Flux.from(this.dataDequeue)
                 .flatMap(datas -> dataFlowWithEachFilter(datas).subscribeOn(processScheduler), 10)
-                .onBackpressureBuffer(100, (data) -> {
+                .onBackpressureBuffer(3, (data) -> {
                     log.error("压力过大 {}", data);
                 })
                 .onErrorContinue((throwable, o) -> log.error("线程异常", throwable))
+                .doOnCancel(() -> {  // 手动结束时触发
+                    log.info("doOnCancel");
+                })
                 .subscribeOn(dequeueScheduler)
                 .subscribe();
     }
@@ -81,11 +85,7 @@ public class TransFlowRunnable implements Runnable, Disposable {
     @Override
     public void dispose() {
         try {
-            this.chain.dispose();
-        } catch (Exception e) {
-            log.error("销毁chain 异常", e);
-        }
-        try {
+            // 结束 dequeue 线程
             this.disposable.dispose();
         } catch (Exception e) {
             log.error("销毁线程异常", e);

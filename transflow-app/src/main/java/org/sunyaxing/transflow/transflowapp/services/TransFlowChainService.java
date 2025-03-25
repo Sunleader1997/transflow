@@ -32,12 +32,13 @@ public class TransFlowChainService {
 
     public void run(String jobId) {
         boolean notClean = JOB_CHAINS.containsKey(jobId);
+        // 所有节点全部准备好了之后
         List<TransFlowChain<TransFlowInput>> rootChains = buildChain(jobId);
         if (notClean) throw new RuntimeException("jobId: " + jobId + " is running");
         JOB_CHAINS.put(jobId, new ArrayList<>());
+        // 创建input dequeue线程开始消费数据
         rootChains.forEach(rootChain -> {
             TransFlowRunnable runnable = new TransFlowRunnable(rootChain);
-            runnable.run();
             JOB_CHAINS.get(jobId).add(runnable);
         });
     }

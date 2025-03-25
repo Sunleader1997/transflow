@@ -170,7 +170,7 @@ export default {
       item.animateBegin = '0'
     },
     createWebsocket() {
-      const socket = new WebSocket('/transflow/event/'+this.jobId);
+      const socket = new WebSocket('ws://'+window.location.host+'/transflow/event/'+this.jobId);
       socket.addEventListener('open', () => {
         console.log('WebSocket已连接');
       });

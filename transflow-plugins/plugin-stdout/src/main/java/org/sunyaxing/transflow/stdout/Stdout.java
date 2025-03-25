@@ -16,12 +16,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Stdout extends TransFlowOutput {
     private Logger logger = LoggerFactory.getLogger(Stdout.class);
     private final AtomicLong rec = new AtomicLong(0);
+
     public Stdout(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
     public List<TransData> execDatas(String handleValue, List<TransData> data) {
+        logger.info("接收到数据，等待处理 {}", JSONObject.toJSONString(data));
         rec.addAndGet(data.size());
         logger.info("输出 {} 数据：{}", handleValue, JSONObject.toJSONString(data));
         return data;

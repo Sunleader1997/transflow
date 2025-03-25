@@ -93,7 +93,6 @@ export default {
       }"
       class="nodrag nopan"
     >
-      <q-btn @click="animateDot()"></q-btn>
     </div>
   </EdgeLabelRenderer>
 </template>

@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @Extension
 public class DemoInputExt extends TransFlowMultiInput {
     private static final Logger log = LogManager.getLogger(DemoInputExt.class);
-    private String jsonStr;
     private final AtomicLong rec = new AtomicLong(0);
     private final BlockingDeque<String> queue = new LinkedBlockingDeque<>(10000);
 
@@ -29,16 +28,17 @@ public class DemoInputExt extends TransFlowMultiInput {
         super(extensionContext);
         log.info("create");
     }
-
+    private final AtomicLong msg = new AtomicLong(0);
     @Override
     public List<HandleData> handleDequeue() {
         List<HandleData> res = new ArrayList<>();
         this.handleMap.forEach((k, v) -> {
             List<TransData> transData = new ArrayList<>();
-            transData.add(new TransData(0L, v));
+            transData.add(new TransData(msg.getAndIncrement(), v));
             res.add(new HandleData(k, transData));
             rec.incrementAndGet();
         });
+        log.info("生产数据 {}",JSONObject.toJSONString(res));
         return res;
     }
 
