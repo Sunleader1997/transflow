@@ -5,8 +5,8 @@
 - 拖拽式编辑数据流
 - 数据批量处理 （比方 es 批量存储）
 ## 演示
-<video id="video" controls="" preload="none" >
-    <source id="mp4" src="doc/20250327183942.mp4" type="video/mp4">
+<video width="320" height="240" controls>
+    <source src="doc/20250327183942.mp4" type="video/mp4">
 </video>
 
 # 启动方式
