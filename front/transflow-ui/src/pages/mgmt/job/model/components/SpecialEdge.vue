@@ -52,7 +52,7 @@ function animateDot() {
   const startTime = performance.now()
   const animation = (currentTime) => {
     const elapsed = currentTime - startTime
-    dot.value.progress = Math.min(elapsed / duration, 0.5)
+    dot.value.progress = Math.min(elapsed / duration, 1)
     if (dot.value.progress >= 1) {
       dots.value = dots.value.filter(d => d.value.progress < 1)
       return
@@ -83,11 +83,10 @@ export default {
   <path :d="path[0]" fill="none" stroke="transparent" ref="edgePathRef" />
   <svg v-for="dot in dots" :key="dot">
     <foreignObject
-      :x="dot.value.x - 25"
-      :y="dot.value.y - 25"
+      :x="dot.value.x"
+      :y="dot.value.y"
       width="50"
       height="50"
-
     >
       <q-avatar size="25px" color="red" text-color="white">{{dot.value.progress}}</q-avatar>
     </foreignObject>
@@ -101,7 +100,6 @@ export default {
         transform: `translate(-50%, -50%) translate(${path[1]}px,${path[2]}px)`,
       }"
       class="nodrag nopan"
-    >
-    </div>
+    ></div>
   </EdgeLabelRenderer>
 </template>

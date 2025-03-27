@@ -166,6 +166,30 @@ export default {
     buildJob() {
       this.$axios.post('/transflow/job/build', { id: this.jobId })
     },
+    onAnimateBegin(item){
+      item.animateBegin = '0'
+    },
+    createWebsocket() {
+      const socket = new WebSocket('ws://'+window.location.host+'/transflow/event/'+this.jobId);
+      socket.addEventListener('open', () => {
+        console.log('WebSocket已连接');
+      });
+      socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+        switch(data.type) {
+          case 'edge':{
+            const edgeId = data.value
+            this.$refs[edgeId].animateDot()
+          }
+        }
+      });
+      socket.addEventListener('close', () => {
+        console.log('WebSocket连接已关闭');
+      });
+      socket.addEventListener('error', (error) => {
+        console.error('WebSocket发生错误:', error);
+      });
+    }
   },
   beforeMount() {
     console.log('beforeMount')
@@ -180,6 +204,7 @@ export default {
       handler(newVal) {
         console.log(newVal)
         this.reloadData(newVal)
+        this.createWebsocket()
       },
       immediate: true,
     },
