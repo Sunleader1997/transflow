@@ -31,11 +31,6 @@ public class DemoInputExt extends TransFlowMultiInput {
     private final AtomicLong msg = new AtomicLong(0);
     @Override
     public List<HandleData> handleDequeue() {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         List<HandleData> res = new ArrayList<>();
         this.handleMap.forEach((k, v) -> {
             List<TransData> transData = new ArrayList<>();

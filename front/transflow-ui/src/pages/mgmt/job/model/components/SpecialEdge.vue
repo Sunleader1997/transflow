@@ -1,6 +1,6 @@
 <script setup>
 import { BaseEdge, EdgeLabelRenderer, getBezierPath } from '@vue-flow/core'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps({
   id: String,
@@ -37,38 +37,44 @@ const dots = ref([])
 const edgePathRef = ref()
 
 function animateDot() {
-  const edgeElement = edgePathRef.value
-  if (!edgeElement) return
-
-  const path = edgeElement // 获取第一个边的路径
-  const pathLength = path.getTotalLength()
   const dot = ref({
     x: -100,
     y: -100,
     progress: 0,
     count: 0,
+    startTime: performance.now(),
   })
-  const duration = 2000 // 动画持续时间
-  const startTime = performance.now()
-  const animation = (currentTime) => {
-    const elapsed = currentTime - startTime
-    dot.value.progress = Math.min(elapsed / duration, 1)
-    if (dot.value.progress >= 1) {
-      dots.value = dots.value.filter(d => d.value.progress < 1)
-      return
-    } else {
-      requestAnimationFrame(animation)
-    }
-    const point = path.getPointAtLength(dot.value.progress * pathLength)
-    dot.value.x = point.x
-    dot.value.y = point.y
-  }
   dots.value.push(dot)
+}
+
+function startDotsLoop() {
+  console.log('开始执行循环')
+  const duration = 2000 // 动画持续时间
+  const edgeElement = edgePathRef.value
+  if (!edgeElement) return
+  const path = edgeElement // 获取第一个边的路径
+  const pathLength = path.getTotalLength()
+  const animation = (currentTime) => {
+    console.log('requestAnimationFrame')
+    dots.value.forEach((dot) => {
+      const elapsed = currentTime - dot.value.startTime
+      dot.value.progress = Math.min(elapsed / duration, 1)
+      const point = path.getPointAtLength(dot.value.progress * pathLength)
+      dot.value.x = point.x
+      dot.value.y = point.y
+    })
+    dots.value = dots.value.filter((d) => d.value.progress < 1)
+    requestAnimationFrame(animation)
+  }
   requestAnimationFrame(animation)
 }
 
 const path = computed(() => getBezierPath(props))
 defineExpose({ animateDot })
+
+onMounted(() => {
+  startDotsLoop()
+})
 </script>
 
 <script>
@@ -81,16 +87,7 @@ export default {
   <!-- You can use the `BaseEdge` component to create your own custom edge more easily -->
   <BaseEdge :path="path[0]" />
   <path :d="path[0]" fill="none" stroke="transparent" ref="edgePathRef" />
-  <svg v-for="dot in dots" :key="dot">
-    <foreignObject
-      :x="dot.value.x"
-      :y="dot.value.y"
-      width="50"
-      height="50"
-    >
-      <q-avatar size="25px" color="red" text-color="white">{{dot.value.progress}}</q-avatar>
-    </foreignObject>
-  </svg>
+  <circle v-for="dot in dots" :key="dot" r="8" fill="#4a90e2" :cx="dot.value.x" :cy="dot.value.y" />
   <!-- Use the `EdgeLabelRenderer` to escape the SVG world of edges and render your own custom label in a `<div>` ctx -->
   <EdgeLabelRenderer>
     <div
