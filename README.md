@@ -1,5 +1,13 @@
 ## Transflow
 集成 reactor 类似于 logstash，插件化数据流转服务
+### 功能特点：
+- 插件化各节点（比方说增加 kafka输入输出）
+- 拖拽式编辑数据流
+- 数据批量处理 （比方 es 批量存储）
+## 演示
+<video id="video" controls="" preload="none" >
+    <source id="mp4" src="doc/20250327183942.mp4" type="video/mp4">
+</video>
 
 # 启动方式
 
