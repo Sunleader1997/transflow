@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.transflowapp.controllers;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
@@ -96,12 +97,12 @@ public class TransFlowJobController {
     @PostMapping("/node/delete")
     public Result<Boolean> nodeDelete(@RequestBody NodeDto nodeDto) {
         nodeService.removeById(nodeDto.getId());
-        nodeLinkService.lambdaQuery()
+        QueryWrapper<NodeLinkEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda()
                 .eq(NodeLinkEntity::getSourceId, nodeDto.getId())
                 .or()
-                .eq(NodeLinkEntity::getTargetId, nodeDto.getId())
-                .list()
-                .forEach(nodeLinkService::removeById);
+                .eq(NodeLinkEntity::getTargetId, nodeDto.getId());
+        nodeLinkService.remove(queryWrapper);
         return Result.success(true);
     }
 
