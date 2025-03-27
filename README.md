@@ -5,12 +5,8 @@
 - 拖拽式编辑数据流
 - 数据批量处理 （比方 es 批量存储）
 ## 演示
-<video width="320" height="240" controls>
-    <source src="https://gitee.com/Sunleader/transflow/raw/master/doc/20250327183942.mp4" type="video/mp4">
-</video>
-
+![gif](doc%2F20250327183942.gif)
 # 启动方式
-
 * transflow-api 执行 mvn clean install
 * transflow-plugins 执行 mvn clean package
 ```
