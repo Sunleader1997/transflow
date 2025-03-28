@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -26,10 +27,12 @@ import java.util.concurrent.TimeUnit;
 public class EventWsController implements ApplicationRunner {
     public static final Map<String, Session> SESSION_MAP = new HashMap<>();
     public static final LinkedBlockingDeque<String> msgQueue = new LinkedBlockingDeque<>(100);
+    public static final AtomicBoolean hasWebsocket = new AtomicBoolean(false);
 
     @OnOpen
     public void onOpen(Session session) {
         log.info("EventWsController onOpen");
+        hasWebsocket.set(true);
         SESSION_MAP.put(session.getId(), session);
     }
 
@@ -41,6 +44,10 @@ public class EventWsController implements ApplicationRunner {
             session.close();
         } catch (Exception e) {
             log.error("send message error", e);
+        } finally {
+            if (SESSION_MAP.isEmpty()) {
+                hasWebsocket.set(false);
+            }
         }
     }
 
@@ -66,10 +73,12 @@ public class EventWsController implements ApplicationRunner {
     }
 
     public static void sendMessage(String key, String value) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type", key);
-        jsonObject.put("value", value);
-        msgQueue.offerLast(jsonObject.toJSONString());
+        if(hasWebsocket.get()){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("type", key);
+            jsonObject.put("value", value);
+            msgQueue.offerLast(jsonObject.toJSONString());
+        }
     }
 
     public static Map<String, Long> TIME_CACHE = new ConcurrentHashMap<>();
