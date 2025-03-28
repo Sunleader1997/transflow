@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="plugin-kafka-input" />
         <module name="plugin-stdout" />
+        <module name="plugin-netty-demo-input" />
         <module name="plugin-es-output" />
         <module name="transflow-api" />
         <module name="plugin-demo-input" />

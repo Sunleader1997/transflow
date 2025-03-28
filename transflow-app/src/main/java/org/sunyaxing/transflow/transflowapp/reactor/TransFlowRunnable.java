@@ -72,6 +72,8 @@ public class TransFlowRunnable implements Disposable {
         this.disposable = Flux.from(this.dataDequeue)
                 .flatMap(datas -> dataFlowWithEachFilter(datas).subscribeOn(processScheduler), 10)
                 .onBackpressureBuffer(3, (data) -> {
+                    // TODO 待实现的反压策略
+                    // 主动拉取时，无法触发反压，只有被动推才会触发
                     log.error("压力过大 {}", data);
                 })
                 .onErrorContinue((throwable, o) -> log.error("线程异常", throwable))
