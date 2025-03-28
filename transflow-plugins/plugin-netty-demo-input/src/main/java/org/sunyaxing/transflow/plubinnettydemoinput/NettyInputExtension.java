@@ -13,11 +13,16 @@ import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
+import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 @Extension
 public class NettyInputExtension extends TransFlowInput {
@@ -26,6 +31,7 @@ public class NettyInputExtension extends TransFlowInput {
     private EventLoopGroup boss;
     private EventLoopGroup worker;
     private ChannelFuture future;
+    public static BlockingDeque<HttpRequestData> httpRequestData = new LinkedBlockingDeque<>(1000);
 
     public NettyInputExtension(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -33,6 +39,10 @@ public class NettyInputExtension extends TransFlowInput {
 
     @Override
     public HandleData dequeue() {
+        HttpRequestData httpRequestData1 = httpRequestData.poll();
+        if (httpRequestData1 != null) {
+            return new HandleData(null, Collections.singletonList(new TransData(0L, httpRequestData1)));
+        }
         return null;
     }
 

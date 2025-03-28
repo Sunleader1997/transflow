@@ -23,7 +23,6 @@ public abstract class MyAggregator extends SimpleChannelInboundHandler<HttpObjec
     }
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
         ctx.flush();
     }
 

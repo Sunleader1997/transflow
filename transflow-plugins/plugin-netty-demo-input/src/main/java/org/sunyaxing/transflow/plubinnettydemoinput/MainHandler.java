@@ -14,6 +14,7 @@ public class MainHandler extends MyAggregator {
     private HttpRequest httpRequest;
     public HttpPostRequestDecoder httpPostRequestDecoder;
     public DiskAttribute diskAttribute;
+    private HttpRequestData httpRequestData;
 
     static {
         DiskFileUpload.baseDirectory = "/tmp";
@@ -26,11 +27,12 @@ public class MainHandler extends MyAggregator {
 
     @Override
     public void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest msg) {
+        this.httpRequestData = new HttpRequestData();
         this.httpRequest = msg;
         if (isMultipart()) {
             this.httpPostRequestDecoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(true), msg);
         } else {
-            this.diskAttribute = new DiskAttribute("测试落盘");
+            this.diskAttribute = new DiskAttribute("requestData");
         }
     }
 
@@ -40,8 +42,10 @@ public class MainHandler extends MyAggregator {
             this.httpPostRequestDecoder.offer(msg);
         } else {
             try {
+                msg.retain();
                 this.diskAttribute.addContent(msg.content(), false);
             } catch (IOException e) {
+                msg.release();
                 log.error("文件存储失败 {}", this.diskAttribute.getName(), e);
             }
         }
@@ -50,34 +54,37 @@ public class MainHandler extends MyAggregator {
 
     @Override
     public void handleLastHttpContent(ChannelHandlerContext ctx, LastHttpContent msg) {
-        if(isMultipart()){
+        if (isMultipart()) {
             handleMultipartLastHttpContent(msg);
-        }else{
+        } else {
             try {
+                msg.retain();
                 this.diskAttribute.addContent(msg.content(), true);
+                this.httpRequestData.addFileData(diskAttribute.getFile());
             } catch (IOException e) {
+                msg.release();
                 log.error("文件存储失败 {}", this.diskAttribute.getName(), e);
             }
         }
-        ctx.fireChannelRead("聚合后的消息");
+        ctx.fireChannelRead(this.httpRequestData);
         reset();
     }
 
     public void handleMultipartLastHttpContent(LastHttpContent msg) {
         this.httpPostRequestDecoder.offer(msg);
-        if(this.httpPostRequestDecoder.isMultipart()){
+        if (this.httpPostRequestDecoder.isMultipart()) {
             while (this.httpPostRequestDecoder.hasNext()) {
                 InterfaceHttpData data = this.httpPostRequestDecoder.next();
                 InterfaceHttpData.HttpDataType dataType = data.getHttpDataType();
                 if (dataType.equals(InterfaceHttpData.HttpDataType.Attribute)) {
                     Attribute attribute = (Attribute) data;
-                    log.info("file : {}",attribute.getName());
-                    // todo need add file to params
-                }else if (dataType.equals(InterfaceHttpData.HttpDataType.FileUpload)){
+                    log.info("file : {}", attribute.getName());
+                    this.httpRequestData.addHttpData(attribute);
+                } else if (dataType.equals(InterfaceHttpData.HttpDataType.FileUpload)) {
                     FileUpload fileUpload = (FileUpload) data;
-                    if(fileUpload.isCompleted()){
-                        log.info("fileUpload : {}",fileUpload.getName());
-                        // todo need add file to params
+                    if (fileUpload.isCompleted()) {
+                        log.info("fileUpload : {}", fileUpload.getName());
+                        this.httpRequestData.addHttpData(fileUpload);
                     }
                 }
             }
@@ -93,8 +100,9 @@ public class MainHandler extends MyAggregator {
         String contentType = httpRequest.headers().get(HttpHeaderNames.CONTENT_TYPE);
         return StringUtils.isNotNullOrEmpty(contentType) && contentType.contains(HttpHeaderValues.MULTIPART_FORM_DATA);
     }
-    public void reset(){
-        if(this.httpPostRequestDecoder != null){
+
+    public void reset() {
+        if (this.httpPostRequestDecoder != null) {
             this.httpPostRequestDecoder.destroy();
             this.httpPostRequestDecoder = null;
         }
