@@ -71,7 +71,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <q-card class="my-node-card bg-positive text-white">
+  <q-card class="bg-positive text-white ">
     <q-expansion-item expand-icon-class="text-white" @show="countChain" expand-icon-toggle>
       <template v-slot:header>
         <q-item-section>

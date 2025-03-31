@@ -81,25 +81,6 @@ public class EventWsController implements ApplicationRunner {
         }
     }
 
-    public static Map<String, Long> TIME_CACHE = new ConcurrentHashMap<>();
-
-    public static synchronized void sendMessageByCache(String eventType, String key, String value) {
-        if (TIME_CACHE.containsKey(eventType)) {
-            long time = TIME_CACHE.get(eventType);
-            long now = System.currentTimeMillis();
-            if (now - time < 2000) {
-                return;
-            } else {
-                TIME_CACHE.put(eventType, now);
-                sendMessage(key, value);
-            }
-        } else {
-            long now = System.currentTimeMillis();
-            TIME_CACHE.put(eventType, now);
-            sendMessage(key, value);
-        }
-    }
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         while (!Thread.currentThread().isInterrupted()) {
