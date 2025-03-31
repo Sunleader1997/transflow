@@ -43,6 +43,14 @@ public class HttpRequestData {
         public void setLocation(String location) {
             this.location = location;
         }
+
+        public Long getDataSize() {
+            return dataSize;
+        }
+
+        public void setDataSize(Long dataSize) {
+            this.dataSize = dataSize;
+        }
     }
 
     public JSONObject getHeader() {

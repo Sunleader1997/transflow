@@ -3,6 +3,7 @@ package org.sunyaxing.transflow.transflowapp.config;
 import lombok.Data;
 import org.pf4j.Plugin;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.sunyaxing.transflow.common.ano.HandleItem;
 import org.sunyaxing.transflow.common.ano.JobParamItem;
 import org.sunyaxing.transflow.common.ano.ScopeContentCheck;
 

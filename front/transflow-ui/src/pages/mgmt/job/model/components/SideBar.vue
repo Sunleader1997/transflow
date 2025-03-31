@@ -1,42 +1,7 @@
-<script>
+<script setup>
 import useDragAndDrop from './useDnD.js'
-
-export default {
-  components: {},
-  data() {
-    const { onDragStart } = useDragAndDrop()
-    return {
-      onDragStart,
-      plugins: [],
-      inputs: [],
-      filters: [],
-      gateways: [],
-      outputs: [],
-    }
-  },
-  methods: {
-    queryForPlugins() {
-      this.$axios.get('/transflow/plugins/list').then((response) => {
-        this.plugins = response.data
-        this.inputs = []
-        this.filters = []
-        this.gateways = []
-        this.outputs = []
-        this.plugins.forEach(plugin => {
-          switch (plugin.type) {
-            case 'input': this.inputs.push(plugin);break
-            case 'output': this.outputs.push(plugin);break
-            case 'filter': this.filters.push(plugin);break
-            case 'gateway': this.gateways.push(plugin);break
-          }
-        })
-      })
-    },
-  },
-  beforeMount() {
-    this.queryForPlugins()
-  },
-}
+defineProps(["plugins","inputs","filters","gateways","outputs"])
+const { onDragStart } = useDragAndDrop()
 </script>
 
 <template>

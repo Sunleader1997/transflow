@@ -93,7 +93,7 @@ onMounted(() => {
           <div class="col">
             <code-mirror
               v-if="property.type === 'json'"
-              v-model="dataConfig[property.key]"
+              v-model:value="dataConfig[property.key]"
               :wrap="true"
               :tabSize="4"
               :extensions="[extensions_json]"

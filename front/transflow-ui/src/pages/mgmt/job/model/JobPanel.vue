@@ -7,12 +7,15 @@
   >
     <q-drawer show-if-above side="right" :width="200">
       <q-scroll-area class="fit">
-        <SideBar />
+        <SideBar :inputs="inputs" :filters="filters" :gateways="gateways" :outputs="outputs" />
       </q-scroll-area>
     </q-drawer>
     <q-page-container>
       <q-page style="height: calc(100vh - 50px)">
-        <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height">
+        <q-inner-loading :showing="panelShow">
+          <q-spinner-gears size="50px" color="primary" />
+        </q-inner-loading>
+        <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height" v-if="!panelShow">
           <MiniMap />
           <Panel position="top-center">
             <q-btn-group outline>
@@ -67,6 +70,8 @@ import DefFilter from 'pages/mgmt/job/model/nodes/DefFilter.vue'
 import DefOutput from 'pages/mgmt/job/model/nodes/DefOutput.vue'
 import axios from 'axios'
 import DefGateway from 'pages/mgmt/job/model/nodes/DefGateway.vue'
+import { usePluginStore } from 'stores/plugin-store.js'
+import { ref } from 'vue'
 
 export default {
   components: {
@@ -94,6 +99,8 @@ export default {
       applyNodeChanges,
       findNode,
     } = useVueFlow()
+    const store = usePluginStore()
+    const { setPlugins } = store
     const { onDragOver, onDrop, onDragLeave, isDragOver } = useDragAndDrop()
     onConnect((newEdge) => {
       console.log('newEdge', newEdge)
@@ -110,13 +117,12 @@ export default {
     })
     onNodeDragStop(async (e) => {
       for (const node of e.nodes) {
-        axios.post('/transflow/node/save', { ...node })
+        await axios.post('/transflow/node/save', { ...node })
       }
     })
 
     onNodesChange(async (changes) => {
       for (const change of changes) {
-        console.log('change.type', change.type, change)
         // 删除节点
         if (change.type === 'remove') {
           await axios.post('/transflow/node/delete', {
@@ -126,7 +132,7 @@ export default {
         // 节点失去焦点 时 触发更新
         if (change.type === 'select' && !change.selected) {
           const node = findNode(change.id)
-          axios.post('/transflow/node/save', { ...node })
+          await axios.post('/transflow/node/save', { ...node })
         }
       }
       onEdgesChange(async (changes) => {
@@ -141,6 +147,7 @@ export default {
       })
       applyNodeChanges(changes)
     })
+    const panelShow = ref(true)
     return {
       onDragOver,
       onDrop,
@@ -148,9 +155,26 @@ export default {
       isDragOver,
       setNodes,
       setEdges,
+      setPlugins,
+      inputs: ref([]),
+      filters: ref([]),
+      gateways: ref([]),
+      outputs: ref([]),
+      panelShow
     }
   },
   methods: {
+    queryForPlugins() {
+      this.panelShow = true
+      this.$axios.get('/transflow/plugins/list').then((response) => {
+        this.setPlugins(response.data)
+        this.inputs = response.data.filter((plugin)=>plugin.type ==='input')
+        this.outputs = response.data.filter((plugin)=>plugin.type ==='output')
+        this.filters = response.data.filter((plugin)=>plugin.type ==='filter')
+        this.gateways = response.data.filter((plugin)=>plugin.type ==='gateway')
+        this.panelShow = false
+      })
+    },
     reloadData(newJobId) {
       this.$axios.get('/transflow/node/allForDraw?jobId=' + newJobId).then((response) => {
         this.setNodes(response.data.nodes)
@@ -166,39 +190,39 @@ export default {
     buildJob() {
       this.$axios.post('/transflow/job/build', { id: this.jobId })
     },
-    onAnimateBegin(item){
+    onAnimateBegin(item) {
       item.animateBegin = '0'
     },
     createWebsocket() {
-      const socket = new WebSocket('ws://'+window.location.host+'/transflow/event/'+this.jobId);
+      const socket = new WebSocket(
+        'ws://' + window.location.host + '/transflow/event/' + this.jobId,
+      )
       socket.addEventListener('open', () => {
-        console.log('WebSocket已连接');
-      });
+        console.log('WebSocket已连接')
+      })
       socket.addEventListener('message', (event) => {
-        const data = JSON.parse(event.data);
-        switch(data.type) {
-          case 'edge':{
+        const data = JSON.parse(event.data)
+        switch (data.type) {
+          case 'edge': {
             const edgeId = data.value
             this.$refs[edgeId].animateDot()
           }
         }
-      });
+      })
       socket.addEventListener('close', () => {
-        console.log('WebSocket连接已关闭');
-      });
+        console.log('WebSocket连接已关闭')
+      })
       socket.addEventListener('error', (error) => {
-        console.error('WebSocket发生错误:', error);
-      });
-    }
+        console.error('WebSocket发生错误:', error)
+      })
+    },
   },
   beforeMount() {
+    this.queryForPlugins()
     console.log('beforeMount')
   },
-  mounted() {
-
-  },
-  unmounted() {
-  },
+  mounted() {},
+  unmounted() {},
   watch: {
     jobId: {
       handler(newVal) {

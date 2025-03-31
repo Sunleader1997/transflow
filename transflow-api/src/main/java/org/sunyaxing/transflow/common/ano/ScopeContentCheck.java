@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface ScopeContentCheck {
     JobParamItem[] value() default {};
+
+    HandleItem handle() default @HandleItem(field = "", label = "");
 }

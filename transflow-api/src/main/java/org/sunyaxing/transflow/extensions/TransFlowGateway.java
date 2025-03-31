@@ -34,12 +34,13 @@ public abstract class TransFlowGateway extends ExtensionLifecycle {
             this.handleMap.forEach((handleId, handleValue) -> {
                 if (remainData.get() != null && !remainData.get().isEmpty()) {
                     HandleData handleData1 = new HandleData(handleId, null);
-                    Pair<List<TransData>, List<TransData>> pair = execDatasWithPair(handleValue, remainData.get());
+                    Pair<List<TransData>, List<TransData>> pair = execDatasWithPair(handleId, handleValue, remainData.get());
                     remainData.set(pair.getValue());
                     if (!pair.getKey().isEmpty()) {
                         handleData1.setTransData(pair.getKey());
                         handleDatas.add(handleData1);
-                    };
+                    }
+                    ;
                 }
             });
         } else {
@@ -51,5 +52,5 @@ public abstract class TransFlowGateway extends ExtensionLifecycle {
         return handleDatas;
     }
 
-    protected abstract Pair<List<TransData>, List<TransData>> execDatasWithPair(String handleValue, List<TransData> data);
+    protected abstract Pair<List<TransData>, List<TransData>> execDatasWithPair(String handleId, String handleValue, List<TransData> data);
 }

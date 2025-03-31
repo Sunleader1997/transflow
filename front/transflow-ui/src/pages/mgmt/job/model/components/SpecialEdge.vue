@@ -47,33 +47,32 @@ function animateDot() {
   dots.value.push(dot)
 }
 
-function startDotsLoop() {
-  console.log('开始执行循环')
-  const duration = 2000 // 动画持续时间
-  const edgeElement = edgePathRef.value
-  if (!edgeElement) return
-  const path = edgeElement // 获取第一个边的路径
-  const pathLength = path.getTotalLength()
-  const animation = (currentTime) => {
-    console.log('requestAnimationFrame')
-    dots.value.forEach((dot) => {
-      const elapsed = currentTime - dot.value.startTime
-      dot.value.progress = Math.min(elapsed / duration, 1)
-      const point = path.getPointAtLength(dot.value.progress * pathLength)
-      dot.value.x = point.x
-      dot.value.y = point.y
-    })
-    dots.value = dots.value.filter((d) => d.value.progress < 1)
-    requestAnimationFrame(animation)
-  }
-  requestAnimationFrame(animation)
-}
+// function startDotsLoop() {
+//   console.log('开始执行循环')
+//   const duration = 2000 // 动画持续时间
+//   const edgeElement = edgePathRef.value
+//   if (!edgeElement) return
+//   const path = edgeElement // 获取第一个边的路径
+//   const pathLength = path.getTotalLength()
+//   const animation = (currentTime) => {
+//     dots.value.forEach((dot) => {
+//       const elapsed = currentTime - dot.value.startTime
+//       dot.value.progress = Math.min(elapsed / duration, 1)
+//       const point = path.getPointAtLength(dot.value.progress * pathLength)
+//       dot.value.x = point.x
+//       dot.value.y = point.y
+//     })
+//     dots.value = dots.value.filter((d) => d.value.progress < 1)
+//     requestAnimationFrame(animation)
+//   }
+//   requestAnimationFrame(animation)
+// }
 
 const path = computed(() => getBezierPath(props))
 defineExpose({ animateDot })
 
 onMounted(() => {
-  startDotsLoop()
+  // startDotsLoop()
 })
 </script>
 

@@ -14,6 +14,7 @@ import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowOutputPlugin;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.config.DirFileWatcher;
+import org.sunyaxing.transflow.transflowapp.config.HandlerProperties;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.PluginListDto;
 
@@ -48,6 +49,7 @@ public class PluginsController {
                 pluginListDto.setType("gateway");
             }
             pluginListDto.setProperties(JobConfigProperties.getJobProperties(plugin));
+            pluginListDto.setHandler(HandlerProperties.getHandler(plugin));
             return pluginListDto;
         }).collect(Collectors.toList());
         return Result.success(res);

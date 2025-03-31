@@ -1,6 +1,7 @@
 package org.sunyaxing.transflow.transflowapp.controllers.dtos;
 
 import lombok.Data;
+import org.sunyaxing.transflow.transflowapp.config.HandlerProperties;
 import org.sunyaxing.transflow.transflowapp.config.JobConfigProperties;
 
 import java.util.List;
@@ -14,4 +15,5 @@ public class PluginListDto{
     private String version;
     private String provider;
     private List<JobConfigProperties> properties;
+    private HandlerProperties handler;
 }

@@ -10,6 +10,8 @@ import { json } from '@codemirror/lang-json'
 import { basicSetup } from 'codemirror'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
+import { usePluginStore } from 'stores/plugin-store.js'
+import { storeToRefs } from 'pinia'
 
 defineEmits(['updateNodeInternals'])
 
@@ -52,12 +54,19 @@ const nodeStatus = ref({
   recNumb: 0,
   sendNumb: 0,
 })
-function countChain(){
+const store = usePluginStore()
+const { handlerByPluginId } = storeToRefs(store)
+
+function countChain() {
   axios.get('/transflow/node/status?nodeId=' + props.id).then((response) => {
     nodeStatus.value = response.data
   })
 }
+
+const handleSetting = ref({})
+
 onMounted(() => {
+  handleSetting.value = handlerByPluginId.value(props.data.pluginId).handler
 })
 </script>
 
@@ -66,8 +75,8 @@ onMounted(() => {
     <q-expansion-item expand-icon-class="text-white" @show="countChain" expand-icon-toggle>
       <template v-slot:header>
         <q-item-section>
-          <div class="text-h6">{{ name }} </div>
-          <div class="text-subtitle2">{{ data.pluginId }} </div>
+          <div class="text-h6">{{ name }}</div>
+          <div class="text-subtitle2">{{ data.pluginId }}</div>
         </q-item-section>
         <q-item-section side class="text-white">
           <q-btn dense flat icon="edit">
@@ -79,8 +88,8 @@ onMounted(() => {
       </template>
       <q-card dark class="bg-positive text-white">
         <q-list dense padding class="full-width">
-          <q-item class="text-subtitle2" clickable >接收：{{nodeStatus.recNumb}}</q-item>
-          <q-item class="text-subtitle2" clickable >发送：{{nodeStatus.sendNumb}}</q-item>
+          <q-item class="text-subtitle2" clickable>接收：{{ nodeStatus.recNumb }}</q-item>
+          <q-item class="text-subtitle2" clickable>发送：{{ nodeStatus.sendNumb }}</q-item>
         </q-list>
       </q-card>
     </q-expansion-item>
@@ -120,15 +129,24 @@ onMounted(() => {
       </div>
     </q-card-section>
     <q-card-section class="nodrag">
-      <div class="col text-overline">handle</div>
+      <div class="col text-overline">{{ handleSetting.label }}</div>
       <div class="q-gutter-md">
-        <div v-for="(handler, index) in handles" :key="index">
-          <q-input v-model="handles[index].value" dark dense borderless square standout>
-            <template v-slot:append>
-              <Handle :id="handles[index].id" type="source" :position="Position.Right" />
-            </template>
-          </q-input>
-        </div>
+        <q-list>
+          <q-item dense v-for="(handler, index) in handles" :key="index" class="q-pl-none">
+            <q-item-section>
+              <code-mirror
+                v-if="handleSetting.type === 'code'"
+                v-model="handler.value"
+                :wrap="true"
+                :tabSize="4"
+                :extensions="[extensions]"
+              />
+              <q-input v-else v-model="handler.value" dark dense borderless square standout>
+              </q-input>
+              <Handle :id="handler.id" type="source" :position="Position.Right" />
+            </q-item-section>
+          </q-item>
+        </q-list>
         <div class="q-ml-md">
           <q-btn
             dense
@@ -147,6 +165,6 @@ onMounted(() => {
     </q-card-section>
   </q-card>
   <Handle type="target" :position="Position.Left" />
-  <Handle type="source" v-if="handles.length === 0"  :position="Position.Right" />
+  <Handle type="source" v-if="handles.length === 0" :position="Position.Right" />
 </template>
 <style scoped></style>
