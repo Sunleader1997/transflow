@@ -73,18 +73,21 @@ public class EventWsController implements ApplicationRunner {
     }
 
     public static void sendMessage(String key, String value) {
-        if(hasWebsocket.get()){
+        if(hasWebsocket.get()){ // 在进入之前可重入锁之前排除锁的影响，观测状态下会降低吞吐
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("type", key);
             jsonObject.put("value", value);
+            // 线程执行 offerLast 终究还是会进入可重入锁 影响性能
+            // 但是在队列满之后仅判断了大小， 几乎不会影响性能
             msgQueue.offerLast(jsonObject.toJSONString());
         }
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        // 多线程吐大量数据websocket会报错，必须单线程限流
         while (!Thread.currentThread().isInterrupted()) {
-            ThreadUtil.sleep(msgQueue.size());
+            ThreadUtil.sleep(msgQueue.size());// 吞吐量大时就降速，避免前端处理不过来
             String queue = msgQueue.poll(1, TimeUnit.SECONDS);
             if (StringUtils.isNotNullOrEmpty(queue)) {
                 sendMessage(queue);

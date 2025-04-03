@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/transflow/plugins")
 public class PluginsController {
     private static final Logger log = LoggerFactory.getLogger(PluginsController.class);
+
+    public PluginsController() {
+        log.info("loader is {}",PluginsController.class.getClassLoader());
+    }
+
     @Autowired
     private PluginManager pluginManager;
     @Autowired
