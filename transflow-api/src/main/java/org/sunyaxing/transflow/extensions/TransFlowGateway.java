@@ -1,6 +1,5 @@
 package org.sunyaxing.transflow.extensions;
 
-import javafx.util.Pair;
 import org.pf4j.util.StringUtils;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
@@ -9,6 +8,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class TransFlowGateway extends ExtensionLifecycle {
@@ -34,7 +34,7 @@ public abstract class TransFlowGateway extends ExtensionLifecycle {
             this.handleMap.forEach((handleId, handleValue) -> {
                 if (remainData.get() != null && !remainData.get().isEmpty()) {
                     HandleData handleData1 = new HandleData(handleId, null);
-                    Pair<List<TransData>, List<TransData>> pair = execDatasWithPair(handleId, handleValue, remainData.get());
+                    Map.Entry<List<TransData>, List<TransData>> pair = execDatasWithPair(handleId, handleValue, remainData.get());
                     remainData.set(pair.getValue());
                     if (!pair.getKey().isEmpty()) {
                         handleData1.setTransData(pair.getKey());
@@ -52,5 +52,5 @@ public abstract class TransFlowGateway extends ExtensionLifecycle {
         return handleDatas;
     }
 
-    protected abstract Pair<List<TransData>, List<TransData>> execDatasWithPair(String handleId, String handleValue, List<TransData> data);
+    protected abstract Map.Entry<List<TransData>, List<TransData>> execDatasWithPair(String handleId, String handleValue, List<TransData> data);
 }

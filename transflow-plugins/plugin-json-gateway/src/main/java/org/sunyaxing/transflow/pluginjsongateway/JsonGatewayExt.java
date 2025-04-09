@@ -3,7 +3,6 @@ package org.sunyaxing.transflow.pluginjsongateway;
 import com.alibaba.fastjson2.JSONObject;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
-import javafx.util.Pair;
 import org.pf4j.Extension;
 import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
@@ -13,10 +12,7 @@ import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowGateway;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Extension
 public class JsonGatewayExt extends TransFlowGateway {
@@ -46,7 +42,7 @@ public class JsonGatewayExt extends TransFlowGateway {
     }
 
     @Override
-    protected Pair<List<TransData>, List<TransData>> execDatasWithPair(String handleId, String handleValue, List<TransData> input) {
+    protected Map.Entry<List<TransData>, List<TransData>> execDatasWithPair(String handleId, String handleValue, List<TransData> input) {
         List<TransData> result = new ArrayList<>();
         List<TransData> remain = new ArrayList<>();
 
@@ -70,8 +66,7 @@ public class JsonGatewayExt extends TransFlowGateway {
                 result.add(transData);
             }
         }
-
-        return new Pair<>(result, remain);
+        return new AbstractMap.SimpleEntry<>(result, remain);
     }
 
     @Override

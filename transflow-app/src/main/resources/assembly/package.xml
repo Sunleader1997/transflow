@@ -22,7 +22,12 @@
         </fileSet>-->
         <fileSet>
             <directory>${project.basedir}${file.separator}src${file.separator}main${file.separator}resources</directory>
-            <outputDirectory>/opt/transflow</outputDirectory>
+            <outputDirectory>/opt/transflow/config</outputDirectory>
+            <fileMode>777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}${file.separator}src${file.separator}main${file.separator}resources</directory>
+            <outputDirectory>/opt/transflow/config</outputDirectory>
             <fileMode>777</fileMode>
         </fileSet>
         <fileSet>
@@ -42,6 +47,11 @@
         <file>
             <source>${project.build.directory}${file.separator}transflow-app-0.1.0.jar</source>
             <outputDirectory>/opt/transflow</outputDirectory>
+            <fileMode>777</fileMode>
+        </file>
+        <file>
+            <source>${project.basedir}${file.separator}src${file.separator}main${file.separator}resources${file.separator}transflow.service</source>
+            <outputDirectory>/usr/lib/systemd/system</outputDirectory>
             <fileMode>777</fileMode>
         </file>
     </files>

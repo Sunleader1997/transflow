@@ -1,0 +1,13 @@
+[Unit]
+Description=Transflow
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/transflow
+ExecStart=java -Xmx512m -jar transflow-*.jar
+Restart=on-failure
+KillMode=process
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
