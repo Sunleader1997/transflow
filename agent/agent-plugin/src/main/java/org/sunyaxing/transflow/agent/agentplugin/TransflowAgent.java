@@ -9,22 +9,29 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
 
 public class TransflowAgent {
     private static final Logger log = LoggerFactory.getLogger(TransflowAgent.class);
-    private static PrintStream ps = System.err;
+    private static PrintStream ps = System.out;
 
     public static void agentmain(String agentArgs, Instrumentation instrumentation) {
         new AgentBuilder.Default()
                 .with(AgentBuilder.InitializationStrategy.NoOp.INSTANCE)
                 .with(AgentBuilder.RedefinitionStrategy.REDEFINITION)
-                .type(ElementMatchers.isAnnotatedWith(RestController.class))
+//                .type(ElementMatchers.isAnnotatedWith(RestController.class))
+                .type(ElementMatchers.nameContains("sunyaxing"))
                 .transform((builder, typeDescription, classLoader, module) -> {
-                    log.info("transform class " + typeDescription);
+                    log.info("transform " + typeDescription);
                     DynamicType.Builder<?> dynamicType = builder
                             .visit(Advice.to(ControllerAdvice.class).on(ElementMatchers.isAnnotatedWith(GetMapping.class)));
+                    try {
+                        dynamicType.make().saveIn(new File("D:\\workspace\\transflow\\agent\\agent-plugin\\src\\test\\java"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     return dynamicType;
                 }).installOn(instrumentation);
     }

@@ -32,7 +32,7 @@ public class AppController {
                     logger.info("attach to {} : {}", virtualMachineDescriptor.id(), virtualMachineDescriptor.displayName());
                     try {
                         VirtualMachine virtualMachine = VirtualMachine.attach(virtualMachineDescriptor.id());
-                        virtualMachine.loadAgent("C:\\Users\\syx19\\.m2\\repository\\net\\bytebuddy\\byte-buddy-agent\\1.11.22\\byte-buddy-agent-1.11.22.jar");
+                        //virtualMachine.loadAgent("C:\\Users\\syx19\\.m2\\repository\\net\\bytebuddy\\byte-buddy-agent\\1.11.22\\byte-buddy-agent-1.11.22.jar");
                         virtualMachine.loadAgent("D:\\workspace\\transflow\\agent\\agent-plugin\\target\\agent-plugin-1.0.jar");
                         virtualMachine.detach();
                     } catch (Exception e) {
