@@ -2,11 +2,11 @@
 Description=Transflow
 
 [Service]
-Type=simple
+Type=forking
 WorkingDirectory=/opt/transflow
-ExecStart=java -Xmx512m -jar transflow-*.jar
+ExecStart=/opt/transflow/startup.sh start
+ExecStop=/opt/transflow/startup.sh stop
 Restart=on-failure
-KillMode=process
 RestartSec=5s
 
 [Install]
