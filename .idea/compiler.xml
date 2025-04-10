@@ -7,22 +7,23 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="plugin-netty-demo-input" />
-        <module name="agent-plugin" />
-        <module name="plugin-json-filter" />
-        <module name="plugin-json-gateway" />
         <module name="plugin-kafka-input" />
         <module name="plugin-stdout" />
+        <module name="plugin-netty-demo-input" />
+        <module name="agent-plugin" />
         <module name="plugin-es-output" />
         <module name="transflow-api" />
         <module name="plugin-demo-input" />
+        <module name="plugin-json-gateway" />
         <module name="agent-server" />
         <module name="transflow-app" />
+        <module name="plugin-openai-filter" />
         <module name="plugin-kafka-output" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="agent-core" target="1.8" />
+      <module name="plugin-json-filter" target="1.8" />
       <module name="transflow-agent" target="1.8" />
     </bytecodeTargetLevel>
   </component>

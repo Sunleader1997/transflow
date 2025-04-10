@@ -1,12 +1,14 @@
 package org.sunyaxing.transflow.extensions;
 
+import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
-public abstract class TransFlowOutput extends ExtensionLifecycle {
-    protected ExtensionContext extensionContext;
+import java.util.List;
+
+public abstract class TransFlowOutput<R> extends ExtensionLifecycle<List<TransData>, R> {
 
     public TransFlowOutput(ExtensionContext extensionContext) {
-        this.extensionContext = extensionContext;
+        super(extensionContext);
     }
 }

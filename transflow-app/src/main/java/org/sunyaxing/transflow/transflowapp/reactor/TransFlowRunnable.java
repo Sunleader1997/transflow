@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
-import org.sunyaxing.transflow.extensions.TransFlowMultiInput;
+import org.sunyaxing.transflow.extensions.TransFlowInputWithHandler;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -51,8 +51,8 @@ public class TransFlowRunnable implements Disposable {
     }
 
     public Publisher<HandleData> dequeue() {
-        if (input instanceof TransFlowMultiInput) {
-            List<HandleData> handleData = ((TransFlowMultiInput) input).handleDequeue();
+        if (input instanceof TransFlowInputWithHandler) {
+            List<HandleData> handleData = ((TransFlowInputWithHandler) input).handleDequeue();
             if (CollectionUtil.isEmpty(handleData)) {
                 return Mono.empty();
             } else {

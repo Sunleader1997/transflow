@@ -9,11 +9,25 @@
 # 打包
 * transflow-all 下 执行 mvn clean package, 最终成品在 transflow-app 的 target 下 .zip
 * 注意，会打包前端资源以及plugin，plugin放在 /plugins下，也会被打进 zip
+* 发布版本因为大小受限，只提供基础demo插件
+# Linux 安装
 ```
-根据 pom 包里的参数，插件默认放到 /plugins 里
+unzip transflow-app-0.1.0-distribution.zip -d /
 ```
-* 解压后 在 /opt/tranflow 下启动
-* java -jar 启动 [transflow-app-0.1.0.jar](transflow-app%2Ftarget%2Ftransflow-app-0.1.0.jar)
+# Linux 启动
+- 通过 systemctl 启动
 ```
-服务启动时会读取 /plugins 里的插件，可以动态加载 
+systemctl start transflow
 ```
+- 通过脚本启动
+```
+cd /opt/transflow
+sh startup.sh start
+```
+- 手动启动
+```
+cd /opt/transflow
+java -jar transflow-app-0.1.0.jar
+```
+# 访问页面
+http://localhost:18987/#/mgmt/job

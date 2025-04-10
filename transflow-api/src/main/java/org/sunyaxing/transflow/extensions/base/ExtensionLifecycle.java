@@ -2,72 +2,56 @@ package org.sunyaxing.transflow.extensions.base;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.pf4j.ExtensionPoint;
-import org.pf4j.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
-import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
+import org.sunyaxing.transflow.extensions.handlers.Handler;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
-public abstract class ExtensionLifecycle implements ExtensionPoint {
+public abstract class ExtensionLifecycle<T,R> implements ExtensionPoint {
 
-    protected LinkedHashMap<String, String> handleMap;
+    private static final Logger log = LoggerFactory.getLogger(ExtensionLifecycle.class);
+    // 使用LinkedHashMap按顺序执行处理器
+    protected final LinkedHashMap<String, Handler<T,R>> handlerMap;
 
-    public void initForHandle(JSONObject config, List<Handle> handles) {
-        this.handleMap = new LinkedHashMap<>();
-        for (Handle handle : handles) {
-            this.handleMap.put(handle.getId(), handle.getValue());
-        }
+    public ExtensionLifecycle(ExtensionContext extensionContext) {
+        this.handlerMap = new LinkedHashMap<>();
     }
 
     /**
      * 插件初始化
-     *
-     * @param config
-     * @param handles
      */
     public void init(JSONObject config, List<Handle> handles) {
         this.initForHandle(config, handles);
-        this.initSelf(config, handles);
+        this.afterInitHandler(config, handles);
     }
 
     /**
-     * 自定义插件需要自己实现的初始化方法
-     *
-     * @param config
-     * @param handles
+     * 从配置中获取handle的id和value，并保存到handleMap中
      */
-    protected abstract void initSelf(JSONObject config, List<Handle> handles);
-
-    /**
-     * 过滤器模式
-     * 即 所有的handle都会处理HandleData内的数据
-     * chain 需要调用的消费方法
-     */
-    public List<HandleData> exec(HandleData handleData) {
-        List<HandleData> handleDatas = new ArrayList<>();
-        if (StringUtils.isNullOrEmpty(handleData.getHandleId())) {
-            this.handleMap.forEach((k, v) -> {
-                List<TransData> data = execDatas(v, handleData.getTransData());
-                if (!data.isEmpty()) handleDatas.add(new HandleData(k, data));
-            });
-        } else {
-            String handValue = this.handleMap.get(handleData.getHandleId());
-            List<TransData> data = execDatas(handValue, handleData.getTransData());
-            if (!data.isEmpty()) handleDatas.add(new HandleData(handleData.getHandleId(), data));
+    protected void initForHandle(JSONObject config, List<Handle> handles) {
+        for (Handle handle : handles) {
+            Handler<T,R> handler = parseHandleToHandler(handle.getId(), handle.getValue());
+            this.handlerMap.put(handle.getId(), handler);
         }
-        return handleDatas;
     }
 
     /**
-     * 自定义插件需要自己实现的消息消费逻辑
-     *
-     * @param handleValue
-     * @param data
+     * 从配置中获取handle的id和value，并保存到handleMap中
      */
-    protected abstract List<TransData> execDatas(String handleValue, List<TransData> data);
+    protected abstract void afterInitHandler(JSONObject config, List<Handle> handles);
+    /**
+     * 每个实例化的插件都要根据分配的handle初始化自己的handler
+     */
+    public abstract Handler<T,R> parseHandleToHandler(String handleId, String handle);
+
+    /**
+     * 接收上一个节点来的数据并处理
+     * @return 返回给下一个节点的数据
+     */
+    public abstract List<HandleData> exec(HandleData handleData);
 
     public abstract void destroy();
 

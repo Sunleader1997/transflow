@@ -15,17 +15,16 @@ import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.extensions.TransFlowInputWithoutHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
 @Extension
-public class NettyInputExtension extends TransFlowInput {
+public class NettyInputExtension extends TransFlowInputWithoutHandler {
 
     private static final Logger log = LoggerFactory.getLogger(NettyInputExtension.class);
     private EventLoopGroup boss;
@@ -38,6 +37,11 @@ public class NettyInputExtension extends TransFlowInput {
     }
 
     @Override
+    public void commit(HandleData handleData) {
+
+    }
+
+    @Override
     public HandleData dequeue() {
         HttpRequestData httpRequestData1 = httpRequestData.poll();
         if (httpRequestData1 != null) {
@@ -47,7 +51,7 @@ public class NettyInputExtension extends TransFlowInput {
     }
 
     @Override
-    protected void initSelf(JSONObject config, List<Handle> handles) {
+    protected void afterInitHandler(JSONObject config, List<Handle> handles) {
         String host = config.getString("host");
         Integer port = config.getInteger("port");
         ServerBootstrap serverBootstrap = new ServerBootstrap();
