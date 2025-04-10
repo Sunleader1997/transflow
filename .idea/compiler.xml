@@ -17,6 +17,7 @@
         <module name="plugin-json-gateway" />
         <module name="agent-server" />
         <module name="transflow-app" />
+        <module name="plugin-openai-filter" />
         <module name="plugin-kafka-output" />
       </profile>
     </annotationProcessing>
