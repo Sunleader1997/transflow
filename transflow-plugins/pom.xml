@@ -10,7 +10,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>plugin-kafka-input</module>
-        <module>plugin-json-filter</module>
         <module>plugin-es-output</module>
         <module>plugin-stdout</module>
         <module>plugin-kafka-output</module>

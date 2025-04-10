@@ -16,17 +16,21 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.pf4j.Extension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowOutput;
+import org.sunyaxing.transflow.extensions.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.handlers.Handler;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Extension
-public class EsOutputExtension extends TransFlowOutput {
+public class EsOutputExtension extends TransFlowOutputWithHandler<List<IndexRequest>> {
     private static final Logger log = LoggerFactory.getLogger(EsOutputExtension.class);
     private RestHighLevelClient restHighLevelClient;
     private String indexName;
@@ -35,23 +39,24 @@ public class EsOutputExtension extends TransFlowOutput {
         super(extensionContext);
     }
 
+
     @Override
-    public List<TransData> execDatas(String handlerValue, List<TransData> data) {
+    public List<HandleData> exec(HandleData handleData) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    protected void execData(List<IndexRequest> indexRequests) {
         BulkRequest bulkRequest = new BulkRequest();
-        data.forEach(transData -> {
-            Map sourceData = transData.getData(Map.class);
-            bulkRequest.add(new IndexRequest(indexName, "_doc").source(sourceData));
-        });
         try {
             this.restHighLevelClient.bulk(bulkRequest.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL), RequestOptions.DEFAULT);
         } catch (Exception e) {
             log.error("es 存储异常", e);
         }
-        return data;
     }
 
     @Override
-    protected void initSelf(JSONObject config, List<Handle> handles) {
+    protected void afterInitHandler(JSONObject config, List<Handle> handles) {
         this.indexName = config.getString("index-name");
         HttpHost targetHost = new HttpHost(
                 config.getString("host"),
@@ -74,14 +79,35 @@ public class EsOutputExtension extends TransFlowOutput {
     }
 
     @Override
+    public Handler<List<TransData>, List<IndexRequest>> parseHandleToHandler(String handleId, String indexName) {
+        return new EsOutputHandler(indexName);
+    }
+
+    @Override
     public void destroy() {
         log.info("es client 执行清理");
-        if(restHighLevelClient!=null){
+        if (restHighLevelClient != null) {
             try {
                 restHighLevelClient.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static class EsOutputHandler implements Handler<List<TransData>, List<IndexRequest>> {
+        private final String indexName;
+
+        public EsOutputHandler(String indexName) {
+            this.indexName = indexName;
+        }
+
+        @Override
+        public List<IndexRequest> resolve(List<TransData> transDatas) {
+            return transDatas.stream().map(transData -> {
+                Map sourceData = transData.getData(Map.class);
+                return new IndexRequest(indexName, "_doc").source(sourceData);
+            }).collect(Collectors.toList());
         }
     }
 }
