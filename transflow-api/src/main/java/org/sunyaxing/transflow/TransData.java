@@ -15,19 +15,23 @@ public class TransData implements Serializable {
     }
 
     public <T> T getData(Class<T> clazz) {
+        // 如果对象是这个类型，就直接返回原来的对象
         if (clazz.isInstance(data)) {
             return clazz.cast(data);
-        }
-        if (String.class.equals(clazz)) {
-            return clazz.cast(data.toString());
-        } else if (JSONObject.class.equals(clazz)) {
-            if (data instanceof String) {
-                return clazz.cast(JSONObject.parseObject((String) data));
-            } else {
-                return clazz.cast(JSONObject.parseObject(JSONObject.toJSONString(data)));
+        }else{// 如果对象不是这个类型，就进行类型转换，并替换掉原有的对象
+            T resData = null;
+            if (String.class.equals(clazz)) {
+                resData = clazz.cast(data.toString());
+            } else if (JSONObject.class.equals(clazz)) {
+                if (data instanceof String) {
+                    resData = clazz.cast(JSONObject.parseObject((String) data));
+                } else {
+                    resData = clazz.cast(JSONObject.parseObject(JSONObject.toJSONString(data)));
+                }
             }
+            this.setData(resData);
+            return resData;
         }
-        return clazz.cast(data);
     }
 
     public boolean isType(Class<?> tClass) {

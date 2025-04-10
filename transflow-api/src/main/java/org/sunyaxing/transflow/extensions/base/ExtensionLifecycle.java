@@ -2,20 +2,22 @@ package org.sunyaxing.transflow.extensions.base;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.pf4j.ExtensionPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.handlers.Handler;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class ExtensionLifecycle<T,R> implements ExtensionPoint {
 
-    protected final Map<String, Handler<T,R>> handlerMap;
+    private static final Logger log = LoggerFactory.getLogger(ExtensionLifecycle.class);
+    // 使用LinkedHashMap按顺序执行处理器
+    protected final LinkedHashMap<String, Handler<T,R>> handlerMap;
 
     public ExtensionLifecycle(ExtensionContext extensionContext) {
-        this.handlerMap = new HashMap<>();
+        this.handlerMap = new LinkedHashMap<>();
     }
 
     /**
