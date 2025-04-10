@@ -16,6 +16,7 @@
         <module>plugin-demo-input</module>
         <module>plugin-json-gateway</module>
         <module>plugin-netty-demo-input</module>
+        <module>plugin-openai-filter</module>
     </modules>
 
     <properties>

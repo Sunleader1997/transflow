@@ -12,7 +12,6 @@
         <module>transflow-api</module>
         <module>transflow-plugins</module>
         <module>transflow-app</module>
-        <module>transflow-plugins/plugin-openai-filter</module>
     </modules>
 
     <properties>

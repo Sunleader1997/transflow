@@ -2,6 +2,9 @@ package org.sunyaxing.transflow.pluginopenaifilter;
 
 import com.alibaba.fastjson2.JSONObject;
 import io.github.pigmesh.ai.deepseek.core.DeepSeekClient;
+import io.github.pigmesh.ai.deepseek.core.chat.ChatCompletionModel;
+import io.github.pigmesh.ai.deepseek.core.chat.ChatCompletionRequest;
+import io.github.pigmesh.ai.deepseek.core.chat.ResponseFormatType;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
@@ -13,6 +16,7 @@ import java.util.List;
 
 @Extension
 public class OpenAiTransflowFilterExt extends DefaultMiddleExtensionWithHandler {
+    private DeepSeekClient deepSeekClient;
 
     public OpenAiTransflowFilterExt(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -21,18 +25,32 @@ public class OpenAiTransflowFilterExt extends DefaultMiddleExtensionWithHandler 
     @Override
     protected void afterInitHandler(JSONObject config, List<Handle> handles) {
         String token = config.getString("token");
-        DeepSeekClient deepSeekClient = new DeepSeekClient.Builder()
-                .model("deepseek-reasoner")
+        this.deepSeekClient = new DeepSeekClient.Builder()
+                .openAiApiKey(token)
                 .baseUrl("https://api.deepseek.com")
                 .build();
     }
 
     @Override
-    public Handler<TransData, Boolean> parseHandleToHandler(String handleId, String handle) {
+    public Handler<TransData, Boolean> parseHandleToHandler(String handleId, String prompt) {
+        return transData -> {
+            ChatCompletionRequest request = ChatCompletionRequest.builder()
+                    // 模型选择，支持 DEEPSEEK_CHAT、DEEPSEEK_REASONER 等
+                    .model(ChatCompletionModel.DEEPSEEK_REASONER)
+                    .addSystemMessage(prompt)
+                    .addUserMessage(transData.getData(String.class))
+                    .maxTokens(1000)
+                    .responseFormat(ResponseFormatType.JSON_OBJECT)
+                    //.tools(...) // 可选
+                    .build();
+            String res = this.deepSeekClient.chatCompletion(request).execute().content();
+            transData.setData(res);
+            return true;
+        };
     }
 
     @Override
     public void destroy() {
-
+        this.deepSeekClient.shutdown();
     }
 }
