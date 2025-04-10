@@ -24,6 +24,6 @@ public abstract class TransFlowInput<T,R> extends ExtensionLifecycle<T,R> {
 
     @Override
     public List<HandleData> exec(HandleData handleData) {
-        return Collections.emptyList();
+        return Collections.singletonList(handleData);
     }
 }

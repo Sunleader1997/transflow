@@ -48,10 +48,13 @@ public abstract class DefaultMiddleExtensionWithHandler extends ExtensionLifecyc
                 if (remainData.get() != null && !remainData.get().isEmpty()) {
                     // 已经匹配的数据封装好准备交给下一个节点
                     Map.Entry<List<TransData>, List<TransData>> pair = execDatasWithPair(handler, handleData.getTransData());
-                    if (!pair.getKey().isEmpty())
-                        handleDatas.add(new HandleData(handleData.getHandleId(), pair.getKey()));
+                    if (!pair.getKey().isEmpty()){
+                        handleDatas.add(new HandleData(handleId, pair.getKey()));
+                    }
                     // 剩余数据交给下一个处理器
                     remainData.set(pair.getValue());
+                }else{
+                    log.info("数据已处理完");
                 }
             });
         } else {

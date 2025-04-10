@@ -23,12 +23,13 @@ public abstract class ExtensionLifecycle<T,R> implements ExtensionPoint {
      */
     public void init(JSONObject config, List<Handle> handles) {
         this.initForHandle(config, handles);
+        this.afterInitHandler(config, handles);
     }
 
     /**
      * 从配置中获取handle的id和value，并保存到handleMap中
      */
-    public void initForHandle(JSONObject config, List<Handle> handles) {
+    protected void initForHandle(JSONObject config, List<Handle> handles) {
         for (Handle handle : handles) {
             Handler<T,R> handler = parseHandleToHandler(handle.getId(), handle.getValue());
             this.handlerMap.put(handle.getId(), handler);
