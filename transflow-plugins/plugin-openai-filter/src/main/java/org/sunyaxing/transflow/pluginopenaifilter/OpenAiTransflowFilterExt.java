@@ -10,9 +10,9 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.DefaultMiddleExtensionWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
-import org.sunyaxing.transflow.extensions.handlers.Handler;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Extension
 public class OpenAiTransflowFilterExt extends DefaultMiddleExtensionWithHandler {
@@ -32,7 +32,7 @@ public class OpenAiTransflowFilterExt extends DefaultMiddleExtensionWithHandler 
     }
 
     @Override
-    public Handler<TransData, Boolean> parseHandleToHandler(String handleId, String prompt) {
+    public Function<TransData, Boolean> parseHandleToConsumer(String handleId, String prompt) {
         return transData -> {
             ChatCompletionRequest request = ChatCompletionRequest.builder()
                     // 模型选择，支持 DEEPSEEK_CHAT、DEEPSEEK_REASONER 等

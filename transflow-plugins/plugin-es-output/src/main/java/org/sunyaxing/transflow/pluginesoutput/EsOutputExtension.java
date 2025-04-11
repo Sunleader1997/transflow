@@ -20,7 +20,6 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
-import org.sunyaxing.transflow.extensions.handlers.Handler;
 
 import java.io.IOException;
 import java.util.List;
@@ -70,7 +69,7 @@ public class EsOutputExtension extends TransFlowOutputWithHandler<List<IndexRequ
     }
 
     @Override
-    public Handler<List<TransData>, List<IndexRequest>> parseHandleToHandler(String handleId, String indexName) {
+    public Function<List<TransData>, List<IndexRequest>> parseHandleToHandler(String handleId, String indexName) {
         return new Handler<List<TransData>, List<IndexRequest>>() {
             @Override
             public List<IndexRequest> resolve(List<TransData> transDatas) {

@@ -1,21 +1,16 @@
 package org.sunyaxing.transflow.transflowapp.reactor;
 
-import cn.hutool.core.collection.CollectionUtil;
 import lombok.Getter;
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.extensions.TransFlowInput;
-import org.sunyaxing.transflow.extensions.TransFlowInputWithHandler;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
 
 public class TransFlowRunnable implements Disposable {
 
@@ -25,7 +20,7 @@ public class TransFlowRunnable implements Disposable {
     private final Scheduler processScheduler;
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
-    private final TransFlowInput input;
+    private final TransFlowInput<?> input;
     @Getter
     private final TransFlowChain<TransFlowInput> chain;
 
@@ -33,7 +28,7 @@ public class TransFlowRunnable implements Disposable {
         this.input = chain.getCurrentNode();
         this.chain = chain;
         // 手动结束 dequeue 线程后，执行 this.chain::dispose 销毁 input chain
-        this.dataDequeue = Flux.defer(this::dequeue).repeat().doOnCancel(this.chain::dispose);
+        this.dataDequeue = Flux.defer(this.input::dequeue).repeat().doOnCancel(this.chain::dispose);
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
         this.run();
@@ -48,24 +43,6 @@ public class TransFlowRunnable implements Disposable {
         }), dataBk -> {
             input.commit(handleData);
         });
-    }
-
-    public Publisher<HandleData> dequeue() {
-        if (input instanceof TransFlowInputWithHandler) {
-            List<HandleData> handleData = ((TransFlowInputWithHandler) input).handleDequeue();
-            if (CollectionUtil.isEmpty(handleData)) {
-                return Mono.empty();
-            } else {
-                return Flux.just(handleData.toArray(new HandleData[0]));
-            }
-        } else {
-            HandleData datas = input.dequeue();
-            if (datas != null) {
-                return Mono.just(datas);
-            } else {
-                return Mono.empty();
-            }
-        }
     }
 
     public void run() {

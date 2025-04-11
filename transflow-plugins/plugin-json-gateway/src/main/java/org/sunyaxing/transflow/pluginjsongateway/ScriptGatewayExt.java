@@ -8,12 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.handlers.AbstractMiddleHandler;
 import org.sunyaxing.transflow.extensions.DefaultMiddleExtensionWithHandler;
-import org.sunyaxing.transflow.extensions.handlers.Handler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Extension
 public class ScriptGatewayExt extends DefaultMiddleExtensionWithHandler {
@@ -29,7 +28,7 @@ public class ScriptGatewayExt extends DefaultMiddleExtensionWithHandler {
     }
 
     @Override
-    public Handler<TransData,Boolean> parseHandleToHandler(String handleId, String handleValue) {
+    public Function<TransData, Boolean> parseHandleToConsumer(String handleId, String handleValue) {
         GroovyShell groovyShell = new GroovyShell();
         Script script = groovyShell.parse(handleValue);
         log.info("编译完成 \n {}", script);
@@ -41,7 +40,7 @@ public class ScriptGatewayExt extends DefaultMiddleExtensionWithHandler {
 
     }
 
-    public static class GatewayScriptMiddleHandler extends AbstractMiddleHandler {
+    public static class GatewayScriptMiddleHandler implements Function<TransData, Boolean> {
         private final Script script;
 
         public GatewayScriptMiddleHandler(Script script) {
@@ -49,7 +48,7 @@ public class ScriptGatewayExt extends DefaultMiddleExtensionWithHandler {
         }
 
         @Override
-        public Boolean resolve(TransData transData) {
+        public Boolean apply(TransData transData) {
             JSONObject jsonObject = transData.getData(JSONObject.class);
             transData.setData(jsonObject);
             script.setProperty("data", jsonObject);

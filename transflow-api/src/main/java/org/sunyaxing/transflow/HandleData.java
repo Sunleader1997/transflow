@@ -1,23 +1,22 @@
 package org.sunyaxing.transflow;
 
 import java.io.Serializable;
-import java.util.List;
 
 public class HandleData implements Serializable {
     // 数据来源于这个handle
     private String handleId;
-    private List<TransData> transData;
+    private TransData transData;
 
-    public HandleData(String handleId, List<TransData> transData) {
+    public HandleData(String handleId, TransData transData) {
         this.handleId = handleId;
         this.transData = transData;
     }
 
-    public List<TransData> getTransData() {
+    public TransData getTransData() {
         return transData;
     }
 
-    public void setTransData(List<TransData> transData) {
+    public void setTransData(TransData transData) {
         this.transData = transData;
     }
 

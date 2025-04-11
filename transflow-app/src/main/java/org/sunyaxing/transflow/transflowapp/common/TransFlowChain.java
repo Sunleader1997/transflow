@@ -13,6 +13,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
 import reactor.core.Disposable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
             if (ChainManager.containsChain(nextNodeId)) {
                 TransFlowChain<?> nextChain = ChainManager.getChainCache(nextNodeId);
                 HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
-                this.sendAtomic.addAndGet(nextHandleData.getTransData().size());
+                this.sendAtomic.incrementAndGet();
                 nextChain.handle(nextHandleData);
             }
             EventWsController.sendMessage("edge", linkBo.getId());
@@ -105,15 +106,15 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
     }
 
     public void handle(HandleData handleData) {
-        if (handleData != null && !handleData.getTransData().isEmpty()) {
-            this.recAtomic.addAndGet(handleData.getTransData().size());
+        if (handleData != null) {
+            this.recAtomic.incrementAndGet();
             // 本节点先处理数据
-            List<HandleData> results = this.currentNode.exec(handleData);
-            results.forEach(result -> {
+            Optional<HandleData> result = this.currentNode.exec(handleData);
+            result.ifPresent(dataToNextNode -> {
                 // 选择该数据对应的下一个连线
-                List<NodeLinkBo> links = this.selectOutHandle(result);
+                List<NodeLinkBo> links = this.selectOutHandle(dataToNextNode);
                 // 将该数据发送到下一个节点
-                this.sendDataToNextHandle(result, links);
+                this.sendDataToNextHandle(dataToNextNode, links);
             });
         }
     }

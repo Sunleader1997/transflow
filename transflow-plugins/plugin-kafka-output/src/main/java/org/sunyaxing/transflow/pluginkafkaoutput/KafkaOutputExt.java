@@ -12,11 +12,11 @@ import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
-import org.sunyaxing.transflow.extensions.handlers.Handler;
 
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Extension
@@ -43,7 +43,7 @@ public class KafkaOutputExt extends TransFlowOutputWithHandler<List<ProducerReco
     }
 
     @Override
-    public Handler<List<TransData>, List<ProducerRecord<Object, String>>> parseHandleToHandler(String handleId, String topic) {
+    public Function<List<TransData>, List<ProducerRecord<Object, String>>> parseHandleToConsumer(String handleId, String topic) {
         return new KafkaOutputHandler(topic);
     }
 

@@ -6,7 +6,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 
 import java.util.List;
 
-public abstract class TransFlowOutput<R> extends ExtensionLifecycle<List<TransData>, R> {
+public abstract class TransFlowOutput<R> extends ExtensionLifecycle<TransData, R> {
 
     public TransFlowOutput(ExtensionContext extensionContext) {
         super(extensionContext);

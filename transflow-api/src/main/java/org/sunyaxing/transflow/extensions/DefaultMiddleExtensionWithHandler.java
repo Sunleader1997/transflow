@@ -7,10 +7,9 @@ import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
-import org.sunyaxing.transflow.extensions.handlers.Handler;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * 中间扩展点
@@ -38,67 +37,27 @@ public abstract class DefaultMiddleExtensionWithHandler extends ExtensionLifecyc
      * @return 返回给下一个节点的数据, 已经根据处理器做好分类，表明数据是由哪个处理器处理的
      */
     @Override
-    public List<HandleData> exec(HandleData handleData) {
-        List<HandleData> handleDatas = new ArrayList<>();
+    public Optional<HandleData> exec(HandleData handleData) {
         // 如果没有指定id，按照顺序进行匹配
         if (StringUtils.isNullOrEmpty(handleData.getHandleId())) {
             // 经过各个处理器处理的剩余数据
-            AtomicReference<List<TransData>> remainData = new AtomicReference<>(handleData.getTransData());
-            this.handlerMap.forEach((handleId, handler) -> {
-                if (remainData.get() != null && !remainData.get().isEmpty()) {
-                    // 已经匹配的数据封装好准备交给下一个节点
-                    Map.Entry<List<TransData>, List<TransData>> pair = execDatasWithPair(handler, handleData.getTransData());
-                    if (!pair.getKey().isEmpty()){
-                        handleDatas.add(new HandleData(handleId, pair.getKey()));
-                    }
-                    // 剩余数据交给下一个处理器
-                    remainData.set(pair.getValue());
-                }else{
-                    log.info("数据已处理完");
-                }
-            });
-        } else {
-            // 如果指定了handleId
-            Handler<TransData,Boolean> handler = this.handlerMap.get(handleData.getHandleId());
-            Map.Entry<List<TransData>, List<TransData>> pair = execDatasWithPair(handler, handleData.getTransData());
-            if (!pair.getKey().isEmpty()) handleDatas.add(new HandleData(handleData.getHandleId(), pair.getKey()));
-        }
-        return handleDatas;
-    }
-
-
-    /**
-     * 调用 handler 的处理器方法，将结果为ture的数据给Key, false的数据给 value
-     *
-     * @param handler 处理器
-     * @param datas   分配到该节点的数据
-     * @return key-匹配的数据（交给下一个节点的数据） value-未匹配的数据（交给下一个处理器的数据）
-     */
-    protected Map.Entry<List<TransData>, List<TransData>> execDatasWithPair(Handler<TransData,Boolean> handler, List<TransData> datas) {
-        List<TransData> result = new ArrayList<>();
-        List<TransData> remain = new ArrayList<>();
-        if (Objects.isNull(handler)) {
-            return new AbstractMap.SimpleEntry<>(result, datas);
-        }
-        // 调用对应的处理器去处理数据
-        // Handler handler = this.handlerMap.get(handleId);
-        // 将批量数据逐个分给处理器去匹配处理
-        // 匹配到的数据放入result中，未匹配到的数据放入remain中
-        datas.forEach(transData -> {
-            boolean handleRes = false;
-            try {
-                // 返回
-                handleRes = handler.resolve(transData);
-            } catch (Exception e) {
-                log.error("脚本执行异常", e);
-            } finally {
-                if (handleRes) {
-                    result.add(transData);
-                } else {
-                    remain.add(transData);
+            for (String handleId : this.handlerMap.keySet()) {
+                boolean isMatched = this.handlerMap.get(handleId).apply(handleData.getTransData());
+                if (isMatched) {
+                    handleData.setHandleId(handleId);
+                    return Optional.of(handleData);
                 }
             }
-        });
-        return new AbstractMap.SimpleEntry<>(result, remain);
+        } else {
+            // 如果指定了handleId
+            Function<TransData, Boolean> handler = this.handlerMap.get(handleData.getHandleId());
+            boolean isMatched = handler.apply(handleData.getTransData());
+            if (isMatched) {
+                return Optional.of(handleData);
+            }
+        }
+        return Optional.empty();
     }
+
+
 }

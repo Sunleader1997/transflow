@@ -10,6 +10,7 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.pf4j.Extension;
+import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
@@ -42,7 +43,7 @@ public class NettyInputExtension extends TransFlowInputWithoutHandler {
     }
 
     @Override
-    public HandleData dequeue() {
+    public Publisher<HandleData> dequeue() {
         HttpRequestData httpRequestData1 = httpRequestData.poll();
         if (httpRequestData1 != null) {
             return new HandleData(null, Collections.singletonList(new TransData(0L, httpRequestData1)));
