@@ -51,6 +51,7 @@ public class ScriptGatewayExt extends DefaultMiddleExtensionWithHandler {
         @Override
         public Boolean resolve(TransData transData) {
             JSONObject jsonObject = transData.getData(JSONObject.class);
+            transData.setData(jsonObject);
             script.setProperty("data", jsonObject);
             Object o = script.run();
             return o instanceof Boolean && Boolean.TRUE.equals(o);

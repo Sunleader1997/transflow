@@ -15,10 +15,9 @@ public class TransData implements Serializable {
     }
 
     public <T> T getData(Class<T> clazz) {
-        // 如果对象是这个类型，就直接返回原来的对象
         if (clazz.isInstance(data)) {
             return clazz.cast(data);
-        }else{// 如果对象不是这个类型，就进行类型转换，并替换掉原有的对象
+        }else{
             T resData = null;
             if (String.class.equals(clazz)) {
                 resData = clazz.cast(data.toString());
@@ -29,7 +28,6 @@ public class TransData implements Serializable {
                     resData = clazz.cast(JSONObject.parseObject(JSONObject.toJSONString(data)));
                 }
             }
-            this.setData(resData);
             return resData;
         }
     }
