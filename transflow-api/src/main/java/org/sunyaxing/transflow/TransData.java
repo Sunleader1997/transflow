@@ -5,42 +5,42 @@ import com.alibaba.fastjson2.JSONObject;
 import java.io.Serializable;
 
 
-public class TransData implements Serializable {
+public class TransData<T> implements Serializable {
     private Long offset;
-    private Object data;
+    private T data;
 
-    public TransData(Long offset, Object data) {
+    public TransData(Long offset, T data) {
         this.offset = offset;
         this.data = data;
     }
 
-    public <T> T getData(Class<T> clazz) {
-        if (clazz.isInstance(data)) {
-            return clazz.cast(data);
-        }else{
-            T resData = null;
-            if (String.class.equals(clazz)) {
-                resData = clazz.cast(data.toString());
-            } else if (JSONObject.class.equals(clazz)) {
-                if (data instanceof String) {
-                    resData = clazz.cast(JSONObject.parseObject((String) data));
-                } else {
-                    resData = clazz.cast(JSONObject.parseObject(JSONObject.toJSONString(data)));
-                }
-            }
-            return resData;
-        }
-    }
+//    public <T> T getData(Class<T> clazz) {
+//        if (clazz.isInstance(data)) {
+//            return clazz.cast(data);
+//        }else{
+//            T resData = null;
+//            if (String.class.equals(clazz)) {
+//                resData = clazz.cast(data.toString());
+//            } else if (JSONObject.class.equals(clazz)) {
+//                if (data instanceof String) {
+//                    resData = clazz.cast(JSONObject.parseObject((String) data));
+//                } else {
+//                    resData = clazz.cast(JSONObject.parseObject(JSONObject.toJSONString(data)));
+//                }
+//            }
+//            return resData;
+//        }
+//    }
 
     public boolean isType(Class<?> tClass) {
         return tClass.isInstance(data);
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 

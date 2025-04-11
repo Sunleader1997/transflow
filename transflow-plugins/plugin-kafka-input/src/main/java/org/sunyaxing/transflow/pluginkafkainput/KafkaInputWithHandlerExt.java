@@ -11,8 +11,8 @@ import org.pf4j.Extension;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowInputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.function.Function;
 
 
 @Extension
-public class KafkaInputWithHandlerExt extends TransFlowInputWithHandler<ConsumerRecords<String, String>> {
+public class KafkaInputWithHandlerExt extends TransFlowInput<ConsumerRecords<String, String>, String> {
     private static final Logger log = LogManager.getLogger(KafkaInputWithHandlerExt.class);
     private String groupId;
     private KafkaConsumer<String, String> kafkaConsumer;
@@ -37,16 +37,20 @@ public class KafkaInputWithHandlerExt extends TransFlowInputWithHandler<Consumer
             while (!Thread.currentThread().isInterrupted()) {
                 // kafka 批量消费
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+                this.handlerMap.forEach((handlerId, handler) -> {
+
+                });
                 if (!consumerRecords.isEmpty()) {
-                    // 数据提交给 handler
-                    this.handlerMap.forEach((handleId, handler) -> {
-                        // 负责将数据推送到队列
-                        handler.apply(consumerRecords);
-                    });
+                    this.putQueueLast(new HandleData<>(null, new TransData<>(null, consumerRecords)));
                     senNumb.addAndGet(consumerRecords.count());
                 }
             }
         });
+    }
+
+    @Override
+    protected HandleData<String> parseRToHandleData(HandleData<ConsumerRecords<String, String>> data) {
+        return null;
     }
 
     @Override
@@ -76,7 +80,18 @@ public class KafkaInputWithHandlerExt extends TransFlowInputWithHandler<Consumer
     }
 
     @Override
-    public Function<ConsumerRecords<String, String>, HandleData> parseHandleToConsumer(String handleId, String topic) {
+    public Function<TransData<ConsumerRecords<String, String>>, String> parseHandleToConsumer(String handleId, String topic) {
+        return tarnsData -> {
+            tarnsData.getData().records(topic).forEach(record -> {
+                TransData<String> transData = new TransData<>(record.offset(), record.value());
+                HandleData<String> handleData = new HandleData<>(handleId, transData);
+            });
+            return null;
+        };
+    }
+
+    @Override
+    public Function<ConsumerRecords<String, String>, String> s(String handleId, String topic) {
         return consumerRecords -> {
             consumerRecords.records(topic).forEach(record -> {
                 TransData transData = new TransData(record.offset(), record.value());
@@ -86,7 +101,20 @@ public class KafkaInputWithHandlerExt extends TransFlowInputWithHandler<Consumer
             return null;
         };
     }
+    public static class KafkaInputFunction implements Function<TransData<ConsumerRecords<String, String>>, String> {
+        private final String topic;
+        public KafkaInputFunction(String topic) {
+            this.topic = topic;
+        }
 
+        @Override
+        public String apply(TransData<ConsumerRecords<String, String>> consumerRecordsTransData) {
+            consumerRecordsTransData.getData().records(topic).forEach(record -> {
+
+            });
+            return consumerRecords.records();
+        }
+    }
     @Override
     public void destroy() {
         log.info("kafka 消费者 执行清理");

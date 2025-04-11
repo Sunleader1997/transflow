@@ -5,7 +5,7 @@ import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.controllers.EventWsController;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;

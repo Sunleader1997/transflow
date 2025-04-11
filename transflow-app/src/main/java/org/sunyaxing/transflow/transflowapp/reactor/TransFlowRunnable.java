@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
@@ -16,11 +16,11 @@ public class TransFlowRunnable implements Disposable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
-    private final Flux<HandleData> dataDequeue;
+    private final Flux<HandleData<Object>> dataDequeue;
     private final Scheduler processScheduler;
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
-    private final TransFlowInput<?> input;
+    private final TransFlowInput<Object,Object,Object> input;
     @Getter
     private final TransFlowChain<TransFlowInput> chain;
 

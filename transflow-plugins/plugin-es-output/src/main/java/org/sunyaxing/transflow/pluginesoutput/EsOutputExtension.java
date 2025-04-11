@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowOutputWithHandler;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.io.IOException;

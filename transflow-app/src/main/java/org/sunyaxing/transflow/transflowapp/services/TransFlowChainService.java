@@ -4,7 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sunyaxing.transflow.extensions.TransFlowInput;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;

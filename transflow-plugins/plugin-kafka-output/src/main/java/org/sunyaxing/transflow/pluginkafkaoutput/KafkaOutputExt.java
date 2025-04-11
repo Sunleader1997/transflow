@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowOutputWithHandler;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;

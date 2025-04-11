@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.sunyaxing.transflow.plugins.TransFlowFilterPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowGatewayPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowInputPlugin;
 import org.sunyaxing.transflow.plugins.TransFlowOutputPlugin;
@@ -46,8 +45,6 @@ public class PluginsController {
             Plugin plugin = pluginWrapper.getPlugin();
             if (plugin instanceof TransFlowInputPlugin) {
                 pluginListDto.setType("input");
-            } else if (plugin instanceof TransFlowFilterPlugin) {
-                pluginListDto.setType("filter");
             } else if (plugin instanceof TransFlowOutputPlugin) {
                 pluginListDto.setType("output");
             } else if(plugin instanceof TransFlowGatewayPlugin){

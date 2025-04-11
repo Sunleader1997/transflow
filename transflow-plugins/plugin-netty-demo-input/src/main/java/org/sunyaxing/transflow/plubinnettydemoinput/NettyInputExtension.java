@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.TransFlowInputWithoutHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.Collections;

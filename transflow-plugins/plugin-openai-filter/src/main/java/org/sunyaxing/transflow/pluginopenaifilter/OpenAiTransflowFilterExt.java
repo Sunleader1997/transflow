@@ -8,14 +8,14 @@ import io.github.pigmesh.ai.deepseek.core.chat.ResponseFormatType;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.DefaultMiddleExtensionWithHandler;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowMiddleGatewayHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 
 import java.util.List;
 import java.util.function.Function;
 
 @Extension
-public class OpenAiTransflowFilterExt extends DefaultMiddleExtensionWithHandler {
+public class OpenAiTransflowFilterExt extends TransFlowMiddleGatewayHandler {
     private DeepSeekClient deepSeekClient;
 
     public OpenAiTransflowFilterExt(ExtensionContext extensionContext) {
