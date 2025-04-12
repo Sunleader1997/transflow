@@ -10,44 +10,47 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Stream;
 
 /**
  * 一个 input插件
- *
- * @param <T> 接收一个 HandleData<T> 的消息
- * @param <R> 转换成 HandleData<R> 的消息
- * @param <R> 处理器处理 <T> 返回一个 <R> 的消息
+ * input 生产数据（需要子类自己实现），这个数据是 FT
+ * 调用 input 的 handler 接收 input 生产的 FT 数据，将其转换成队列内的 HandleData<FR> 数据（需要子类自己实现）, 并塞到队列
+ * 主线程会从队列内批量拉取 HandleData<FR> 数据去消费
  */
-public abstract class TransFlowInput<T, R> extends ExtensionLifecycle<T, R, R> {
+public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> {
     // 存储 input 所生产的数据
-    private final BlockingDeque<HandleData<T>> blockingDeque;
+    private final BlockingDeque<HandleData<FR>> blockingDeque;
 
     public TransFlowInput(ExtensionContext extensionContext) {
         super(extensionContext);
         this.blockingDeque = new LinkedBlockingDeque<>(10000);
     }
 
-    public abstract void commit(HandleData<R> handleData);
+    public abstract void commit(HandleData<FR> handleData);
+
+    /**
+     * 接受一个 HandleData, 交给 handler 处理
+     * 处理后返回的数据将会塞进队列
+     */
+    public void handle(String handleId, TransData<FT> transData) {
+        FR handlerReturn = this.handlerMap.get(handleId).apply(transData);
+        HandleData<FR> handleData = new HandleData<>(handleId, new TransData<>(transData.getOffset(), handlerReturn));
+        this.putQueueLast(handleData);
+    }
 
     /**
      * 主线程会调用此方法批量拉取数据
-     * 调用 parseRToHandleData 将数据从 HandleData<T> 转换成 HandleData<R>
      */
-    public Publisher<HandleData<R>> dequeue() {
+    public Publisher<HandleData> dequeue() {
         try {
-            List<HandleData<T>> dataList = new ArrayList<>();
+            List<HandleData<FR>> dataList = new ArrayList<>();
             // 一次消费多条信息
             blockingDeque.drainTo(dataList, 1000);
             if (!dataList.isEmpty()) {
-                Stream<HandleData<R>> stream = dataList.stream().map(tHandleData -> {
-                    String handleId = tHandleData.getHandleId();
-                    R res = this.handlerMap.get(handleId).apply(tHandleData.getTransData());
-                    return new HandleData<R>(handleId, new TransData<R>(tHandleData.getTransData().getOffset(), res));
-                });
+                Stream<HandleData<FR>> stream = dataList.stream();
                 return Flux.fromStream(stream);
             } else {
                 return Mono.empty();
@@ -58,25 +61,13 @@ public abstract class TransFlowInput<T, R> extends ExtensionLifecycle<T, R, R> {
     }
 
     /**
-     * 子类实现此方法，将数据转换成 HandleData
-     * 以指定该条数据产自哪一个 handler
-     */
-    protected abstract HandleData<R> parseRToHandleData(HandleData<T> data);
-
-    /**
      * 插件需要调用此方法推送 HandleData<T> 数据
      */
-    public void putQueueLast(HandleData<T> data) {
+    public void putQueueLast(HandleData<FR> data) {
         try {
             blockingDeque.putLast(data);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public Optional<HandleData<R>> exec(HandleData<T> handleData) {
-        R res = this.handlerMap.get(handleData.getHandleId()).apply(handleData.getTransData());
-        return Optional.of(new HandleData<R>(handleData.getHandleId(), new TransData<R>(handleData.getTransData().getOffset(), res)));
     }
 }

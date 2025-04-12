@@ -2,6 +2,7 @@ package org.sunyaxing.transflow.pluginkafkainput;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -18,46 +19,25 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 
 @Extension
-public class KafkaInputWithHandlerExt extends TransFlowInput<ConsumerRecords<String, String>, String> {
+public class KafkaInputWithHandlerExt extends TransFlowInput<ConsumerRecord<String, String>, String> {
     private static final Logger log = LogManager.getLogger(KafkaInputWithHandlerExt.class);
     private String groupId;
     private KafkaConsumer<String, String> kafkaConsumer;
-    private final AtomicLong senNumb = new AtomicLong(0);
-    private final Thread kafkaConsumerThread;
+    private Thread kafkaConsumerThread;
 
     public KafkaInputWithHandlerExt(ExtensionContext extensionContext) {
         super(extensionContext);
         log.info("create");
-        this.kafkaConsumerThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                // kafka 批量消费
-                ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
-                this.handlerMap.forEach((handlerId, handler) -> {
-
-                });
-                if (!consumerRecords.isEmpty()) {
-                    this.putQueueLast(new HandleData<>(null, new TransData<>(null, consumerRecords)));
-                    senNumb.addAndGet(consumerRecords.count());
-                }
-            }
-        });
     }
 
     @Override
-    protected HandleData<String> parseRToHandleData(HandleData<ConsumerRecords<String, String>> data) {
-        return null;
-    }
+    public void commit(HandleData<String> handleData) {
 
-    @Override
-    public void commit(HandleData offset) {
-//        log.info("提交偏移量 {}", offset);
     }
-
 
     @Override
     protected void afterInitHandler(JSONObject config, List<Handle> handles) {
@@ -77,44 +57,31 @@ public class KafkaInputWithHandlerExt extends TransFlowInput<ConsumerRecords<Str
             topic.add(handle.getValue());
         });
         this.kafkaConsumer.subscribe(topic);
+
+        this.kafkaConsumerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                // kafka 批量消费
+                ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
+                consumerRecords.forEach(consumerRecord -> {
+                    // 通过 topic 获取 handleId
+                    String recordTopic = consumerRecord.topic();
+                    String handleId = this.findHandleIdByValue(recordTopic);
+                    TransData<ConsumerRecord<String, String>> transData = new TransData<>(consumerRecord.offset(), consumerRecord);
+                    this.handle(handleId, transData);
+                });
+            }
+        });
+        this.kafkaConsumerThread.start();
     }
 
     @Override
-    public Function<TransData<ConsumerRecords<String, String>>, String> parseHandleToConsumer(String handleId, String topic) {
+    public Function<TransData<ConsumerRecord<String, String>>, String> parseHandleToConsumer(String handleId, String topic) {
         return tarnsData -> {
-            tarnsData.getData().records(topic).forEach(record -> {
-                TransData<String> transData = new TransData<>(record.offset(), record.value());
-                HandleData<String> handleData = new HandleData<>(handleId, transData);
-            });
-            return null;
+            ConsumerRecord<String, String> record = tarnsData.getData();
+            return record.value();
         };
     }
 
-    @Override
-    public Function<ConsumerRecords<String, String>, String> s(String handleId, String topic) {
-        return consumerRecords -> {
-            consumerRecords.records(topic).forEach(record -> {
-                TransData transData = new TransData(record.offset(), record.value());
-                HandleData handleData = new HandleData(handleId, transData);
-                this.putQueueLast(handleData);
-            });
-            return null;
-        };
-    }
-    public static class KafkaInputFunction implements Function<TransData<ConsumerRecords<String, String>>, String> {
-        private final String topic;
-        public KafkaInputFunction(String topic) {
-            this.topic = topic;
-        }
-
-        @Override
-        public String apply(TransData<ConsumerRecords<String, String>> consumerRecordsTransData) {
-            consumerRecordsTransData.getData().records(topic).forEach(record -> {
-
-            });
-            return consumerRecords.records();
-        }
-    }
     @Override
     public void destroy() {
         log.info("kafka 消费者 执行清理");

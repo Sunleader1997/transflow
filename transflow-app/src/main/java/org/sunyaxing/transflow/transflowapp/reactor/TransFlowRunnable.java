@@ -16,11 +16,11 @@ public class TransFlowRunnable implements Disposable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
-    private final Flux<HandleData<Object>> dataDequeue;
+    private final Flux<HandleData> dataDequeue;
     private final Scheduler processScheduler;
     private final Scheduler dequeueScheduler;
     private Disposable disposable;
-    private final TransFlowInput<Object,Object,Object> input;
+    private final TransFlowInput input;
     @Getter
     private final TransFlowChain<TransFlowInput> chain;
 

@@ -18,7 +18,7 @@ import java.util.function.Function;
  * 同时拥有输入输出
  * 通过处理器决定是否往后发送数据
  */
-public abstract class TransFlowMiddleGatewayHandler<T> extends TransFlowMiddleHandler<T, T, Boolean> {
+public abstract class TransFlowMiddleGatewayHandler<T> extends TransFlowMiddleHandler<T, Boolean, T> {
     private static final Logger log = LoggerFactory.getLogger(TransFlowMiddleGatewayHandler.class);
 
 

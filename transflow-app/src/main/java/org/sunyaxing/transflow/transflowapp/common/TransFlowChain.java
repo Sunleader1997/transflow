@@ -5,8 +5,9 @@ import org.pf4j.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
-import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
+import org.sunyaxing.transflow.extensions.base.ExecutableExt;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 import org.sunyaxing.transflow.transflowapp.controllers.EventWsController;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
@@ -108,13 +109,19 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
     public void handle(HandleData handleData) {
         if (handleData != null) {
             this.recAtomic.incrementAndGet();
-            // 本节点先处理数据
-            Optional<HandleData> result = this.currentNode.exec(handleData);
-            result.ifPresent(dataToNextNode -> {
+            // 本节点先处理数据，将结果就发给下一个节点
+            // 如果是 input 节点则不需要处理
+            Optional<HandleData> dataToNextNode;
+            if (this.currentNode instanceof ExecutableExt) {
+                dataToNextNode = ((ExecutableExt) this.currentNode).exec(handleData);
+            } else {
+                dataToNextNode = Optional.of(handleData);
+            }
+            dataToNextNode.ifPresent(data -> {
                 // 选择该数据对应的下一个连线
-                List<NodeLinkBo> links = this.selectOutHandle(dataToNextNode);
+                List<NodeLinkBo> links = this.selectOutHandle(data);
                 // 将该数据发送到下一个节点
-                this.sendDataToNextHandle(dataToNextNode, links);
+                this.sendDataToNextHandle(data, links);
             });
         }
     }
