@@ -18,15 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Extension
-public class EsOutputExtension extends TransFlowOutputWithHandler<List<IndexRequest>> {
+public class EsOutputExtension extends TransFlowOutputWithHandler<String, IndexRequest> {
     private static final Logger log = LoggerFactory.getLogger(EsOutputExtension.class);
     private RestHighLevelClient restHighLevelClient;
 
@@ -36,7 +36,7 @@ public class EsOutputExtension extends TransFlowOutputWithHandler<List<IndexRequ
 
 
     @Override
-    protected void execData(List<IndexRequest> indexRequests) {
+    protected void batchExec(List<IndexRequest> indexRequests) {
         BulkRequest bulkRequest = new BulkRequest();
         try {
             indexRequests.forEach(bulkRequest::add);
@@ -69,15 +69,10 @@ public class EsOutputExtension extends TransFlowOutputWithHandler<List<IndexRequ
     }
 
     @Override
-    public Function<List<TransData>, List<IndexRequest>> parseHandleToHandler(String handleId, String indexName) {
-        return new Handler<List<TransData>, List<IndexRequest>>() {
-            @Override
-            public List<IndexRequest> resolve(List<TransData> transDatas) {
-                return transDatas.stream().map(transData -> {
-                    JSONObject sourceData = transData.getData(JSONObject.class);
-                    return new IndexRequest(indexName, "_doc").source(sourceData);
-                }).collect(Collectors.toList());
-            }
+    public Function<TransData<String>, IndexRequest> parseHandleToConsumer(String handleId, String handleValue) {
+        return transData -> {
+            JSONObject sourceData = JSONObject.parseObject(transData.getData());
+            return new IndexRequest(handleValue, "_doc").source(sourceData);
         };
     }
 

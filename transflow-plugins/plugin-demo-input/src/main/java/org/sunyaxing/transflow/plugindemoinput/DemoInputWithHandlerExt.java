@@ -11,7 +11,6 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Extension
@@ -25,26 +24,25 @@ public class DemoInputWithHandlerExt extends TransFlowInput<String, String> {
     }
 
     @Override
-    public void commit(HandleData<String> handleData) {
-
-    }
-
-    @Override
     protected void afterInitHandler(JSONObject config, List<Handle> handles) {
-        inputDemoThead.start();
         this.inputDemoThead = new Thread(() -> {
-            this.handlerMap.forEach((handlerId, handler) -> {
-                handler.apply(null);
+            handles.forEach(handle -> {
+                String handleValue = handle.getValue();
+                TransData<String> transData = new TransData<>(0L, handleValue);
+                this.handle(handle.getId(), transData);
             });
         });
+        inputDemoThead.start();
     }
 
     @Override
     public Function<TransData<String>, String> parseHandleToConsumer(String handleId, String handleValue) {
-        return data->{
+        return TransData::getData;
+    }
 
-            return null;
-        };
+    @Override
+    public void commit(HandleData<String> handleData) {
+
     }
 
     @Override
