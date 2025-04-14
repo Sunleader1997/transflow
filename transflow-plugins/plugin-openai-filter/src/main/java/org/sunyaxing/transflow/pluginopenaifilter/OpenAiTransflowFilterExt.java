@@ -8,14 +8,14 @@ import io.github.pigmesh.ai.deepseek.core.chat.ResponseFormatType;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowMiddleGatewayHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowMiddleGatewayHandler;
 
 import java.util.List;
 import java.util.function.Function;
 
 @Extension
-public class OpenAiTransflowFilterExt extends TransFlowMiddleGatewayHandler {
+public class OpenAiTransflowFilterExt extends TransFlowMiddleGatewayHandler<String> {
     private DeepSeekClient deepSeekClient;
 
     public OpenAiTransflowFilterExt(ExtensionContext extensionContext) {
@@ -32,13 +32,13 @@ public class OpenAiTransflowFilterExt extends TransFlowMiddleGatewayHandler {
     }
 
     @Override
-    public Function<TransData, Boolean> parseHandleToConsumer(String handleId, String prompt) {
+    public Function<TransData<String>, Boolean> parseHandleToConsumer(String handleId, String prompt) {
         return transData -> {
             ChatCompletionRequest request = ChatCompletionRequest.builder()
                     // 模型选择，支持 DEEPSEEK_CHAT、DEEPSEEK_REASONER 等
                     .model(ChatCompletionModel.DEEPSEEK_REASONER)
                     .addSystemMessage(prompt)
-                    .addUserMessage(transData.getData(String.class))
+                    .addUserMessage(transData.getData())
                     .maxTokens(1000)
                     .responseFormat(ResponseFormatType.JSON_OBJECT)
                     //.tools(...) // 可选

@@ -1,5 +1,6 @@
 package org.sunyaxing.transflow.extensions.base.types;
 
+import org.pf4j.util.StringUtils;
 import org.reactivestreams.Publisher;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
@@ -36,9 +37,17 @@ public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> 
      * 处理后返回的数据将会塞进队列
      */
     public void handle(String handleId, TransData<FT> transData) {
+        if(StringUtils.isNullOrEmpty(handleId) || !this.handlerMap.containsKey(handleId)){
+            return;
+        }
         FR handlerReturn = this.handlerMap.get(handleId).apply(transData);
         HandleData<FR> handleData = new HandleData<>(handleId, new TransData<>(transData.getOffset(), handlerReturn));
         this.putQueueLast(handleData);
+    }
+
+    public void handleByValue(String handleValue, TransData<FT> transData){
+        String handleId = this.findHandleIdByValue(handleValue);
+        handle(handleId, transData);
     }
 
     /**

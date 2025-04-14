@@ -2,6 +2,8 @@ package org.sunyaxing.transflow.extensions.base.typesimpl;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
@@ -10,6 +12,7 @@ import org.sunyaxing.transflow.extensions.base.types.TransFlowOutput;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,32 +28,38 @@ import java.util.function.Function;
  */
 public abstract class TransFlowOutputWithHandler<T, FR> extends TransFlowOutput<T, FR> {
 
+    private static final Logger log = LoggerFactory.getLogger(TransFlowOutputWithHandler.class);
     protected final AtomicLong rec = new AtomicLong(0);
     // 存储 input 所生产的数据
     private final BlockingDeque<FR> blockingDeque;
     private final Flux<List<FR>> flux;
-    private final Disposable disposable;
+    private Disposable disposable;
 
     public TransFlowOutputWithHandler(ExtensionContext extensionContext) {
         super(extensionContext);
         this.blockingDeque = new LinkedBlockingDeque<>(10000);
         this.flux = Flux.defer(this::batchDequeue).repeat();
-        this.disposable = Flux.<List<FR>>from(this.flux)
-                .subscribe(this::batchExec);
     }
 
     @Override
-    public Optional<HandleData<FR>> exec(HandleData<T> handleData) throws InterruptedException {
+    public Optional<HandleData<FR>> exec(HandleData<T> handleData) {
         rec.incrementAndGet();
         Function<TransData<T>, FR> handler = this.handlerMap.get(handleData.getHandleId());
         FR res = handler.apply(handleData.getTransData());
-        this.blockingDeque.putLast(res);
+        try {
+            this.blockingDeque.putLast(res);
+        } catch (Exception e) {
+            log.error("数据队列 putLast 出现异常", e);
+        }
         return Optional.empty();
     }
 
     @Override
     protected void initForHandle(JSONObject config, List<Handle> handles) {
         super.initForHandle(config, handles);
+        this.disposable = Flux.<List<FR>>from(this.flux)
+                .subscribeOn(Schedulers.newSingle("batchOuter"))
+                .subscribe(this::batchExec);
     }
 
     @Override

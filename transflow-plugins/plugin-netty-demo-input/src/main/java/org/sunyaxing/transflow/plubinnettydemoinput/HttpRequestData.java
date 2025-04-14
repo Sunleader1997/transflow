@@ -9,10 +9,12 @@ import java.util.List;
 
 public class HttpRequestData {
 
+    private String uri;
     private JSONObject header;
     private List<FileData> fileData;
 
     public HttpRequestData() {
+        this.uri = null;
         this.header = new JSONObject();
         this.fileData = new ArrayList<>();
     }
@@ -88,5 +90,13 @@ public class HttpRequestData {
 
     public void addHeader(String key, String value) {
         this.header.put(key, value);
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

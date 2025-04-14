@@ -10,42 +10,23 @@ import org.apache.logging.log4j.Logger;
 import org.pf4j.Extension;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
-import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowOutputWithHandler;
 
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Extension
-public class KafkaOutputExt extends TransFlowOutputWithHandler<List<ProducerRecord<Object, String>>> {
+public class KafkaOutputExt extends TransFlowOutputWithHandler<String, ProducerRecord<Object, String>> {
     private static final Logger log = LogManager.getLogger(KafkaOutputExt.class);
 
     private KafkaProducer<Object, String> producer;
-    private AtomicLong rec = new AtomicLong(0L);
 
     public KafkaOutputExt(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
-    @Override
-    protected void execData(List<ProducerRecord<Object, String>> datas) {
-        rec.addAndGet(datas.size());
-        datas.forEach(producerRecord -> {
-            this.producer.send(producerRecord, (metadata, e) -> {
-                if (e != null) {
-                    log.error("kafka output 异常", e);
-                }
-            });
-        });
-    }
-
-    @Override
-    public Function<List<TransData>, List<ProducerRecord<Object, String>>> parseHandleToConsumer(String handleId, String topic) {
-        return new KafkaOutputHandler(topic);
-    }
 
     @Override
     public void afterInitHandler(JSONObject config, List<Handle> handles) {
@@ -63,23 +44,26 @@ public class KafkaOutputExt extends TransFlowOutputWithHandler<List<ProducerReco
     }
 
     @Override
+    public Function<TransData<String>, ProducerRecord<Object, String>> parseHandleToConsumer(String handleId, String topic) {
+        return transData -> {
+            return new ProducerRecord<>(topic, transData.getData());
+        };
+    }
+
+    @Override
     public void destroy() {
         log.info("kafka 生产者 资源清理");
         this.producer.close();
     }
 
-    public static class KafkaOutputHandler implements Handler<List<TransData>, List<ProducerRecord<Object, String>>> {
-        private final String topic;
-
-        public KafkaOutputHandler(String topic) {
-            this.topic = topic;
-        }
-
-        @Override
-        public List<ProducerRecord<Object, String>> resolve(List<TransData> datas) {
-            return datas.stream().map(transData -> {
-                return new ProducerRecord<>(topic, transData.getData(String.class));
-            }).collect(Collectors.toList());
-        }
+    @Override
+    protected void batchExec(List<ProducerRecord<Object, String>> dataList) {
+        dataList.forEach(record -> {
+            try {
+                this.producer.send(record);
+            } catch (Exception e) {
+                log.error("kafka 发送异常", e);
+            }
+        });
     }
 }

@@ -28,7 +28,7 @@ public class TransFlowRunnable implements Disposable {
         this.input = chain.getCurrentNode();
         this.chain = chain;
         // 手动结束 dequeue 线程后，执行 this.chain::dispose 销毁 input chain
-        this.dataDequeue = Flux.defer(this.input::dequeue).repeat().doOnCancel(this.chain::dispose);
+        this.dataDequeue = Flux.<HandleData>defer(this.input::dequeue).repeat().doOnCancel(this.chain::dispose);
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
         this.run();

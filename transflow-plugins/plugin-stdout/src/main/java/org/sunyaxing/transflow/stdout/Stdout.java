@@ -38,4 +38,9 @@ public class Stdout extends TransFlowOutputWithHandler<String, String> {
     public void destroy() {
         logger.info("销毁连接");
     }
+
+    @Override
+    protected void batchExec(List<String> dataList) {
+
+    }
 }

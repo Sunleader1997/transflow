@@ -29,6 +29,7 @@ public class MainHandler extends MyAggregator {
     public void handleHttpRequest(ChannelHandlerContext ctx, HttpRequest msg) {
         this.httpRequestData = new HttpRequestData();
         this.httpRequest = msg;
+        this.httpRequestData.setUri(msg.uri());
         if (isMultipart()) {
             this.httpPostRequestDecoder = new HttpPostRequestDecoder(new DefaultHttpDataFactory(true), msg);
         } else {

@@ -26,11 +26,13 @@ public class DemoInputWithHandlerExt extends TransFlowInput<String, String> {
     @Override
     protected void afterInitHandler(JSONObject config, List<Handle> handles) {
         this.inputDemoThead = new Thread(() -> {
-            handles.forEach(handle -> {
-                String handleValue = handle.getValue();
-                TransData<String> transData = new TransData<>(0L, handleValue);
-                this.handle(handle.getId(), transData);
-            });
+            while (!Thread.currentThread().isInterrupted()){
+                handles.forEach(handle -> {
+                    String handleValue = handle.getValue();
+                    TransData<String> transData = new TransData<>(0L, handleValue);
+                    this.handle(handle.getId(), transData);
+                });
+            }
         });
         inputDemoThead.start();
     }

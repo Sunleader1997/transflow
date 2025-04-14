@@ -10,44 +10,33 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.pf4j.Extension;
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
+import org.sunyaxing.transflow.extensions.base.InputUtil;
+import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Function;
 
 @Extension
-public class NettyInputExtension extends TransFlowInputWithoutHandler {
+public class NettyInputExtension extends TransFlowInput<HttpRequestData, String> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyInputExtension.class);
     private EventLoopGroup boss;
     private EventLoopGroup worker;
     private ChannelFuture future;
-    public static BlockingDeque<HttpRequestData> httpRequestData = new LinkedBlockingDeque<>(1000);
 
     public NettyInputExtension(ExtensionContext extensionContext) {
         super(extensionContext);
     }
 
     @Override
-    public void commit(HandleData handleData) {
+    public void commit(HandleData<String> handleData) {
 
-    }
-
-    @Override
-    public Publisher<HandleData> dequeue() {
-        HttpRequestData httpRequestData1 = httpRequestData.poll();
-        if (httpRequestData1 != null) {
-            return new HandleData(null, Collections.singletonList(new TransData(0L, httpRequestData1)));
-        }
-        return null;
     }
 
     @Override
@@ -61,7 +50,7 @@ public class NettyInputExtension extends TransFlowInputWithoutHandler {
         try {
             serverBootstrap.group(boss, worker)
                     .channel(Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-                    .childHandler(new TransflowChannelInitializer())
+                    .childHandler(new TransflowChannelInitializer(new InputUtil<>(this)))
                     .childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(131072))
                     .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(32 * 1024, 128 * 1024))
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
@@ -78,6 +67,13 @@ public class NettyInputExtension extends TransFlowInputWithoutHandler {
             worker.shutdownGracefully();
         } finally {
         }
+    }
+
+    @Override
+    public Function<TransData<HttpRequestData>, String> parseHandleToConsumer(String handleId, String handleValue) {
+        return transData -> {
+            return JSONObject.toJSONString(transData.getData());
+        };
     }
 
     @Override
