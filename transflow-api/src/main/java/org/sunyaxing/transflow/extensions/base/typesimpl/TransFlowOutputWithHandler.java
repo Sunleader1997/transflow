@@ -29,7 +29,6 @@ import java.util.function.Function;
 public abstract class TransFlowOutputWithHandler<T, FR> extends TransFlowOutput<T, FR> {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowOutputWithHandler.class);
-    protected final AtomicLong rec = new AtomicLong(0);
     // 存储 input 所生产的数据
     private final BlockingDeque<FR> blockingDeque;
     private final Flux<List<FR>> flux;
@@ -43,7 +42,6 @@ public abstract class TransFlowOutputWithHandler<T, FR> extends TransFlowOutput<
 
     @Override
     public Optional<HandleData<FR>> exec(HandleData<T> handleData) {
-        rec.incrementAndGet();
         Function<TransData<T>, FR> handler = this.handlerMap.get(handleData.getHandleId());
         FR res = handler.apply(handleData.getTransData());
         try {

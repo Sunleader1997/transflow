@@ -12,6 +12,7 @@ import org.sunyaxing.transflow.extensions.base.ExtensionContext;
 import org.sunyaxing.transflow.extensions.base.typesimpl.TransFlowMiddleGatewayHandler;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 
 @Extension
@@ -43,20 +44,28 @@ public class ScriptGatewayExt extends TransFlowMiddleGatewayHandler<String> {
 
     public static class GatewayScriptMiddleHandler implements Function<TransData<String>, Boolean> {
         private final Script script;
+        private final ReentrantLock reentrantLock;
 
         public GatewayScriptMiddleHandler(Script script) {
             this.script = script;
+            this.reentrantLock = new ReentrantLock();
         }
 
         @Override
         public Boolean apply(TransData<String> transData) {
             String jsonString = transData.getData();
             JSONObject jsonObject = JSONObject.parse(jsonString);
-            script.setProperty("data", jsonObject);
-            Object o = script.run();
+            this.reentrantLock.lock();
+            Object result = null;
+            try{
+                script.setProperty("data", jsonObject);
+                result = script.run();
+            }finally {
+                this.reentrantLock.unlock();
+            }
             // 保存修改后的信息
             transData.setData(jsonObject.toJSONString());
-            return o instanceof Boolean && Boolean.TRUE.equals(o);
+            return result instanceof Boolean && Boolean.TRUE.equals(result);
         }
     }
 }

@@ -89,6 +89,8 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
                 HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
                 this.sendAtomic.incrementAndGet();
                 nextChain.handle(nextHandleData);
+            } else {
+                log.error("节点[{}]不存在", nextNodeId);
             }
             EventWsController.sendMessage("edge", linkBo.getId());
         });
@@ -100,8 +102,6 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
      */
     @Override
     public void dispose() {
-        // 结束当前线程
-        Thread.currentThread().interrupt();
         // 销毁节点的监听器
         this.currentNode.destroy();
     }

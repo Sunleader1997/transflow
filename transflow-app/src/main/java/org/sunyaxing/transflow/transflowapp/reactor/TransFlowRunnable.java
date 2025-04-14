@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-public class TransFlowRunnable implements Disposable {
+public class TransFlowRunnable {
 
     private static final Logger log = LoggerFactory.getLogger(TransFlowRunnable.class);
 
@@ -31,7 +31,6 @@ public class TransFlowRunnable implements Disposable {
         this.dataDequeue = Flux.<HandleData>defer(this.input::dequeue).repeat().doOnCancel(this.chain::dispose);
         this.processScheduler = Schedulers.newBoundedElastic(Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, "data");
         this.dequeueScheduler = Schedulers.newSingle("dequeue");
-        this.run();
     }
 
     private Mono<Void> dataFlowWithEachFilter(HandleData handleData) {
@@ -41,7 +40,7 @@ public class TransFlowRunnable implements Disposable {
             // 交给 chain 处理
             this.chain.handle(handleData);
         }), dataBk -> {
-            input.commit(handleData);
+            this.input.commit(handleData);
         });
     }
 
@@ -61,11 +60,25 @@ public class TransFlowRunnable implements Disposable {
                 .subscribe();
     }
 
-    @Override
-    public void dispose() {
+    /**
+     * 销毁线程
+     *
+     * @param safe 是否安全关闭
+     *             true 安全关闭，不会销毁整个链路数据传输
+     *             false 强制关闭，直接销毁整个链路数据传输
+     */
+    public void dispose(boolean safe) {
         try {
-            // 结束 dequeue 线程
-            this.disposable.dispose();
+            // 销毁 input 线程，不再产生数据
+            this.input.destroy();
+        } catch (Exception e) {
+            log.error("销毁 input 异常", e);
+        }
+        try {
+            if (!safe) {
+                // 结束 数据链路传输
+                this.disposable.dispose();
+            }
         } catch (Exception e) {
             log.error("销毁线程异常", e);
         }

@@ -8,6 +8,7 @@ public class ChainManager {
     public final static Map<String, TransFlowChain<?>> CHAIN_CACHE = new ConcurrentHashMap<>();
 
     public static void addChainCache(TransFlowChain<?> chain) {
+        // 如果节点已经在全局中存在，就销毁重建
         if (CHAIN_CACHE.containsKey(chain.getNodeId())) {
             // 销毁线程
             CHAIN_CACHE.get(chain.getNodeId()).dispose();

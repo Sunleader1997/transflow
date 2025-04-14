@@ -3,7 +3,6 @@ package org.sunyaxing.transflow.transflowapp.controllers;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
@@ -69,21 +68,21 @@ public class TransFlowJobController {
         return Result.success(true);
     }
 
-    @PostMapping("/job/build")
-    public Result<Boolean> jobBuild(@RequestBody JobBo jobBo) {
-        transFlowChainService.buildChain(jobBo.getId());
-        return Result.success(true);
-    }
-
     @PostMapping("/job/run")
     public Result<Boolean> runJob(@RequestBody JobBo jobBo) {
-        transFlowChainService.run(jobBo.getId());
+        transFlowChainService.safeRune(jobBo.getId());
         return Result.success(true);
     }
 
     @PostMapping("/job/stop")
     public Result<Boolean> runStop(@RequestBody JobBo jobBo) {
-        transFlowChainService.stop(jobBo.getId());
+        transFlowChainService.stop(jobBo.getId(), true);
+        return Result.success(true);
+    }
+
+    @PostMapping("/job/stopNow")
+    public Result<Boolean> stopNow(@RequestBody JobBo jobBo) {
+        transFlowChainService.stop(jobBo.getId(), false);
         return Result.success(true);
     }
 

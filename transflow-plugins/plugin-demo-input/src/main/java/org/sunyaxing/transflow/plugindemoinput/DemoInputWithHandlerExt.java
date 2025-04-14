@@ -17,6 +17,7 @@ import java.util.function.Function;
 public class DemoInputWithHandlerExt extends TransFlowInput<String, String> {
     private static final Logger log = LogManager.getLogger(DemoInputWithHandlerExt.class);
     private Thread inputDemoThead;
+    private boolean isStop = false;
 
     public DemoInputWithHandlerExt(ExtensionContext extensionContext) {
         super(extensionContext);
@@ -26,7 +27,7 @@ public class DemoInputWithHandlerExt extends TransFlowInput<String, String> {
     @Override
     protected void afterInitHandler(JSONObject config, List<Handle> handles) {
         this.inputDemoThead = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()){
+            while (!Thread.currentThread().isInterrupted() && !isStop){
                 handles.forEach(handle -> {
                     String handleValue = handle.getValue();
                     TransData<String> transData = new TransData<>(0L, handleValue);
@@ -50,6 +51,7 @@ public class DemoInputWithHandlerExt extends TransFlowInput<String, String> {
     @Override
     public void destroy() {
         log.info("销毁生产线程");
+        this.isStop = true;
         this.inputDemoThead.interrupt();
     }
 
