@@ -65,7 +65,6 @@ public class DirFileWatcher extends FileAlterationListenerAdaptor implements App
             log.info("开启插件 {}", pluginId);
             // 开启插件
             pluginManager.startPlugin(pluginId);
-
         } catch (Exception e) {
             log.error("加载插件失败", e);
         }

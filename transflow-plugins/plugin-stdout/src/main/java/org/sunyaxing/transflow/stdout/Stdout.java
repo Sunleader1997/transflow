@@ -29,7 +29,7 @@ public class Stdout extends TransFlowOutputWithHandler<String, String> {
     @Override
     public Function<TransData<String>, String> parseHandleToConsumer(String handleId, String handleValue) {
         return transData -> {
-            logger.info("接收到数据，等待处理 {}", transData);
+            logger.info("接收到数据，等待处理 {}", transData.getData());
             return transData.getData();
         };
     }

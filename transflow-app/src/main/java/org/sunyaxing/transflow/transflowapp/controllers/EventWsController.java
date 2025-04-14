@@ -85,13 +85,19 @@ public class EventWsController implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // 多线程吐大量数据websocket会报错，必须单线程限流
-        while (!Thread.currentThread().isInterrupted()) {
-            ThreadUtil.sleep(msgQueue.size());// 吞吐量大时就降速，避免前端处理不过来
-            String queue = msgQueue.poll(1, TimeUnit.SECONDS);
-            if (StringUtils.isNotNullOrEmpty(queue)) {
-                sendMessage(queue);
+        ThreadUtil.execute(() -> {
+            // 多线程吐大量数据websocket会报错，必须单线程限流
+            while (!Thread.currentThread().isInterrupted()) {
+                ThreadUtil.sleep(msgQueue.size());// 吞吐量大时就降速，避免前端处理不过来
+                try{
+                    String queue = msgQueue.poll(1, TimeUnit.SECONDS);
+                    if (StringUtils.isNotNullOrEmpty(queue)) {
+                        sendMessage(queue);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-        }
+        });
     }
 }

@@ -107,7 +107,7 @@ public class TransFlowChainService implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
         jobService.lambdaQuery()
                 .eq(JobEntity::getRestart, true)
                 .list()
