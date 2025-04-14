@@ -2,6 +2,8 @@ package org.sunyaxing.transflow.extensions.base.types;
 
 import org.pf4j.util.StringUtils;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyaxing.transflow.HandleData;
 import org.sunyaxing.transflow.TransData;
 import org.sunyaxing.transflow.extensions.base.ExtensionContext;
@@ -22,6 +24,7 @@ import java.util.stream.Stream;
  * 主线程会从队列内批量拉取 HandleData<FR> 数据去消费
  */
 public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> {
+    private static final Logger log = LoggerFactory.getLogger(TransFlowInput.class);
     // 存储 input 所生产的数据
     private final BlockingDeque<HandleData<FR>> blockingDeque;
 
@@ -37,7 +40,7 @@ public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> 
      * 处理后返回的数据将会塞进队列
      */
     public void handle(String handleId, TransData<FT> transData) {
-        if(StringUtils.isNullOrEmpty(handleId) || !this.handlerMap.containsKey(handleId)){
+        if (StringUtils.isNullOrEmpty(handleId) || !this.handlerMap.containsKey(handleId)) {
             return;
         }
         FR handlerReturn = this.handlerMap.get(handleId).apply(transData);
@@ -45,7 +48,7 @@ public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> 
         this.putQueueLast(handleData);
     }
 
-    public void handleByValue(String handleValue, TransData<FT> transData){
+    public void handleByValue(String handleValue, TransData<FT> transData) {
         String handleId = this.findHandleIdByValue(handleValue);
         handle(handleId, transData);
     }
@@ -76,7 +79,7 @@ public abstract class TransFlowInput<FT, FR> extends ExtensionLifecycle<FT, FR> 
         try {
             blockingDeque.putLast(data);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("input 线程已销毁", e);
         }
     }
 }

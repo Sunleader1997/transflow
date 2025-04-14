@@ -75,10 +75,8 @@ public class TransFlowRunnable {
             log.error("销毁 input 异常", e);
         }
         try {
-            if (!safe) {
-                // 结束 数据链路传输
-                this.disposable.dispose();
-            }
+            // 结束 数据链路传输
+            this.disposable.dispose();
         } catch (Exception e) {
             log.error("销毁线程异常", e);
         }
