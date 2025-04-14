@@ -11,4 +11,5 @@ public class JobBo {
     private String description;
     private String inputId;
     private Date updateTime;
+    private Boolean restart;
 }

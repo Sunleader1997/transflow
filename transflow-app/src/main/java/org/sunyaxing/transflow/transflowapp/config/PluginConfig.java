@@ -8,8 +8,6 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 import org.sunyaxing.transflow.transflowapp.factory.TransFlowExtensionFactory;
 import org.sunyaxing.transflow.transflowapp.factory.TransFlowPluginManager;
 
-import javax.websocket.server.ServerEndpoint;
-
 @Configuration
 @EnableConfigurationProperties()
 public class PluginConfig {
@@ -17,6 +15,7 @@ public class PluginConfig {
     public PluginManager transFlowPluginManager() {
         return new TransFlowPluginManager(new TransFlowExtensionFactory());
     }
+
     @Bean
     public ServerEndpointExporter serverEndpointExporter() {
         return new ServerEndpointExporter();

@@ -11,4 +11,6 @@ public class JobDto {
     private String description;
     private String inputId;
     private Date updateTime;
+    private Boolean restart;
+    private Boolean isRunning;
 }

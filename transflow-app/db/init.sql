@@ -5,6 +5,7 @@ create table JOB
     DESCRIPTION CHARACTER VARYING not null,
     INPUTID     CHARACTER VARYING,
     UPDATETIME  TIMESTAMP,
+    RESTART     BOOLEAN default FALSE not null,
     constraint JOB_PK
         primary key (ID)
 );

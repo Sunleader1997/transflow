@@ -2,12 +2,17 @@ package org.sunyaxing.transflow.transflowapp.services;
 
 import cn.hutool.core.collection.CollectionUtil;
 import org.pf4j.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.sunyaxing.transflow.extensions.base.ExtensionLifecycle;
 import org.sunyaxing.transflow.extensions.base.types.TransFlowInput;
 import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
+import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.reactor.TransFlowRunnable;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeBo;
 import org.sunyaxing.transflow.transflowapp.services.bos.NodeLinkBo;
@@ -20,14 +25,17 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
-public class TransFlowChainService {
+public class TransFlowChainService implements ApplicationRunner {
 
+    private static final Logger log = LoggerFactory.getLogger(TransFlowChainService.class);
     @Autowired
     private NodeService nodeService;
     @Autowired
     private NodeLinkService nodeLinkService;
     @Autowired
     private PluginManager pluginManager;
+    @Autowired
+    private JobService jobService;
     private final ReentrantLock lock = new ReentrantLock();
     /**
      * 一个 job 内部有多个 input
@@ -96,5 +104,21 @@ public class TransFlowChainService {
             ChainManager.addChainCache(chain);
             return chain;
         }).map(TransFlowChain::getIfIsInput).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        jobService.lambdaQuery()
+                .eq(JobEntity::getRestart, true)
+                .list()
+                .forEach(jobEntity -> {
+                    String jobId = jobEntity.getId();
+                    try {
+                        log.info("job 自启 {}", jobId);
+                        run(jobId);
+                    } catch (Exception e) {
+                        log.error("job 执行失败", e);
+                    }
+                });
     }
 }

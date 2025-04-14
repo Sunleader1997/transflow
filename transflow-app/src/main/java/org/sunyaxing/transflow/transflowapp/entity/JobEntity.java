@@ -22,7 +22,7 @@ public class JobEntity implements Serializable {
     @TableField("id")
     @TableId(value = "id", type = IdType.INPUT)
     private String id;
- 
+
     @TableField("name")
     private String name;
 
@@ -34,4 +34,7 @@ public class JobEntity implements Serializable {
 
     @TableField("updateTime")
     private Date updateTime;
+
+    @TableField("restart")
+    private Boolean restart;
 }

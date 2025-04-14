@@ -6,10 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.sunyaxing.transflow.transflowapp.common.ChainManager;
 import org.sunyaxing.transflow.transflowapp.common.Result;
 import org.sunyaxing.transflow.transflowapp.common.TransFlowChain;
-import org.sunyaxing.transflow.transflowapp.controllers.dtos.ChainStatus;
-import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
-import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
-import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodesAndEdgesDto;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.*;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeLinkEntity;
 import org.sunyaxing.transflow.transflowapp.services.JobService;
@@ -39,9 +36,16 @@ public class TransFlowJobController {
     private TransFlowChainService transFlowChainService;
 
     @GetMapping("/job/list")
-    public Result<List<JobBo>> jobList() {
+    public Result<List<JobDto>> jobList() {
         List<JobBo> res = jobService.listAll();
-        return Result.success(res);
+        List<JobDto> jobDtos = res.stream()
+                .map(jobBo -> {
+                    JobDto jobDto = BoCover.INSTANCE.boToDto(jobBo);
+                    Boolean isRunning = TransFlowChainService.JOB_CHAINS.containsKey(jobDto.getId());
+                    jobDto.setIsRunning(isRunning);
+                    return jobDto;
+                }).collect(Collectors.toList());
+        return Result.success(jobDtos);
     }
 
     @PostMapping("/job/save")

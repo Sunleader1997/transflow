@@ -9,6 +9,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import org.sunyaxing.transflow.common.Handle;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.EdgeDto;
+import org.sunyaxing.transflow.transflowapp.controllers.dtos.JobDto;
 import org.sunyaxing.transflow.transflowapp.controllers.dtos.NodeDto;
 import org.sunyaxing.transflow.transflowapp.entity.JobEntity;
 import org.sunyaxing.transflow.transflowapp.entity.NodeEntity;
@@ -22,6 +23,10 @@ import java.util.List;
 @Mapper(uses = {CommonCover.class})
 public interface BoCover {
     BoCover INSTANCE = Mappers.getMapper(BoCover.class);
+
+    @Mappings({
+    })
+    JobDto boToDto(JobBo jobBo);
 
     @Mappings({
     })
