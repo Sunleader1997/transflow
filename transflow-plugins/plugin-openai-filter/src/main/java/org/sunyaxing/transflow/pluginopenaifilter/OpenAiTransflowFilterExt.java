@@ -36,11 +36,11 @@ public class OpenAiTransflowFilterExt extends TransFlowMiddleGatewayHandler<Stri
         return transData -> {
             ChatCompletionRequest request = ChatCompletionRequest.builder()
                     // 模型选择，支持 DEEPSEEK_CHAT、DEEPSEEK_REASONER 等
-                    .model(ChatCompletionModel.DEEPSEEK_REASONER)
+                    .model(ChatCompletionModel.DEEPSEEK_CHAT)
                     .addSystemMessage(prompt)
                     .addUserMessage(transData.getData())
                     .maxTokens(1000)
-                    .responseFormat(ResponseFormatType.JSON_OBJECT)
+                    .responseFormat(ResponseFormatType.TEXT)
                     //.tools(...) // 可选
                     .build();
             String res = this.deepSeekClient.chatCompletion(request).execute().content();

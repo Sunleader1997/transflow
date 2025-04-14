@@ -88,11 +88,11 @@ public class TransFlowChain<T extends ExtensionLifecycle> implements Disposable,
                 TransFlowChain<?> nextChain = ChainManager.getChainCache(nextNodeId);
                 HandleData nextHandleData = new HandleData(nextHandleId, handleData.getTransData());
                 this.sendAtomic.incrementAndGet();
+                EventWsController.sendMessage("edge", linkBo.getId());
                 nextChain.handle(nextHandleData);
             } else {
                 log.error("节点[{}]不存在", nextNodeId);
             }
-            EventWsController.sendMessage("edge", linkBo.getId());
         });
     }
 
