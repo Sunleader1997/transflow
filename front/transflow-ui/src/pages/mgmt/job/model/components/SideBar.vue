@@ -22,22 +22,6 @@ const { onDragStart } = useDragAndDrop()
         </q-item-label>
       </q-item-section>
     </q-item>
-    <q-item-label header>filters</q-item-label>
-    <q-item
-      dark
-      v-for="plugin in filters"
-      :key="plugin.id"
-      :class="`q-my-md node-` + plugin.type"
-      :draggable="plugin.state === 'STARTED'"
-      @dragstart="onDragStart($event, plugin)"
-    >
-      <q-item-section>
-        <q-item-label>{{ plugin.id }}</q-item-label>
-        <q-item-label caption>
-          {{ plugin.version }}
-        </q-item-label>
-      </q-item-section>
-    </q-item>
     <q-item-label header>gateways</q-item-label>
     <q-item
       dark

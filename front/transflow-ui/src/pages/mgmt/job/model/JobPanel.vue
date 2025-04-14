@@ -19,9 +19,8 @@
           <MiniMap />
           <Panel position="top-center">
             <q-btn-group outline>
-              <q-btn outline color="brown" label="执行" @click="runJob" />
-              <q-btn outline color="brown" label="停止" @click="stopJob" />
-              <q-btn outline color="brown" label="构建测试" @click="buildJob" />
+              <q-btn outline color="brown" label="执行" @click="runJob" v-if="!jobDetail.isRunning" icon="play_arrow"/>
+              <q-btn outline color="brown" label="停止" @click="stopJob" v-if="jobDetail.isRunning" icon="stop" />
             </q-btn-group>
           </Panel>
           <DropzoneBackground
@@ -86,7 +85,7 @@ export default {
     VueFlow,
     SpecialEdge,
   },
-  props: ['jobId'],
+  props: ['jobId','isRunning'],
   setup() {
     const {
       onConnect,
@@ -148,6 +147,7 @@ export default {
       applyNodeChanges(changes)
     })
     const panelShow = ref(true)
+    const jobDetail = ref({})
     return {
       onDragOver,
       onDrop,
@@ -160,7 +160,8 @@ export default {
       filters: ref([]),
       gateways: ref([]),
       outputs: ref([]),
-      panelShow
+      panelShow,
+      jobDetail
     }
   },
   methods: {
@@ -181,14 +182,20 @@ export default {
         this.setEdges(response.data.edges)
       })
     },
+    getJobDetail(newJobId) {
+      this.$axios.get('/transflow/job/detail?jobId=' + newJobId).then((response) => {
+        this.jobDetail = response.data
+      })
+    },
     runJob() {
-      this.$axios.post('/transflow/job/run', { id: this.jobId })
+      this.$axios.post('/transflow/job/run', { id: this.jobId }).then(() => {
+        this.getJobDetail(this.jobId)
+      })
     },
     stopJob() {
-      this.$axios.post('/transflow/job/stop', { id: this.jobId })
-    },
-    buildJob() {
-      this.$axios.post('/transflow/job/build', { id: this.jobId })
+      this.$axios.post('/transflow/job/stop', { id: this.jobId }).then(() => {
+        this.getJobDetail(this.jobId)
+      })
     },
     onAnimateBegin(item) {
       item.animateBegin = '0'
@@ -227,6 +234,7 @@ export default {
     jobId: {
       handler(newVal) {
         console.log(newVal)
+        this.getJobDetail(newVal)
         this.reloadData(newVal)
         this.createWebsocket()
       },

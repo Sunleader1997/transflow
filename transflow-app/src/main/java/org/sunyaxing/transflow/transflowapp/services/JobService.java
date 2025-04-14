@@ -36,4 +36,8 @@ public class JobService extends ServiceImpl<JobRepository, JobEntity> {
                 .stream().map(BoCover.INSTANCE::entityToBo)
                 .collect(Collectors.toList());
     }
+    public JobBo getBoById(String id) {
+        JobEntity jobEntity = this.getById(id);
+        return BoCover.INSTANCE.entityToBo(jobEntity);
+    }
 }

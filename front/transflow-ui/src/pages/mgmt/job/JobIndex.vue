@@ -1,12 +1,15 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-drawer show-if-above side="left" bordered
-              v-model="jobEditFlag"
-              :mini="miniState"
-              @mouseenter="miniState = false"
-              @mouseleave="miniState = true"
-              :width="200"
-              :breakpoint="500"
+    <q-drawer
+      show-if-above
+      side="left"
+      bordered
+      v-model="jobEditFlag"
+      :mini="miniState"
+      @mouseenter="miniState = false"
+      @mouseleave="miniState = true"
+      :width="200"
+      :breakpoint="500"
     >
       <q-scroll-area class="fit">
         <q-list padding>
@@ -23,7 +26,9 @@
             :key="job.id"
           >
             <q-item-section avatar>
-              <q-avatar color="red" text-color="white">{{ job.name }}</q-avatar>
+              <q-avatar square :color="job.isRunning ? 'primary' : 'grey'" text-color="white">
+                {{ job.name.charAt(0) }}
+              </q-avatar>
             </q-item-section>
             <q-item-section>
               <q-item-label>{{ job.description }}</q-item-label>
@@ -101,7 +106,7 @@ export default {
       editJob,
       jobEditFlag,
       editJobPanelFlag,
-      miniState
+      miniState,
     }
   },
   methods: {
@@ -111,32 +116,32 @@ export default {
         this.jobs = response.data
       })
     },
-    openNewJobPanel(){
+    openNewJobPanel() {
       this.newJobPanelFlag = true
     },
-    createJob(){
+    createJob() {
       this.$axios.post('/transflow/job/save', this.newJob).then(() => {
         this.queryForJobs()
         this.newJobPanelFlag = false
       })
     },
-    saveJob(){
+    saveJob() {
       this.$axios.post('/transflow/job/save', this.editJob).then(() => {
         this.editJobPanelFlag = false
         this.queryForJobs()
       })
     },
-    removeJob(jobId){
+    removeJob(jobId) {
       this.$axios.post('/transflow/job/delete', { id: jobId }).then(() => {
         this.queryForJobs()
       })
     },
-    openEditor(job){
+    openEditor(job) {
       this.editJobPanelFlag = true
       this.editJob = {
-        ...job
+        ...job,
       }
-    }
+    },
   },
   beforeMount() {
     this.queryForJobs()

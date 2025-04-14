@@ -35,6 +35,15 @@ public class TransFlowJobController {
     @Autowired
     private TransFlowChainService transFlowChainService;
 
+    @GetMapping("/job/detail")
+    public Result<JobDto> detail(@RequestParam("jobId") String jobId) {
+        JobBo jobBo = jobService.getBoById(jobId);
+        JobDto jobDto = BoCover.INSTANCE.boToDto(jobBo);
+        Boolean isRunning = TransFlowChainService.JOB_CHAINS.containsKey(jobDto.getId());
+        jobDto.setIsRunning(isRunning);
+        return Result.success(jobDto);
+    }
+
     @GetMapping("/job/list")
     public Result<List<JobDto>> jobList() {
         List<JobBo> res = jobService.listAll();
