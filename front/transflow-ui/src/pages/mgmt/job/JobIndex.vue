@@ -57,7 +57,7 @@
       <q-card-section class="q-pt-none">
         <q-input dense v-model="newJob.name" label="名称" autofocus />
         <q-input dense v-model="newJob.description" label="描述" autofocus />
-        <q-toggle dense v-model="newJob.restart" color="green" label="On Left" left-label/>
+        <q-toggle dense v-model="newJob.restart" color="green" label="自启" left-label/>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="确认" @click="createJob" />
@@ -72,7 +72,7 @@
       <q-card-section class="q-pt-none">
         <q-input dense v-model="editJob.name" label="名称" autofocus />
         <q-input dense v-model="editJob.description" label="描述" autofocus />
-        <q-toggle dense v-model="editJob.restart" color="green" label="On Left" left-label/>
+        <q-toggle dense v-model="editJob.restart" color="green" label="自启" left-label/>
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="确认" @click="saveJob" />
