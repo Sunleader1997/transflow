@@ -30,6 +30,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.8.0</version>
+            <scope>system</scope>
+            <systemPath>D:/Java/jdk1.8.0_281/lib/tools.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
