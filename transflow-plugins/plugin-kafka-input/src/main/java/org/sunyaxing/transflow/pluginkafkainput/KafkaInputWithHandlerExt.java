@@ -45,7 +45,7 @@ public class KafkaInputWithHandlerExt extends TransFlowInput<ConsumerRecord<Stri
         Properties properties = new Properties();
         properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getString("bootstrap-servers"));
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, config.getOrDefault("auto-offset-reset", "earliest"));
         properties.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, config.getString("max-poll-records"));
         // 手动提交 offset false
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);

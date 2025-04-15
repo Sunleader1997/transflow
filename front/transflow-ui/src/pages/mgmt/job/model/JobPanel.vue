@@ -15,12 +15,34 @@
         <q-inner-loading :showing="panelShow">
           <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
-        <VueFlow @dragover="onDragOver" @dragleave="onDragLeave" class="full-height" v-if="!panelShow">
-          <MiniMap />
+        <VueFlow
+          min-zoom="0.1"
+          max-zoom="2"
+          @dragover="onDragOver"
+          @dragleave="onDragLeave"
+          class="full-height"
+          v-if="!panelShow"
+        >
+          <Controls />
+          <MiniMap pannable zoomable nodeColor="#333338" />
           <Panel position="top-center">
             <q-btn-group outline>
-              <q-btn outline color="brown" label="执行" @click="runJob" v-if="!jobDetail.isRunning" icon="play_arrow"/>
-              <q-btn outline color="brown" label="停止" @click="stopJob" v-if="jobDetail.isRunning" icon="stop" />
+              <q-btn
+                outline
+                color="brown"
+                label="执行"
+                @click="runJob"
+                v-if="!jobDetail.isRunning"
+                icon="play_arrow"
+              />
+              <q-btn
+                outline
+                color="brown"
+                label="停止"
+                @click="stopJob"
+                v-if="jobDetail.isRunning"
+                icon="stop"
+              />
             </q-btn-group>
           </Panel>
           <DropzoneBackground
@@ -71,9 +93,11 @@ import axios from 'axios'
 import DefGateway from 'pages/mgmt/job/model/nodes/DefGateway.vue'
 import { usePluginStore } from 'stores/plugin-store.js'
 import { ref } from 'vue'
+import { Controls } from '@vue-flow/controls'
 
 export default {
   components: {
+    Controls,
     DefGateway,
     Panel,
     DefOutput,
@@ -85,7 +109,7 @@ export default {
     VueFlow,
     SpecialEdge,
   },
-  props: ['jobId','isRunning'],
+  props: ['jobId', 'isRunning'],
   setup() {
     const {
       onConnect,
@@ -161,7 +185,7 @@ export default {
       gateways: ref([]),
       outputs: ref([]),
       panelShow,
-      jobDetail
+      jobDetail,
     }
   },
   methods: {
@@ -169,10 +193,10 @@ export default {
       this.panelShow = true
       this.$axios.get('/transflow/plugins/list').then((response) => {
         this.setPlugins(response.data)
-        this.inputs = response.data.filter((plugin)=>plugin.type ==='input')
-        this.outputs = response.data.filter((plugin)=>plugin.type ==='output')
-        this.filters = response.data.filter((plugin)=>plugin.type ==='filter')
-        this.gateways = response.data.filter((plugin)=>plugin.type ==='gateway')
+        this.inputs = response.data.filter((plugin) => plugin.type === 'input')
+        this.outputs = response.data.filter((plugin) => plugin.type === 'output')
+        this.filters = response.data.filter((plugin) => plugin.type === 'filter')
+        this.gateways = response.data.filter((plugin) => plugin.type === 'gateway')
         this.panelShow = false
       })
     },
