@@ -2,8 +2,10 @@ package org.sunyaxing.transflow.transflowapp.services;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.setting.yaml.YamlUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.pf4j.PluginManager;
@@ -143,9 +145,8 @@ public class TransFlowChainService implements ApplicationRunner {
     private RouteConfig routeConfig;
 
     public void initFromYml(ApplicationArguments args) {
-        List<String> reload = args.getOptionValues("route.reload");
         // 根据yml文件初始化
-        if (reload == null || !Boolean.parseBoolean(reload.get(0))) return;
+        if (Boolean.FALSE.equals(routeConfig.getEnable())) return;
         log.info("数据清理");
         AtomicInteger countInput = new AtomicInteger();
         nodeService.lambdaQuery()
