@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh lpR fFf" style="min-height: calc(100vh - 34px)">
     <q-drawer
       dark
       show-if-above

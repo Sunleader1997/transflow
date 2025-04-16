@@ -13,7 +13,7 @@
       </q-bar>
     </q-header>
 
-    <q-page-container>
+    <q-page-container style="padding-top: 32px">
       <router-view />
     </q-page-container>
   </q-layout>
