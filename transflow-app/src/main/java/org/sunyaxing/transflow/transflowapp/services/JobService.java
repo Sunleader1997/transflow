@@ -9,6 +9,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +39,7 @@ public class JobService extends ServiceImpl<JobRepository, JobEntity> {
     }
     public JobBo getBoById(String id) {
         JobEntity jobEntity = this.getById(id);
+        if(Objects.isNull(jobEntity)) return null;
         return BoCover.INSTANCE.entityToBo(jobEntity);
     }
 }

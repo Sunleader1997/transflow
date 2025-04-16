@@ -5,8 +5,8 @@ const { onDragStart } = useDragAndDrop()
 </script>
 
 <template>
-  <q-list class="nodes q-px-md">
-    <q-item-label header>inputs</q-item-label>
+  <q-list class="nodes q-px-md" >
+    <q-item-label header style="color: #cbcbcb">inputs</q-item-label>
     <q-item
       dark
       v-for="plugin in inputs"
@@ -22,7 +22,7 @@ const { onDragStart } = useDragAndDrop()
         </q-item-label>
       </q-item-section>
     </q-item>
-    <q-item-label header>gateways</q-item-label>
+    <q-item-label header style="color: #cbcbcb">gateways</q-item-label>
     <q-item
       dark
       v-for="plugin in gateways"
@@ -38,7 +38,7 @@ const { onDragStart } = useDragAndDrop()
         </q-item-label>
       </q-item-section>
     </q-item>
-    <q-item-label header>outputs</q-item-label>
+    <q-item-label header style="color: #cbcbcb">outputs</q-item-label>
     <q-item
       dark
       v-for="plugin in outputs"

@@ -28,6 +28,7 @@
 .node-input {
   background-color: var(--q-secondary) !important;
   color: #fff !important;
+  border-radius: 4px
 }
 
 .vue-flow__node-input {
@@ -36,16 +37,19 @@
   gap: 8px;
   padding: 0;
   width: fit-content;
-  box-shadow: 0 0 10px #0003;
-  border-width: 1px;
+  border-width: 2px;
   border-style: none;
   border-color: #bbb;
+  border-radius: 4px
 }
-.vue-flow__node-input input{
+
+.vue-flow__node-input input {
   background-color: #169889 !important;
 }
+
 .vue-flow__node-input.selected {
-  border-color: var(--q-secondary);
+  border-color: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
 }
 
 .vue-flow__node-input .vue-flow__handle {
@@ -55,6 +59,7 @@
 .node-filter {
   background-color: var(--q-positive) !important;
   color: #fff !important;
+  border-radius: 4px
 }
 
 .vue-flow__node-filter {
@@ -69,10 +74,17 @@
   border-style: none;
   border-color: #bbb;
 }
-.vue-flow__node-filter input{
+
+.vue-flow__node-filter input {
   background-color: rgb(70, 155, 181) !important;
 }
-.vue-flow__node-filter .vue-flow__handle{
+
+.vue-flow__node-filter.selected {
+  border-color: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
+}
+
+.vue-flow__node-filter .vue-flow__handle {
   background-color: rgb(70, 155, 181) !important;
 }
 
@@ -80,6 +92,7 @@
 .node-gateway {
   background-color: var(--q-positive) !important;
   color: #fff !important;
+  border-radius: 4px
 }
 
 .vue-flow__node-gateway {
@@ -94,16 +107,24 @@
   border-style: none;
   border-color: #bbb;
 }
-.vue-flow__node-gateway input{
+
+.vue-flow__node-gateway input {
   background-color: rgb(70, 155, 181) !important;
 }
-.vue-flow__node-gateway .vue-flow__handle{
+
+.vue-flow__node-gateway.selected {
+  border-color: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
+}
+
+.vue-flow__node-gateway .vue-flow__handle {
   background-color: rgb(70, 155, 181) !important;
 }
 
 .node-output {
   background-color: var(--q-primary) !important;
   color: #fff !important;
+  border-radius: 4px;
 }
 
 .vue-flow__node-output {
@@ -118,9 +139,27 @@
   border-style: none;
   border-color: #bbb;
 }
-.vue-flow__node-output input{
+
+.vue-flow__node-output input {
   background-color: rgba(0, 128, 255, 0.46) !important;
 }
+
+.vue-flow__node-output.selected {
+  border-color: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
+}
+
 .vue-flow__node-output.selected {
   border-color: var(--q-primary);
+}
+
+
+.vue-flow__node-default.selected,
+.vue-flow__node-default.selected:hover,
+.vue-flow__node-input.selected,
+.vue-flow__node-input.selected:hover,
+.vue-flow__node-output.selected,
+.vue-flow__node-output.selected:hover {
+  border-color: #ec4899;
+  box-shadow: 0 0 10px #ec4899;
 }

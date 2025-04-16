@@ -143,8 +143,9 @@ public class TransFlowChainService implements ApplicationRunner {
     private RouteConfig routeConfig;
 
     public void initFromYml(ApplicationArguments args) {
+        List<String> reload = args.getOptionValues("route.reload");
         // 根据yml文件初始化
-        if (!routeConfig.getEnable()) return;
+        if (reload == null || !Boolean.parseBoolean(reload.get(0))) return;
         log.info("数据清理");
         AtomicInteger countInput = new AtomicInteger();
         nodeService.lambdaQuery()

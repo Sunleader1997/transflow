@@ -1,9 +1,11 @@
 <template>
   <q-layout view="hHh lpR fFf">
     <q-drawer
+      dark
       show-if-above
       side="left"
       bordered
+      style="border-color: #aaaaaa; background-color: #2b2d30"
       v-model="jobEditFlag"
       :mini="miniState"
       @mouseenter="miniState = false"
@@ -12,7 +14,7 @@
       :breakpoint="500"
     >
       <q-scroll-area class="fit">
-        <q-list padding>
+        <q-list padding dark>
           <q-item
             v-for="job in jobs"
             clickable
@@ -26,12 +28,12 @@
             :key="job.id"
           >
             <q-item-section avatar>
-              <q-avatar square :color="job.isRunning ? 'primary' : 'grey'" text-color="white">
+              <q-avatar square :color="job.isRunning ? 'primary' : 'grey'" text-color="#cbcbcb">
                 {{ job.name.charAt(0) }}
               </q-avatar>
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ job.description }}</q-item-label>
+              <q-item-label style="color: #cbcbcb">{{ job.description }}</q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-btn-group outline>
@@ -40,7 +42,7 @@
               </q-btn-group>
             </q-item-section>
           </q-item>
-          <q-btn flat dense color="brown" icon="add" @click="openNewJobPanel" class="full-width" />
+          <q-btn flat dense color="#cbcbcb" icon="add" @click="openNewJobPanel" class="full-width" />
         </q-list>
       </q-scroll-area>
     </q-drawer>
@@ -57,7 +59,7 @@
       <q-card-section class="q-pt-none">
         <q-input dense v-model="newJob.name" label="名称" autofocus />
         <q-input dense v-model="newJob.description" label="描述" autofocus />
-        <q-toggle dense v-model="newJob.restart" color="green" label="自启" left-label/>
+        <q-toggle dense v-model="newJob.restart" color="green" label="自启" left-label />
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="确认" @click="createJob" />
@@ -72,7 +74,7 @@
       <q-card-section class="q-pt-none">
         <q-input dense v-model="editJob.name" label="名称" autofocus />
         <q-input dense v-model="editJob.description" label="描述" autofocus />
-        <q-toggle dense v-model="editJob.restart" color="green" label="自启" left-label/>
+        <q-toggle dense v-model="editJob.restart" color="green" label="自启" left-label />
       </q-card-section>
       <q-card-actions align="right" class="text-primary">
         <q-btn flat label="确认" @click="saveJob" />

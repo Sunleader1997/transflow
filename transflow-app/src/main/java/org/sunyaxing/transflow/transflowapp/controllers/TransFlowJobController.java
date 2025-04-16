@@ -20,6 +20,7 @@ import org.sunyaxing.transflow.transflowapp.services.bos.cover.BoCover;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,6 +39,9 @@ public class TransFlowJobController {
     @GetMapping("/job/detail")
     public Result<JobDto> detail(@RequestParam("jobId") String jobId) {
         JobBo jobBo = jobService.getBoById(jobId);
+        if (Objects.isNull(jobBo)) {
+            return Result.fail("找不到对应的任务");
+        }
         JobDto jobDto = BoCover.INSTANCE.boToDto(jobBo);
         Boolean isRunning = TransFlowChainService.JOB_CHAINS.containsKey(jobDto.getId());
         jobDto.setIsRunning(isRunning);

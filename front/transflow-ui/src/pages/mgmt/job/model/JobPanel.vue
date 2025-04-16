@@ -2,16 +2,16 @@
   <q-layout
     view="hHh Lpr lff"
     container
-    style="min-height: calc(96vh)"
+    style="min-height: calc(100vh - 32px); background-color: #1e1f22"
     @drop="onDrop($event, jobId)"
   >
-    <q-drawer show-if-above side="right" :width="200">
-      <q-scroll-area class="fit">
+    <q-drawer dark show-if-above side="right" :width="200" bordered>
+      <q-scroll-area class="fit" style="border-color: #aaaaaa; background-color: #2b2d30">
         <SideBar :inputs="inputs" :filters="filters" :gateways="gateways" :outputs="outputs" />
       </q-scroll-area>
     </q-drawer>
     <q-page-container>
-      <q-page style="height: calc(100vh - 50px)">
+      <q-page style="height: calc(100vh - 32px)">
         <q-inner-loading :showing="panelShow">
           <q-spinner-gears size="50px" color="primary" />
         </q-inner-loading>
@@ -23,13 +23,13 @@
           class="full-height"
           v-if="!panelShow"
         >
-          <Controls />
+          <Controls/>
           <MiniMap pannable zoomable nodeColor="#333338" />
           <Panel position="top-center">
             <q-btn-group outline>
               <q-btn
                 outline
-                color="brown"
+                color="white"
                 label="执行"
                 @click="runJob"
                 v-if="!jobDetail.isRunning"
@@ -37,7 +37,7 @@
               />
               <q-btn
                 outline
-                color="brown"
+                color="white"
                 label="停止"
                 @click="stopJob"
                 v-if="jobDetail.isRunning"
