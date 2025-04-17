@@ -273,9 +273,9 @@ public class TransFlowChainService implements ApplicationRunner {
                     String conditionRepair = condition
                             .replaceAll("msg\\.", "data.")
                             .replaceAll("&&", "&&\n")
-                            .replaceAll("\\|\\|", "||\n")
-                            .replaceAll("nil", "null")
-                            .replaceAll("\'", "\"");
+                            .replaceAll("\\|\\|", "||\n");
+                            //.replaceAll("nil", "null")
+                            //.replaceAll("\'", "\"");
                     script.append("return ").append(conditionRepair).append(";");
 
                     NodeBo inputNode = inputs.get(dsepName);
@@ -287,7 +287,7 @@ public class TransFlowChainService implements ApplicationRunner {
                         currentHandleId = nodeBo.getHandles().size()+"";
                         Handle handle = new Handle();
                         handle.setId(currentHandleId);
-                        handle.setValue(script.toString());
+                        handle.setValue(conditionRepair);
                         nodeBo.getHandles().add(handle);
                         nodeService.save(nodeBo);
                     }else{
@@ -297,7 +297,7 @@ public class TransFlowChainService implements ApplicationRunner {
                         nodeBo.setName(srcTopic);
                         nodeBo.setJobId(routeConfig.getJobId());
                         nodeBo.setNodeType(TransFlowTypeEnum.GATEWAY);
-                        nodeBo.setPluginId("plugin-json-gateway");
+                        nodeBo.setPluginId("plugin-json-filter");
                         nodeBo.setX(inputNode.getX() + 400);
                         nodeBo.setY(0);
                         JSONObject config = new JSONObject();
@@ -306,7 +306,7 @@ public class TransFlowChainService implements ApplicationRunner {
                         List<Handle> handles = new ArrayList<>();
                         Handle handle = new Handle();
                         handle.setId(currentHandleId);
-                        handle.setValue(script.toString());
+                        handle.setValue(conditionRepair);
                         handles.add(handle);
                         nodeBo.setHandles(handles);
                         NodeBo savedGateway = nodeService.save(nodeBo);
@@ -338,9 +338,9 @@ public class TransFlowChainService implements ApplicationRunner {
                         }
                     }else{
                         String executeRepair = execute
-                                .replaceAll("msg\\.", "data.")
-                                .replaceAll("nil", "null")
-                                .replaceAll("\'", "\"");
+                                .replaceAll("msg\\.", "data.");
+                                //.replaceAll("nil", "null")
+                                //.replaceAll("\'", "\"");
                         boolean execExist = execNodes.containsKey(dsepName);
                         List<NodeBo> execCache = execNodes.getOrDefault(dsepName, new ArrayList<>());
                         log.info("创建节点 EXEC");
@@ -348,7 +348,7 @@ public class TransFlowChainService implements ApplicationRunner {
                         nodeExecBo.setName(dsepName);
                         nodeExecBo.setJobId(routeConfig.getJobId());
                         nodeExecBo.setNodeType(TransFlowTypeEnum.GATEWAY);
-                        nodeExecBo.setPluginId("plugin-json-gateway");
+                        nodeExecBo.setPluginId("plugin-json-filter");
                         nodeExecBo.setX(inputNode.getX() + 450);
                         nodeExecBo.setY(0);
                         JSONObject configExec = new JSONObject();
@@ -357,7 +357,8 @@ public class TransFlowChainService implements ApplicationRunner {
                         List<Handle> execHandles = new ArrayList<>();
                         Handle execHandle = new Handle();
                         execHandle.setId("0");
-                        execHandle.setValue(executeRepair +";");
+//                        execHandle.setValue(executeRepair +";");
+                        execHandle.setValue(executeRepair);
                         execHandles.add(execHandle);
                         nodeExecBo.setHandles(execHandles);
                         NodeBo savedExec = nodeService.save(nodeExecBo);
