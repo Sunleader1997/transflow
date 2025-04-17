@@ -9,13 +9,13 @@
         <option value="$PROJECT_DIR$/transflow-api/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/agent/pom.xml" />
+        <option value="$PROJECT_DIR$/transflow-plugins/plugin-json-filter/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/agent/agent-core/pom.xml" />
         <option value="$PROJECT_DIR$/transflow-agent/pom.xml" />
-        <option value="$PROJECT_DIR$/transflow-plugins/plugin-json-filter/pom.xml" />
       </set>
     </option>
   </component>

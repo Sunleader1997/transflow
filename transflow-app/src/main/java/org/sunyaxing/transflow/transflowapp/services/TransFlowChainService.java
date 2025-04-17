@@ -146,7 +146,7 @@ public class TransFlowChainService implements ApplicationRunner {
 
     public void initFromYml(ApplicationArguments args) {
         // 根据yml文件初始化
-        if (Boolean.FALSE.equals(routeConfig.getEnable())) return;
+        if (routeConfig.getEnable()==null || !routeConfig.getEnable()) return;
         log.info("数据清理");
         AtomicInteger countInput = new AtomicInteger();
         nodeService.lambdaQuery()
@@ -169,7 +169,8 @@ public class TransFlowChainService implements ApplicationRunner {
         jobService.save(jobBo);
         log.info("创建系统预置路由 PANEL 完成");
         Map<String, NodeBo> inputs = new HashMap();
-        Map<String, List<NodeBo>> gateways = new HashMap<>();
+        Map<String, NodeBo> gateways = new HashMap<>();
+        Map<String, List<NodeBo>> execNodes = new HashMap<>();
         Map<String, NodeBo> outs = new HashMap();
         // 创建 INPUT 节点
         for (Route route : routeConfig.getRoutes()) {
@@ -269,64 +270,121 @@ public class TransFlowChainService implements ApplicationRunner {
                     String condition = route.getConditionIf();
                     log.info("组装条件语句 {}", condition);
                     String execute = route.getExecute();
-                    if (!StrUtil.isEmpty(execute)) {
-                        String executeRepair = execute
-                                .replaceAll("msg\\.", "data.")
-                                .replaceAll("\'", "\"");
-                        script.append(executeRepair).append(";").append("\n");
-                    }
                     String conditionRepair = condition
                             .replaceAll("msg\\.", "data.")
                             .replaceAll("&&", "&&\n")
                             .replaceAll("\\|\\|", "||\n")
+                            .replaceAll("nil", "null")
                             .replaceAll("\'", "\"");
                     script.append("return ").append(conditionRepair).append(";");
-                    log.info("组装结束 {}", script);
 
                     NodeBo inputNode = inputs.get(dsepName);
-                    boolean exist = gateways.containsKey(dsepName);
-                    List<NodeBo> cache = gateways.getOrDefault(dsepName, new ArrayList<>());
-                    log.info("创建节点 GATEWAY");
-                    NodeBo nodeBo = new NodeBo();
-                    nodeBo.setName(dsepName);
-                    nodeBo.setJobId(routeConfig.getJobId());
-                    nodeBo.setNodeType(TransFlowTypeEnum.GATEWAY);
-                    nodeBo.setPluginId("plugin-json-gateway");
-                    nodeBo.setX(inputNode.getX() + 400);
-                    nodeBo.setY(cache.size() * 400);
-                    JSONObject config = new JSONObject();
-                    nodeBo.setConfig(config);
-                    log.info("初始化 GATEWAY HANDLE");
-                    List<Handle> handles = new ArrayList<>();
-                    Handle handle = new Handle();
-                    handle.setId("first");
-                    handle.setValue(script.toString());
-                    handles.add(handle);
-                    nodeBo.setHandles(handles);
-                    NodeBo savedGateway = nodeService.save(nodeBo);
-                    cache.add(savedGateway);
-                    if (!exist) gateways.put(dsepName, cache);
+                    // 对同一个数据来源的 gateway 做条件合并
+                    boolean exist = gateways.containsKey(srcTopic);
+                    String currentHandleId = "";
+                    if(exist){
+                        NodeBo nodeBo = gateways.get(srcTopic);
+                        currentHandleId = nodeBo.getHandles().size()+"";
+                        Handle handle = new Handle();
+                        handle.setId(currentHandleId);
+                        handle.setValue(script.toString());
+                        nodeBo.getHandles().add(handle);
+                        nodeService.save(nodeBo);
+                    }else{
+                        currentHandleId = "0";
+                        log.info("创建节点 GATEWAY");
+                        NodeBo nodeBo = new NodeBo();
+                        nodeBo.setName(srcTopic);
+                        nodeBo.setJobId(routeConfig.getJobId());
+                        nodeBo.setNodeType(TransFlowTypeEnum.GATEWAY);
+                        nodeBo.setPluginId("plugin-json-gateway");
+                        nodeBo.setX(inputNode.getX() + 400);
+                        nodeBo.setY(0);
+                        JSONObject config = new JSONObject();
+                        nodeBo.setConfig(config);
+                        log.info("初始化 GATEWAY HANDLE");
+                        List<Handle> handles = new ArrayList<>();
+                        Handle handle = new Handle();
+                        handle.setId(currentHandleId);
+                        handle.setValue(script.toString());
+                        handles.add(handle);
+                        nodeBo.setHandles(handles);
+                        NodeBo savedGateway = nodeService.save(nodeBo);
+                        gateways.put(srcTopic, savedGateway);
+                        log.info("创建连接 INPUT[{}|{}] -> GATEWAY", dsepName, srcTopic);
+                        NodeLinkBo linkBo = new NodeLinkBo();
+                        linkBo.setSourceId(inputNode.getId());
+                        linkBo.setSourceHandle(srcTopic);
+                        linkBo.setTargetId(savedGateway.getId());
+                        linkBo.setTargetHandle("");
+                        nodeLinkService.save(linkBo);
+                    }
                     log.info("GATEWAY 节点 {} 创建成功", dsepName);
-
-                    log.info("创建连接 INPUT[{}|{}] -> GATEWAY", dsepName, srcTopic);
-                    NodeLinkBo linkBo = new NodeLinkBo();
-                    linkBo.setSourceId(inputNode.getId());
-                    linkBo.setSourceHandle(srcTopic);
-                    linkBo.setTargetId(savedGateway.getId());
-                    linkBo.setTargetHandle("");
-                    nodeLinkService.save(linkBo);
-                    if (dstTopics != null) {
-                        for (String dstTopic : dstTopics) {
-                            if (StrUtil.isEmpty(dstTopic)) continue;
-                            String outName = ReUtil.get("(^[A-Za-z]+_[A-Za-z]+)_.*", srcTopic, 1);
-                            NodeBo outBo = outs.get(outName);
-                            log.info("创建连接 GATEWAY -> OUTPUT[{}|{}]", outName, dstTopics);
-                            NodeLinkBo linkOutBo = new NodeLinkBo();
-                            linkOutBo.setSourceId(savedGateway.getId());
-                            linkOutBo.setSourceHandle("first");
-                            linkOutBo.setTargetId(outBo.getId());
-                            linkOutBo.setTargetHandle(dstTopic);
-                            nodeLinkService.save(linkOutBo);
+                    if (StrUtil.isEmpty(execute)) {
+                        if (dstTopics != null) {
+                            for (String dstTopic : dstTopics) {
+                                if (StrUtil.isEmpty(dstTopic)) continue;
+                                String outName = ReUtil.get("(^[A-Za-z]+_[A-Za-z]+)_.*", srcTopic, 1);
+                                NodeBo outBo = outs.get(outName);
+                                log.info("创建连接 GATEWAY -> OUTPUT[{}|{}]", outName, dstTopics);
+                                NodeLinkBo linkOutBo = new NodeLinkBo();
+                                NodeBo savedGateway = gateways.get(srcTopic);
+                                linkOutBo.setSourceId(savedGateway.getId());
+                                linkOutBo.setSourceHandle(currentHandleId);
+                                linkOutBo.setTargetId(outBo.getId());
+                                linkOutBo.setTargetHandle(dstTopic);
+                                nodeLinkService.save(linkOutBo);
+                            }
+                        }
+                    }else{
+                        String executeRepair = execute
+                                .replaceAll("msg\\.", "data.")
+                                .replaceAll("nil", "null")
+                                .replaceAll("\'", "\"");
+                        boolean execExist = execNodes.containsKey(dsepName);
+                        List<NodeBo> execCache = execNodes.getOrDefault(dsepName, new ArrayList<>());
+                        log.info("创建节点 EXEC");
+                        NodeBo nodeExecBo = new NodeBo();
+                        nodeExecBo.setName(dsepName);
+                        nodeExecBo.setJobId(routeConfig.getJobId());
+                        nodeExecBo.setNodeType(TransFlowTypeEnum.GATEWAY);
+                        nodeExecBo.setPluginId("plugin-json-gateway");
+                        nodeExecBo.setX(inputNode.getX() + 450);
+                        nodeExecBo.setY(0);
+                        JSONObject configExec = new JSONObject();
+                        nodeExecBo.setConfig(configExec);
+                        log.info("初始化 EXEC HANDLE");
+                        List<Handle> execHandles = new ArrayList<>();
+                        Handle execHandle = new Handle();
+                        execHandle.setId("0");
+                        execHandle.setValue(executeRepair +";");
+                        execHandles.add(execHandle);
+                        nodeExecBo.setHandles(execHandles);
+                        NodeBo savedExec = nodeService.save(nodeExecBo);
+                        execCache.add(savedExec);
+                        if (!execExist) execNodes.put(dsepName, execCache);
+                        log.info("EXEC 节点 {} 创建成功", dsepName);
+                        log.info("创建连接 GATEWAY -> EXEC");
+                        NodeBo savedGateway = gateways.get(srcTopic);
+                        NodeLinkBo execlinkBo = new NodeLinkBo();
+                        execlinkBo.setSourceId(savedGateway.getId());
+                        execlinkBo.setSourceHandle(currentHandleId);
+                        execlinkBo.setTargetId(savedExec.getId());
+                        execlinkBo.setTargetHandle("");
+                        nodeLinkService.save(execlinkBo);
+                        if (dstTopics != null) {
+                            for (String dstTopic : dstTopics) {
+                                if (StrUtil.isEmpty(dstTopic)) continue;
+                                String outName = ReUtil.get("(^[A-Za-z]+_[A-Za-z]+)_.*", srcTopic, 1);
+                                NodeBo outBo = outs.get(outName);
+                                log.info("创建连接 EXEC -> OUTPUT[{}|{}]", outName, dstTopics);
+                                NodeLinkBo linkOutBo = new NodeLinkBo();
+                                linkOutBo.setSourceId(savedExec.getId());
+                                linkOutBo.setSourceHandle("0");
+                                linkOutBo.setTargetId(outBo.getId());
+                                linkOutBo.setTargetHandle(dstTopic);
+                                nodeLinkService.save(linkOutBo);
+                            }
                         }
                     }
                     break;
